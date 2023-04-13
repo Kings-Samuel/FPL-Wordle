@@ -1,0 +1,27 @@
+ConnectionNotifierToggler(
+        onConnectionStatusChanged: (connected) {
+          /// that means it is still in the initialization phase.
+          if (connected == null) return;
+          print(connected);
+        },
+        connected: Center(
+          key: UniqueKey(),
+          child: const Text(
+            'Connected',
+            style: TextStyle(
+              color: Colors.green,
+              fontSize: 48,
+            ),
+          ),
+        ),
+        disconnected: Center(
+          key: UniqueKey(),
+          child: const Text(
+            'Disconnected',
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 48,
+            ),
+          ),
+        ),
+      );

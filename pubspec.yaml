@@ -1,0 +1,56 @@
+name: fplwordle
+
+description: A mobile app for the Fantasy Premier League Wordle game
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.19.4 <3.0.0"
+
+dependencies:
+  animated_snack_bar: ^0.3.0
+  appwrite: ^9.0.0
+  cached_network_image: ^3.2.3
+  connection_notifier: ^1.0.1
+  cupertino_icons: ^1.0.2
+  flutter:
+    sdk: flutter
+  flutter_native_splash: ^2.2.19
+  google_fonts: ^4.0.3
+  loading_animation_widget: ^1.2.0+4
+  ms_material_color: ^1.0.0
+  provider: ^6.0.5
+  shimmer_animation: ^2.1.0+1
+  url_strategy: ^0.2.0
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.13.0
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter_native_splash:
+  color: "#1270E0"
+  image: assets/icon.png
+  android: true
+  ios: true
+  web: false
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/icon.png"
+    background_color: "#1270E0"
+    theme_color: "#1270E0"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon.png
