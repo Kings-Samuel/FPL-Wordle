@@ -1,5 +1,6 @@
 import 'package:connection_notifier/connection_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ms_material_color/ms_material_color.dart';
@@ -7,10 +8,14 @@ import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'helpers/utils/init_appwrite.dart';
 import 'providers.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setPathUrlStrategy();
+await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
   await initAppwrite();
   runApp(const MyApp());
 }

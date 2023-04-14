@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "261849237371",
+    "project_id": "fpl-wordle",
+    "storage_bucket": "fpl-wordle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261849237371:android:3a562674315ee5181a1fde",
+        "android_client_info": {
+          "package_name": "com.kronicalsolutions.fplwordle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "261849237371-jrduvqi22qbopnt498ecrpcvcmsg5a9o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBcZtQScryIqNofRPQQkR1Nf3vYlBzL_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "261849237371-jrduvqi22qbopnt498ecrpcvcmsg5a9o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
