@@ -2,7 +2,7 @@
     package="com.kronicalsolutions.fplwordle">
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
    <application
-        android:label="FPL Wordle"
+        android:label="Fantasy Football Guesser"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

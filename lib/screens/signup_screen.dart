@@ -6,9 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
-import 'package:fplwordle/helpers/widgets/snack_bar_helper.dart';
-import 'package:fplwordle/screens/login_screen.dart';
+import 'package:fplwordle/helpers/widgets/loading_animation.dart';
+import 'package:fplwordle/main.dart';
+import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../helpers/widgets/snack_bar_helper.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -18,18 +24,27 @@ class SignupScreen extends StatefulWidget {
 }
 
 class SignupScreenState extends State<SignupScreen> {
-  int _step = 1;
+  AuthProvider _authProvider = AuthProvider();
 
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _name = TextEditingController();
-
   bool _hidePassword = true;
+
+  bool _isEmailAuthLoading = false;
+  bool _isGoogleAuthLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authProvider = context.read<AuthProvider>();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.transparent,
             elevation: 0,
             title: Row(
@@ -56,7 +71,7 @@ class SignupScreenState extends State<SignupScreen> {
                           style: GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              pushNavigator(const LoginScreen(), context);
+                              transitioner(const SignInScreen(), context);
                             })
                     ])),
               )
@@ -76,173 +91,143 @@ class SignupScreenState extends State<SignupScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(height: 180),
+                  const SizedBox(height: 30),
                   // heading
                   Align(
                       alignment: Alignment.centerLeft, child: headingText(text: 'SIGN UP', variation: 3, fontSize: 45)),
-                  AnimatedContainer(
-                      duration: const Duration(milliseconds: 1200),
-                      curve: Curves.bounceIn,
-                      child: _step == 1
-                          ? Column(
-                              children: [
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: bodyText(text: 'Sign up with your email address')),
-                                const SizedBox(height: 20),
-                                AnimatedNeumorphicContainer(
-                                  depth: 0,
-                                  color: const Color(0xFF1E293B),
-                                  height: 50,
-                                  radius: 16.0,
-                                  child: TextField(
-                                      controller: _email,
-                                      keyboardType: TextInputType.emailAddress,
-                                      style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                                      decoration: InputDecoration(
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                                        hintText: 'example@gmail.com',
-                                        hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                      )),
-                                ),
-                              ],
-                            )
-                          : _step == 2
-                              ? Column(
-                                  children: [
-                                    Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Create a password')),
-                                    const SizedBox(height: 20),
-                                    AnimatedNeumorphicContainer(
-                                      depth: 0,
-                                      color: const Color(0xFF1E293B),
-                                      height: 50,
-                                      radius: 16.0,
-                                      child: TextField(
-                                          controller: _password,
-                                          obscureText: _hidePassword,
-                                          keyboardType: TextInputType.visiblePassword,
-                                          style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                                          decoration: InputDecoration(
-                                              contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 8),
-                                              hintText: '********',
-                                              hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
-                                              enabledBorder: InputBorder.none,
-                                              focusedBorder: InputBorder.none,
-                                              suffixIcon: IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _hidePassword = !_hidePassword;
-                                                  });
-                                                },
-                                                icon: Icon(
-                                                  _hidePassword ? Icons.visibility_off : Icons.visibility,
-                                                  color: Colors.white,
-                                                ),
-                                              ))),
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  children: [
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: bodyText(text: 'First name and last name')),
-                                    const SizedBox(height: 20),
-                                    AnimatedNeumorphicContainer(
-                                      depth: 0,
-                                      color: const Color(0xFF1E293B),
-                                      height: 50,
-                                      radius: 16.0,
-                                      child: TextField(
-                                          controller: _name,
-                                          keyboardType: TextInputType.text,
-                                          style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                                          decoration: InputDecoration(
-                                            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                                            hintText: 'John Doe',
-                                            hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
-                                            enabledBorder: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                          )),
-                                    ),
-                                  ],
-                                )),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
+                  // email
+                  Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Email Address')),
+                  AnimatedNeumorphicContainer(
+                    depth: 0,
+                    color: const Color(0xFF1E293B),
+                    height: 50,
+                    radius: 16.0,
+                    child: TextField(
+                      controller: _email,
+                      keyboardType: TextInputType.emailAddress,
+                      style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                        hintText: 'example@gmail.com',
+                        hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // name
+                  Align(alignment: Alignment.centerLeft, child: bodyText(text: 'First Name And Last Name')),
+                  AnimatedNeumorphicContainer(
+                    depth: 0,
+                    color: const Color(0xFF1E293B),
+                    height: 50,
+                    radius: 16.0,
+                    child: TextField(
+                        controller: _name,
+                        keyboardType: TextInputType.text,
+                        style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                          hintText: 'John Doe',
+                          hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                        )),
+                  ),
+                  const SizedBox(height: 10),
+                  // password
+                  Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Create Password')),
+                  AnimatedNeumorphicContainer(
+                    depth: 0,
+                    color: const Color(0xFF1E293B),
+                    height: 50,
+                    radius: 16.0,
+                    child: TextField(
+                        controller: _password,
+                        obscureText: _hidePassword,
+                        keyboardType: TextInputType.visiblePassword,
+                        style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                        decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 8),
+                            hintText: '********',
+                            hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _hidePassword = !_hidePassword;
+                                });
+                              },
+                              icon: Icon(
+                                _hidePassword ? Icons.visibility_off : Icons.visibility,
+                                color: Colors.white,
+                              ),
+                            ))),
+                  ),
+                  const SizedBox(height: 30),
                   // buttons
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 1200),
-                    curve: Curves.bounceIn,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    margin: const EdgeInsets.only(right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // back button
-                        if (_step > 1)
-                          AnimatedNeumorphicContainer(
-                              depth: 0,
-                              color: Palette.primary,
-                              width: 50,
-                              height: 50,
-                              radius: 16.0,
-                              child: Center(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _step--;
-                                    });
-                                  },
-                                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                                ),
-                              )),
-                        const Spacer(),
-                        // next button
-                        AnimatedNeumorphicContainer(
-                            depth: 0,
-                            color: Palette.primary,
-                            width: _step > 1 ? 200 : MediaQuery.of(context).size.width - 150,
-                            height: 50,
-                            radius: 16.0,
-                            child: Center(
-                              child: InkWell(
-                                  onTap: () {
-                                    if (_step == 1) {
-                                      // verify email
-                                      bool isValid = EmailValidator.validate(_email.text.trim());
+                  InkWell(
+                    onTap: _isGoogleAuthLoading
+                        ? null
+                        : () async {
+                            // validate email
+                            if (EmailValidator.validate(_email.text.trim()) == false) {
+                              snackBarHelper(context, message: 'Invalid email', type: AnimatedSnackBarType.error);
+                              return;
+                            }
 
-                                      if (isValid) {
-                                        setState(() {
-                                          _step++;
-                                        });
-                                      } else {
-                                        snackBarHelper(context,
-                                            message: 'Invalid email address', type: AnimatedSnackBarType.error);
-                                      }
-                                    } else if (_step == 2) {
-                                      // verify password
-                                      if (_password.text.trim().length >= 8) {
-                                        setState(() {
-                                          _step++;
-                                        });
-                                      } else {
-                                        snackBarHelper(context,
-                                            message: 'Password must be at least 8 characters',
-                                            type: AnimatedSnackBarType.info);
-                                      }
-                                    } else if (_step == 3) {
-                                      if (_name.text.trim().isEmpty) {
-                                        snackBarHelper(context,
-                                            message: 'Please enter your name', type: AnimatedSnackBarType.info);
-                                      } else {
-                                        // TODO: implement sign up
-                                      }
-                                    }
-                                  },
-                                  child: headingText(text: 'Continue', color: Colors.white)),
-                            )),
-                      ],
+                            // validate name
+                            if (_name.text.trim().isEmpty || _name.text.trim().length < 3) {
+                              snackBarHelper(context,
+                                  message: 'Name should be at least 3 characters', type: AnimatedSnackBarType.error);
+                              return;
+                            }
+
+                            // validate password
+                            if (_password.text.trim().isEmpty || _password.text.trim().length < 8) {
+                              snackBarHelper(context,
+                                  message: 'Password should be at least 8 characters',
+                                  type: AnimatedSnackBarType.error);
+                              return;
+                            }
+
+                            setState(() {
+                              _isEmailAuthLoading = true;
+                            });
+
+                            bool success = await _authProvider.emailAccountRegistration(
+                                email: _email.text.trim(), password: _password.text.trim(), name: _name.text.trim());
+
+                            setState(() {
+                              _isEmailAuthLoading = false;
+                            });
+
+                            if (success && mounted) {
+                              // login
+                              bool success = await _authProvider.emailSignIn(
+                                  email: _email.text.trim(), password: _password.text.trim());
+
+                              if (success && mounted) {
+                                pushAndRemoveNavigator(const MyApp(), context);
+                              } else {
+                                snackBarHelper(context, message: _authProvider.error, type: AnimatedSnackBarType.error);
+                              }
+                            } else {
+                              snackBarHelper(context, message: _authProvider.error, type: AnimatedSnackBarType.error);
+                            }
+                          },
+                    child: AnimatedNeumorphicContainer(
+                      depth: 0,
+                      color: Palette.primary,
+                      width: MediaQuery.of(context).size.width,
+                      height: 50,
+                      radius: 16.0,
+                      child: _isEmailAuthLoading
+                          ? loadingAnimation()
+                          : Center(child: headingText(text: 'Continue', color: Colors.white)),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -253,16 +238,32 @@ class SignupScreenState extends State<SignupScreen> {
                     child: bodyText(text: 'Or sign up with', color: Colors.white),
                   ),
                   const SizedBox(height: 10),
-                  AnimatedNeumorphicContainer(
-                    depth: 0,
-                    color: const Color(0xFF1E293B),
-                    width: MediaQuery.of(context).size.width - 150,
-                    height: 50,
-                    radius: 16.0,
-                    child: InkWell(
-                      onTap: () {
-                        // TODO: implement google login
-                      },
+                  InkWell(
+                    onTap: _isEmailAuthLoading
+                        ? null
+                        : () async {
+                            setState(() {
+                              _isGoogleAuthLoading = true;
+                            });
+
+                            bool success = await _authProvider.googleAuth();
+
+                            setState(() {
+                              _isGoogleAuthLoading = false;
+                            });
+
+                            if (success && mounted) {
+                              pushAndRemoveNavigator(const MyApp(), context);
+                            } else {
+                              snackBarHelper(context, message: _authProvider.error, type: AnimatedSnackBarType.error);
+                            }
+                          },
+                    child: AnimatedNeumorphicContainer(
+                      depth: 0,
+                      color: const Color(0xFF1E293B),
+                      width: MediaQuery.of(context).size.width,
+                      height: 50,
+                      radius: 16.0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -285,7 +286,13 @@ class SignupScreenState extends State<SignupScreen> {
                                 text: 'Terms of Service',
                                 style:
                                     GoogleFonts.ntr(color: Palette.primary, fontSize: 16, fontWeight: FontWeight.bold),
-                                recognizer: TapGestureRecognizer()..onTap = () {})
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    launchUrl(
+                                      Uri.parse('https://www.fplwordle.com/tos'),
+                                      mode: LaunchMode.inAppWebView,
+                                    );
+                                  })
                           ]))
                 ],
               ),

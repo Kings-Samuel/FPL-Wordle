@@ -25,3 +25,19 @@ ConnectionNotifierToggler(
           ),
         ),
       );
+
+AnimatedNeumorphicContainer(
+                        depth: 0,
+                        color: Palette.primary,
+                        width: MediaQuery.of(context).size.width,
+                        height: 50,
+                        radius: 16.0,
+                        child: _isLoading
+                            ? loadingAnimation()
+                            : Center(
+                                child: InkWell(
+                                    onTap: () {},
+                                    child: headingText(text: 'Continue', color: Colors.white)),
+                              )),
+                    
+        

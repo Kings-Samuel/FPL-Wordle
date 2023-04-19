@@ -3,12 +3,10 @@ import 'package:flutter_onboarding_slider/flutter_onboarding_slider.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
-import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
-import 'package:fplwordle/providers/auth_provider.dart';
 import 'package:fplwordle/screens/home_screen.dart';
-import 'package:fplwordle/screens/login_screen.dart';
-import 'package:fplwordle/screens/signup_screen.dart';
 import 'package:provider/provider.dart';
+
+import '../providers/auth_provider.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
@@ -89,34 +87,36 @@ class OnboardingScreen extends StatelessWidget {
         speed: 1.8,
         onFinish: () {
           AuthProvider authProvider = context.read<AuthProvider>();
+          authProvider.completeOnboarding();
+          transitioner(const HomeScreen(), context, replacement: true);
 
-          dialogHelper(context, 'Create Account or Login',
-              'Your account is used to save your progress and to compete with other players.', [
-            // login button
-            TextButton(
-                onPressed: () {
-                  authProvider.completeOnboarding();
-                  popNavigator(context, rootNavigator: true);
-                  pushReplacementNavigator(const LoginScreen(), context);
-                },
-                child: headingText(text: 'Sign In', color: Palette.primary, fontSize: 18)),
-            // signup button
-            TextButton(
-                onPressed: () {
-                  authProvider.completeOnboarding();
-                  popNavigator(context, rootNavigator: true);
-                  pushReplacementNavigator(const SignupScreen(), context);
-                },
-                child: headingText(text: 'Sign Up', color: Palette.primary, fontSize: 18)),
-            // skip button
-            TextButton(
-                onPressed: () {
-                  authProvider.completeOnboarding();
-                  popNavigator(context, rootNavigator: true);
-                  pushReplacementNavigator(const HomeScreen(), context);
-                },
-                child: headingText(text: 'Skip', color: Palette.primary, fontSize: 18)),
-          ]);
+          // dialogHelper(context, 'Create Account or Login',
+          //     'Your account is used to save your progress and to compete with other players.', [
+          //   // login button
+          //   TextButton(
+          //       onPressed: () {
+          //         authProvider.completeOnboarding();
+          //         popNavigator(context, rootNavigator: true);
+          //         pushReplacementNavigator(const LoginScreen(), context);
+          //       },
+          //       child: headingText(text: 'Sign In', color: Palette.primary, fontSize: 18)),
+          //   // signup button
+          //   TextButton(
+          //       onPressed: () {
+          //         authProvider.completeOnboarding();
+          //         popNavigator(context, rootNavigator: true);
+          //         pushReplacementNavigator(const SignupScreen(), context);
+          //       },
+          //       child: headingText(text: 'Sign Up', color: Palette.primary, fontSize: 18)),
+          //   // skip button
+          //   TextButton(
+          //       onPressed: () {
+          //         authProvider.completeOnboarding();
+          //         popNavigator(context, rootNavigator: true);
+          //         pushReplacementNavigator(const HomeScreen(), context);
+          //       },
+          //       child: headingText(text: 'Skip', color: Palette.primary, fontSize: 18)),
+          // ]);
         },
         pageBodies: [
           Container(

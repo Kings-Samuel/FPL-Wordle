@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:transitioner/transitioner.dart';
 
-pushNavigator(Widget screen, BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+transitioner(Widget screen, BuildContext context, {bool replacement = false}) {
+  Transitioner(
+    context: context,
+    child: screen,
+    animation: AnimationType.slideBottom,
+    duration: const Duration(milliseconds: 1500),
+    replacement: replacement,
+    curveType: CurveType.bounce,
+  );
 }
 
 popNavigator(BuildContext context, {bool? rootNavigator}) {
   Navigator.of(context, rootNavigator: rootNavigator ?? false).pop();
-}
-
-pushReplacementNavigator(Widget screen, BuildContext context) {
-  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => screen));
 }
 
 pushAndRemoveNavigator(Widget screen, BuildContext context) {
