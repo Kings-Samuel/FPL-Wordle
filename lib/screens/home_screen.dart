@@ -2,7 +2,9 @@ import 'package:awesome_icons/awesome_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
+import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_btn.dart';
+import 'package:fplwordle/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -112,9 +114,12 @@ class HomeScreenState extends State<HomeScreen> {
                             color: Colors.white.withOpacity(0.8),
                           ),
                       const SizedBox(height: 20),
-                      // my account button
+                      // my profile button
                       customButton(context,
-                              icon: Icons.person, text: "My Account", backgroundColor: Palette.deepPurple, onTap: () {})
+                              icon: Icons.person,
+                              text: "My Profile",
+                              backgroundColor: Palette.deepPurple,
+                              onTap: () => transitioner(const ProfileScreen(), context))
                           .animate(onPlay: (controller) => controller.repeat(period: 2000.ms))
                           .shimmer(
                             delay: 3000.ms,

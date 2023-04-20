@@ -7,10 +7,11 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/loading_animation.dart';
+import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/providers.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:fplwordle/screens/email_verification_screen.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart';
-import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ms_material_color/ms_material_color.dart';
 import 'package:provider/provider.dart';
@@ -131,9 +132,28 @@ class _AuthFlowState extends State<AuthFlow> {
     bool onboardingComplete = await authProvider.isOnboardingComplete();
 
     if (onboardingComplete && mounted) {
-      await authProvider.isLoggedIn();
+      // check if user is logged in
+      bool isLoggedIn = await authProvider.isLoggedIn();
 
-      if (mounted) {
+      if (isLoggedIn && mounted) {
+        // check if user is verified
+        User user = authProvider.user!;
+        bool isVerified = user.emailVerification!;
+
+        if (isVerified) {
+          FlutterNativeSplash.remove();
+          transitioner(const HomeScreen(), context, replacement: true);
+        } else {
+          FlutterNativeSplash.remove();
+          transitioner(
+              EmailVerificationScreen(
+                email: user.email!,
+                name: user.name!,
+              ),
+              context,
+              replacement: true);
+        }
+      } else {
         FlutterNativeSplash.remove();
         transitioner(const HomeScreen(), context, replacement: true);
       }

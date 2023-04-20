@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/consts.dart';
@@ -9,11 +8,11 @@ import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
   late String _error;
-  late User _user;
+  User? _user;
   int _otpResendCountdown = 0;
 
   String get error => _error;
-  User get user => _user;
+  User? get user => _user;
   int get otpResendCountdown => _otpResendCountdown;
 
   // check if onboarding is complete
@@ -164,7 +163,7 @@ class AuthProvider extends ChangeNotifier {
   // execute email verification function
   Future<bool> verifyEmail() async {
     Map<String, dynamic> data = {
-      'userId': _user.id,
+      'userId': _user!.id,
     };
     String payload = jsonEncode(data);
 
