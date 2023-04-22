@@ -78,19 +78,19 @@ class HomeScreenState extends State<HomeScreen> {
                             color: Colors.white.withOpacity(0.8),
                           ),
                       const SizedBox(height: 20),
-                      // leaderboard button
-                      customButton(context,
-                              icon: Icons.leaderboard,
-                              text: "Leaderboard",
-                              backgroundColor: Palette.cardHeaderGrey,
-                              onTap: () {})
-                          .animate(onPlay: (controller) => controller.repeat(period: 2000.ms))
-                          .shimmer(
-                            delay: 2000.ms,
-                            duration: 2000.ms,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                      const SizedBox(height: 20),
+                      // // leaderboard button
+                      // customButton(context,
+                      //         icon: Icons.leaderboard,
+                      //         text: "Leaderboard",
+                      //         backgroundColor: Palette.cardHeaderGrey,
+                      //         onTap: () {})
+                      //     .animate(onPlay: (controller) => controller.repeat(period: 2000.ms))
+                      //     .shimmer(
+                      //       delay: 2000.ms,
+                      //       duration: 2000.ms,
+                      //       color: Colors.white.withOpacity(0.8),
+                      //     ),
+                      // const SizedBox(height: 20),
                       // shop button
                       customButton(context,
                               icon: FontAwesomeIcons.coins,

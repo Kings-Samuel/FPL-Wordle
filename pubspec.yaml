@@ -23,7 +23,6 @@ dependencies:
     sdk: flutter
   flutter_animate: ^4.1.1+1
   flutter_native_splash: ^2.2.19
-  flutter_onboarding_slider: ^1.0.9
   flutter_secure_storage: ^8.0.0
   google_fonts: ^4.0.3
   loading_animation_widget: ^1.2.0+4
@@ -32,6 +31,7 @@ dependencies:
   provider: ^6.0.5
   random_avatar: ^0.0.8
   shimmer_animation: ^2.1.0+1
+  smooth_page_indicator: ^1.1.0
   transitioner: ^0.1.0
   url_launcher: ^6.1.10
   url_strategy: ^0.2.0

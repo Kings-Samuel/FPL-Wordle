@@ -158,7 +158,7 @@ class _AuthFlowState extends State<AuthFlow> {
         transitioner(const HomeScreen(), context, replacement: true);
       }
     } else {
-      FlutterNativeSplash.remove();
+      if (!kIsWeb)  FlutterNativeSplash.remove();
       transitioner(const OnboardingScreen(), context, replacement: true);
     }
   }

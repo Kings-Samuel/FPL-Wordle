@@ -6,12 +6,17 @@ Text headingText({
   Color color = Colors.white,
   double fontSize = 22,
   int variation = 1,
+  TextAlign textAlign = TextAlign.left,
 }) {
   return Text(text,
+      textAlign: textAlign,
       style: variation == 1
-          ? GoogleFonts.ntr(color: color, fontSize: fontSize, fontWeight: FontWeight.bold)
+          ? GoogleFonts.ntr(color: color, fontSize: fontSize, fontWeight: FontWeight.bold, height: 1.2)
           : variation == 2
-              ? GoogleFonts.pacifico(color: color, fontSize: fontSize)
+              ? GoogleFonts.pacifico(
+                  color: color,
+                  fontSize: fontSize,
+                )
               : GoogleFonts.montserrat(
                   color: color,
                   fontSize: fontSize,
@@ -35,6 +40,7 @@ Text bodyText(
   return Text(
     text,
     textAlign: textAlign,
-    style: GoogleFonts.ntr(color: color, fontSize: fontSize, fontWeight: bold ? FontWeight.bold : FontWeight.w500),
+    style: GoogleFonts.ntr(
+        color: color, fontSize: fontSize, fontWeight: bold ? FontWeight.bold : FontWeight.w500, height: 1.2),
   );
 }
