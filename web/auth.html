@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication complete</title>
+</head>
+<body>
+    <p>Authentication is complete. If this does not happen automatically, please
+        close the window</p>
+
+        <script>
+            window.opener.postMessage({
+              'flutter-web-auth-2': window.location.href
+            }, window.location.origin);
+            window.close();
+          </script>
+</body>
+</html>

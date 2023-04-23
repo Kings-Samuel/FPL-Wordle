@@ -73,7 +73,10 @@ class AuthProvider extends ChangeNotifier {
   // google authentification
   Future<bool> googleAuth() async {
     try {
-      await account.createOAuth2Session(provider: 'google');
+      await account.createOAuth2Session(
+        provider: 'google',
+        success: "http://localhost:62541/auth.html",
+      );
 
       return true;
     } catch (e) {

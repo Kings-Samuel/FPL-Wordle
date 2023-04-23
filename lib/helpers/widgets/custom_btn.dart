@@ -4,15 +4,14 @@ import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'custom_texts.dart';
 import 'loading_animation.dart';
 
-Widget customButton(
-  BuildContext context, {
-  required IconData icon,
-  required String text,
-  bool isLoading = false,
-  required VoidCallback onTap,
-  Color backgroundColor = Palette.primary,
-  Color? textColor,
-}) {
+Widget customButton(BuildContext context,
+    {required IconData icon,
+    required String text,
+    bool isLoading = false,
+    required VoidCallback onTap,
+    Color backgroundColor = Palette.primary,
+    Color? textColor,
+    double? width}) {
   if (isLoading == true) {
     return loadingAnimation();
   } else {
@@ -22,7 +21,7 @@ Widget customButton(
         child: AnimatedNeumorphicContainer(
             depth: 0,
             color: backgroundColor,
-            width: MediaQuery.of(context).size.width,
+            width: width ?? MediaQuery.of(context).size.width * 0.9,
             height: 50,
             radius: 25.0,
             child: isLoading
@@ -37,9 +36,7 @@ Widget customButton(
                         size: 30,
                       ),
                       const SizedBox(width: 10),
-                      Container(
-                          margin: const EdgeInsets.only(bottom: 5),
-                          child: headingText(text: text, color: textColor ?? Colors.white, variation: 2,))
+                      headingText(text: text, color: textColor ?? Colors.white, variation: 1, fontSize: 20)
                     ],
                   )),
       ),

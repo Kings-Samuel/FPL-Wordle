@@ -10,6 +10,7 @@ import 'package:fplwordle/helpers/widgets/loading_animation.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/providers.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:fplwordle/providers/misc_provider.dart';
 import 'package:fplwordle/screens/email_verification_screen.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   if (!kIsWeb) FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   setPathUrlStrategy();
+  GoogleFonts.config.allowRuntimeFetching = true;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -141,10 +143,10 @@ class _AuthFlowState extends State<AuthFlow> {
         bool isVerified = user.emailVerification!;
 
         if (isVerified) {
-          FlutterNativeSplash.remove();
+          if (!kIsWeb) FlutterNativeSplash.remove();
           transitioner(const HomeScreen(), context, replacement: true);
         } else {
-          FlutterNativeSplash.remove();
+          if (!kIsWeb) FlutterNativeSplash.remove();
           transitioner(
               EmailVerificationScreen(
                 email: user.email!,
@@ -154,13 +156,14 @@ class _AuthFlowState extends State<AuthFlow> {
               replacement: true);
         }
       } else {
-        FlutterNativeSplash.remove();
+        if (!kIsWeb) FlutterNativeSplash.remove();
         transitioner(const HomeScreen(), context, replacement: true);
       }
     } else {
-      if (!kIsWeb)  FlutterNativeSplash.remove();
+      if (!kIsWeb) FlutterNativeSplash.remove();
       transitioner(const OnboardingScreen(), context, replacement: true);
     }
+
   }
 
   @override

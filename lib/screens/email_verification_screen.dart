@@ -11,7 +11,6 @@ import 'package:fplwordle/providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
-
 import '../helpers/widgets/loading_animation.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
@@ -94,7 +93,9 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   return Column(
                     children: [
                       // code input field
-                      Center(
+                      Container(
+                        alignment: Alignment.center,
+                        constraints: const BoxConstraints(maxWidth: 400),
                         child: PinCodeTextField(
                           appContext: context,
                           length: 6,
@@ -179,7 +180,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         child: AnimatedNeumorphicContainer(
                             depth: 0,
                             color: Palette.primary,
-                            width: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width > 600 ? 400 : MediaQuery.of(context).size.width,
                             height: 50,
                             radius: 16.0,
                             child: _isLoading
