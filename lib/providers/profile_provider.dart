@@ -11,10 +11,10 @@ class ProfileProvider extends ChangeNotifier {
   String _error = '';
   final String _db = Consts.db;
   final String _collection = Consts.profile;
-  Profile _profile = Profile(coins: 0);
+  Profile? _profile;
 
   String get error => _error;
-  Profile get profile => _profile;
+  Profile? get profile => _profile;
 
   // create user profile document
   Future<void> createOrConfirmProfile({User? user}) async {
@@ -38,7 +38,7 @@ class ProfileProvider extends ChangeNotifier {
 
         // save to appwrite
         await database.createDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile.id!, data: _profile.toJson());
+            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
 
         // clear local storage
         await secStorage.delete(key: 'profile');
@@ -92,7 +92,7 @@ class ProfileProvider extends ChangeNotifier {
                 scoresSharedX3: false,
                 scoresSharedX10: false));
         final res = database.createDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile.id!, data: _profile.toJson());
+            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
 
         res.then((value) {
           notifyListeners();

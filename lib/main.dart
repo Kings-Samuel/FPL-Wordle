@@ -10,6 +10,7 @@ import 'package:fplwordle/helpers/widgets/loading_animation.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/providers.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:fplwordle/providers/sound_provider.dart';
 import 'package:fplwordle/screens/email_verification_screen.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +30,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initAppwrite();
-  // await AuthProvider().signOut();
   runApp(const MyApp());
 }
 
@@ -128,6 +128,7 @@ class _AuthFlowState extends State<AuthFlow> {
   }
 
   Future<void> authflow() async {
+    context.read<SoundsProvider>(); // initialize sounds provider by checking mute status
     AuthProvider authProvider = context.read<AuthProvider>();
 
     // check if onboarding is complete

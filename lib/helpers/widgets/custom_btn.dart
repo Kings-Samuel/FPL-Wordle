@@ -1,6 +1,8 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
+import 'package:provider/provider.dart';
+import '../../providers/sound_provider.dart';
 import 'custom_texts.dart';
 import 'loading_animation.dart';
 
@@ -15,9 +17,13 @@ Widget customButton(BuildContext context,
   if (isLoading == true) {
     return loadingAnimation();
   } else {
+    
     return Center(
       child: InkWell(
-        onTap: onTap,
+        onTap: () async {
+          await context.read<SoundsProvider>().playClick();
+          onTap();
+        },
         child: AnimatedNeumorphicContainer(
             depth: 0.0,
             color: backgroundColor,

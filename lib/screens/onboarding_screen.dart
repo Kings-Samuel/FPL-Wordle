@@ -19,13 +19,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController(initialPage: 0);
   bool _canShow = false;
   final List<Intro> _introList = [
-    Intro(title: 'Welcome to FPL Wordle', subtitle: 'Daily Puzzle \n20 lives \n3 hints', image: 'assets/cards.png'),
-    // Intro(title: 'Leaderboard', subtitle: 'View the ranks of other players', image: 'assets/leaderboard.gif'),
-    Intro(title: 'Share', subtitle: 'Share your score with friends', image: 'assets/share.gif'),
-    Intro(title: 'Multiplayer Mode', subtitle: 'Play with friends online', image: 'assets/multiplayer.gif'),
+    Intro(title: 'Welcome to FPL Wordle', desc: 'Daily Puzzle \n20 lives \n3 hints', image: 'assets/cards.png'),
+    // Intro(title: 'Leaderboard', desc: 'View the ranks of other players', image: 'assets/leaderboard.gif'),
+    Intro(title: 'Share', desc: 'Share your score with friends', image: 'assets/share.gif'),
+    Intro(title: 'Multiplayer Mode', desc: 'Play with friends online', image: 'assets/multiplayer.gif'),
     Intro(
         title: 'Go Unlimited',
-        subtitle: 'You can upgrade to enjoy unlimited number of puzzles in solo and multiplayer modes',
+        desc: 'You can upgrade to enjoy unlimited number of puzzles in solo and multiplayer modes',
         image: 'assets/premium.gif'),
   ];
 
@@ -199,7 +199,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(
             height: 10,
           ),
-          bodyText(text: intro.subtitle, fontSize: 20, textAlign: TextAlign.center),
+          bodyText(text: intro.desc, fontSize: 20, textAlign: TextAlign.center),
         ]);
       },
     );
@@ -247,7 +247,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              bodyText(text: intro.subtitle, fontSize: 16, textAlign: TextAlign.center),
+                              bodyText(text: intro.desc, fontSize: 16, textAlign: TextAlign.center),
                             ],
                           ))),
                 );
@@ -278,7 +278,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class Intro {
-  String title, subtitle, image;
+  String title, desc, image;
+  String? subtitle;
 
-  Intro({required this.title, required this.subtitle, required this.image});
+  Intro({required this.title, required this.desc, required this.image, this.subtitle});
 }

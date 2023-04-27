@@ -8,6 +8,7 @@ import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/screens/profile_screen.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
+import 'package:fplwordle/screens/tutorial_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 import '../helpers/utils/color_palette.dart';
@@ -17,6 +18,7 @@ import '../models/profile.dart';
 import '../providers/auth_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/profile_provider.dart';
+import '../providers/sound_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -29,6 +31,7 @@ class HomeScreenState extends State<HomeScreen> {
   AuthProvider _authProvider = AuthProvider();
   GameProvider _miscProvider = GameProvider();
   ProfileProvider _profileProvider = ProfileProvider();
+  SoundsProvider _soundsProvider = SoundsProvider();
   Duration _duration = Duration.zero;
   User? _user;
   List<Button> _buttons = [];
@@ -38,6 +41,8 @@ class HomeScreenState extends State<HomeScreen> {
     super.initState();
     _authProvider = context.read<AuthProvider>();
     _miscProvider = context.read<GameProvider>();
+    _soundsProvider = context.read<SoundsProvider>();
+    _soundsProvider.playGameMusic();
     _user = _authProvider.user;
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();
@@ -52,7 +57,7 @@ class HomeScreenState extends State<HomeScreen> {
       // shop
       Button(icon: FontAwesomeIcons.coins, title: "Shop", onTap: () {}),
       // how to play
-      Button(icon: Icons.help, title: "How to play", onTap: () {}),
+      Button(icon: Icons.help, title: "How to play", onTap: () => transitioner(const TutorialScreen(), context)),
       // profile
       Button(icon: Icons.person, title: "Profile", onTap: () => transitioner(const ProfileScreen(), context)),
       // settings
@@ -98,26 +103,29 @@ class HomeScreenState extends State<HomeScreen> {
                       // free coins
                       if (!kIsWeb && _user != null)
                         InkWell(
-                          onTap: () {
-                            customDialog(context: context, title: "Free coins", contentList: [
-                              Center(
-                                child: Image.asset(
-                                  'assets/coins.png',
-                                  width: 80,
-                                  height: 80,
+                          onTap: () async {
+                            await _soundsProvider.playClick();
+                            if (mounted) {
+                              customDialog(context: context, title: "Free coins", contentList: [
+                                Center(
+                                  child: Image.asset(
+                                    'assets/coins.png',
+                                    width: 80,
+                                    height: 80,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 20),
-                              bodyText(text: "Get 15 free coins daily"),
-                              const SizedBox(height: 20),
-                              customButton(context,
-                                  icon: Icons.video_collection_sharp,
-                                  text: "WATCH AN AD",
-                                  width: 200,
-                                  backgroundColor: Palette.cardBodyGreeen, onTap: () {
-                                // TODO: show ad (one daily)
-                              }),
-                            ]);
+                                const SizedBox(height: 20),
+                                bodyText(text: "Get 15 free coins daily"),
+                                const SizedBox(height: 20),
+                                customButton(context,
+                                    icon: Icons.video_collection_sharp,
+                                    text: "WATCH AN AD",
+                                    width: 200,
+                                    backgroundColor: Palette.cardBodyGreeen, onTap: () {
+                                  // TODO: show ad (one daily)
+                                }),
+                              ]);
+                            }
                           },
                           child: Center(
                             child: Image.asset(
@@ -136,41 +144,44 @@ class HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 15),
                       // countdown timer
                       InkWell(
-                          onTap: () {
-                            customDialog(
-                              context: context,
-                              title: "Next game in",
-                              contentList: [
-                                // countdown timer
-                                SlideCountdownSeparated(
-                                  duration: _duration,
-                                  shouldShowDays: (_) => false,
-                                  shouldShowHours: (_) => true,
-                                  shouldShowMinutes: (_) => true,
-                                  shouldShowSeconds: (_) => true,
-                                  showZeroValue: true,
-                                  textDirection: TextDirection.ltr,
-                                  curve: Curves.easeIn,
-                                  onDone: () {
-                                    setState(() async {
-                                      _duration = await _miscProvider.setDurationUntilNextGame();
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 30),
-                                // info text
-                                bodyText(text: "Puzzle resets 5:00PM UTC everyday", fontSize: 16),
-                                const SizedBox(height: 30),
-                                // close button
-                                SizedBox(
-                                  width: 150,
-                                  child: customButton(context,
-                                      icon: Icons.close,
-                                      text: "Close",
-                                      onTap: () => popNavigator(context, rootNavigator: true)),
-                                )
-                              ],
-                            );
+                          onTap: () async {
+                            await _soundsProvider.playClick();
+                            if (mounted) {
+                              customDialog(
+                                context: context,
+                                title: "Next game in",
+                                contentList: [
+                                  // countdown timer
+                                  SlideCountdownSeparated(
+                                    duration: _duration,
+                                    shouldShowDays: (_) => false,
+                                    shouldShowHours: (_) => true,
+                                    shouldShowMinutes: (_) => true,
+                                    shouldShowSeconds: (_) => true,
+                                    showZeroValue: true,
+                                    textDirection: TextDirection.ltr,
+                                    curve: Curves.easeIn,
+                                    onDone: () {
+                                      setState(() async {
+                                        _duration = await _miscProvider.setDurationUntilNextGame();
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 30),
+                                  // info text
+                                  bodyText(text: "Puzzle resets 5:00PM UTC everyday", fontSize: 16),
+                                  const SizedBox(height: 30),
+                                  // close button
+                                  SizedBox(
+                                    width: 150,
+                                    child: customButton(context,
+                                        icon: Icons.close,
+                                        text: "Close",
+                                        onTap: () => popNavigator(context, rootNavigator: true)),
+                                  )
+                                ],
+                              );
+                            }
                           },
                           child: SlideCountdownSeparated(
                             duration: _duration,
@@ -222,7 +233,10 @@ class HomeScreenState extends State<HomeScreen> {
                             return Container(
                                 margin: const EdgeInsets.only(right: 15),
                                 child: InkWell(
-                                  onTap: () => e.onTap(),
+                                  onTap: () async {
+                                    await _soundsProvider.playClick();
+                                    e.onTap();
+                                  },
                                   child: AnimatedNeumorphicContainer(
                                       depth: 0,
                                       color: Palette.scaffold,
@@ -249,7 +263,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget appbarTitle() {
-    Profile profile = context.select<ProfileProvider, Profile>((provider) => provider.profile);
+    Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
     if (_user != null) {
       return Row(
         children: [
@@ -260,7 +274,8 @@ class HomeScreenState extends State<HomeScreen> {
           Center(child: Image.asset('assets/coin.png', height: 25, width: 25)),
           const SizedBox(width: 8),
           Center(
-            child: bodyText(text: profile.coins.toString(), color: Colors.white, fontSize: 20, bold: true),
+            child: bodyText(
+                text: profile == null ? "0" : profile.coins.toString(), color: Colors.white, fontSize: 20, bold: true),
           ),
         ],
       );

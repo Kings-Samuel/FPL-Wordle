@@ -1,10 +1,10 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/helpers/widgets/leading_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:random_avatar/random_avatar.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
-
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_btn.dart';
@@ -16,6 +16,8 @@ import 'package:fplwordle/providers/auth_provider.dart';
 import 'package:fplwordle/providers/profile_provider.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
 
+import '../providers/sound_provider.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
@@ -25,7 +27,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   AuthProvider _authProvider = AuthProvider();
-  ProfileProvider _profileProvider = ProfileProvider();
+  SoundsProvider _soundsProvider = SoundsProvider();
+  // ProfileProvider _profileProvider = ProfileProvider();
   User? _user;
   bool _isLoggingOut = false;
   bool _isDesktop = false;
@@ -33,7 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     _authProvider = context.read<AuthProvider>();
-    _profileProvider = context.read<ProfileProvider>();
+    _soundsProvider = context.read<SoundsProvider>();
+    // _profileProvider = context.read<ProfileProvider>();
     _user = _authProvider.user;
     super.initState();
   }
@@ -41,7 +45,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     _isDesktop = MediaQuery.of(context).size.width > 600;
-    Profile profile = context.select<ProfileProvider, Profile>((provider) => provider.profile);
+    Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
+    // if profile is null, assign fields to 0
+    profile ??= Profile(
+      gamesPlayed: 0,
+      gamesWon: 0,
+      gamesLost: 0,
+      gamesAbandoned: 0,
+      winStreak: 0,
+      longestWinStreak: 0,
+      playedToday: 0,
+      playersFound: 0,
+      correctFirstGuess: 0,
+      noHintsUsed: 0,
+      scoresShared: 0,
+      multiplayerModePlayed: 0,
+      winsInMultiplayerMode: 0,
+      level: 1,
+      xp: 0,
+      difficulty: 1,
+      achievements: Achievements(
+        gamesPlayedX5: false,
+        gamesPlayedX10: false,
+        gamesPlayedX20: false,
+        gamesInOneDayX3: false,
+        winningStreakX5: false,
+        playersFoundX25: false,
+        playersFoundX50: false,
+        correctFirstGuessX10: false,
+        playAgameInMultiPlayerMode: false,
+        scoresSharedX3: false,
+        scoresSharedX10: false,
+        noHintsUsedX5: false,
+        winsInMultiplayerModeX5: false,
+      ),
+    );
 
     int gamesPlayed = profile.gamesPlayed!;
     int playedToday = profile.playedToday!;
@@ -107,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // playAgameInMultiPlayerMode,
       Achievement(
           name: "Play A Game In Multiplayer Mode",
-          description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "Not Completed",
+          description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "$multiplayerModePlayed/1",
           unlocked: profile.achievements!.playAgameInMultiPlayerMode!,
           progress: calculateAchievementProgress(multiplayerModePlayed, 1)),
       // winsInMultiplayerModeX5,
@@ -140,15 +178,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-            onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios, color: Colors.white)),
+        leading: leadingButton(context),
         actions: [
           // coins button
           if (_user != null)
             Container(
               margin: const EdgeInsets.all(8),
               child: InkWell(
-                onTap: () {
+                onTap: () async {
+                  await _soundsProvider.playClick();
                   // TODO: implement shop screen (navigate or dialog)
                 },
                 child: AnimatedNeumorphicContainer(
@@ -210,7 +248,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   // settings
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      await _soundsProvider.playClick();
                       // TODO: implement settings screen (navigate or dialog)
                     },
                     child: const AnimatedNeumorphicContainer(
@@ -323,15 +362,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: stats.map((e) {
                       return statCard(stat: e);
                     }).toList()),
+              const SizedBox(height: 20),
+              Divider(color: Palette.primary.withOpacity(0.2), thickness: 2),
               const SizedBox(height: 10),
               // achievements
-              Center(child: headingText(text: 'Achievements', fontSize: _isDesktop ? 25 : 18, variation: 1)),
+              Center(child: headingText(text: 'ACHIEVEMENTS', fontSize: _isDesktop ? 35 : 25, variation: 1)),
               const SizedBox(height: 10),
-              if (!_isDesktop) Column(
-                children: achievements.map((e) {
-                  return achievementTile(e);
-                }).toList(),
-              )
+              if (!_isDesktop)
+                Column(
+                  children: achievements.map((e) {
+                    return achievementTile(e);
+                  }).toList(),
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // left column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: achievements.sublist(0, 7).map((e) {
+                        return achievementTile(e);
+                      }).toList(),
+                    ),
+                    const SizedBox(width: 100),
+                    // right column
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: achievements.sublist(7, 13).map((e) {
+                        return achievementTile(e);
+                      }).toList(),
+                    ),
+                  ],
+                )
             ],
           )),
     );
@@ -368,37 +432,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget achievementTile(Achievement achievement) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          children: [
-            bodyText(text: achievement.name, fontSize: 16, bold: true),
-            const SizedBox(height: 5),
-            // progress bar
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
-              child: ProgressBar(
-                  height: 10.0,
-                  value: achievement.progress,
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.yellowAccent, Colors.deepOrange],
-                  )),
-            ),
-          ],
-        ),
-        const SizedBox(width: 10),
-        if (achievement.unlocked)
-          headingText(text: "COMPLETED", fontSize: 16, variation: 3)
-        else
-          bodyText(text: achievement.description, fontSize: 16, bold: true, textAlign: TextAlign.center)
-      ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // achievement name and progress bar
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: bodyText(text: achievement.name, fontSize: _isDesktop ? 18 : 16, bold: true)),
+              const SizedBox(height: 5),
+              // progress bar
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
+                child: ProgressBar(
+                    height: 10.0,
+                    value: achievement.progress,
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.yellowAccent, Colors.deepOrange],
+                    )),
+              ),
+            ],
+          ),
+          SizedBox(width: _isDesktop ? 50 : 10),
+          if (achievement.unlocked)
+            headingText(text: "COMPLETED", fontSize: _isDesktop ? 18 : 16, variation: 3)
+          else
+            bodyText(
+                text: achievement.description, fontSize: _isDesktop ? 18 : 16, bold: true, textAlign: TextAlign.center)
+        ],
+      ),
     );
   }
 }

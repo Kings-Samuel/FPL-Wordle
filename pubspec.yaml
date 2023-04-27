@@ -13,6 +13,7 @@ dependencies:
   animated_neumorphic: ^0.2.0
   animated_snack_bar: ^0.3.0
   appwrite: ^9.0.0
+  assets_audio_player: ^3.0.6
   awesome_icons: ^1.1.0
   cached_network_image: ^3.2.3
   connection_notifier: ^1.0.1
@@ -70,3 +71,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/shirts/
+    - assets/sound-effects/
+    - assets/tutorials/
