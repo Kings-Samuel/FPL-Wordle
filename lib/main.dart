@@ -10,7 +10,6 @@ import 'package:fplwordle/helpers/widgets/loading_animation.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/providers.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
-import 'package:fplwordle/providers/misc_provider.dart';
 import 'package:fplwordle/screens/email_verification_screen.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,6 +29,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initAppwrite();
+  // await AuthProvider().signOut();
   runApp(const MyApp());
 }
 
@@ -163,7 +163,6 @@ class _AuthFlowState extends State<AuthFlow> {
       if (!kIsWeb) FlutterNativeSplash.remove();
       transitioner(const OnboardingScreen(), context, replacement: true);
     }
-
   }
 
   @override

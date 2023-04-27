@@ -19,10 +19,10 @@ Widget customButton(BuildContext context,
       child: InkWell(
         onTap: onTap,
         child: AnimatedNeumorphicContainer(
-            depth: 0,
+            depth: 0.0,
             color: backgroundColor,
             width: width ?? MediaQuery.of(context).size.width * 0.9,
-            height: 50,
+            height: 50.0,
             radius: 25.0,
             child: isLoading
                 ? loadingAnimation()

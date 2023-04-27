@@ -1,23 +1,140 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:fplwordle/helpers/utils/color_palette.dart';
-import 'package:fplwordle/helpers/utils/navigator.dart';
-import 'package:fplwordle/helpers/widgets/custom_texts.dart';
-import 'package:fplwordle/models/user.dart';
-import 'package:fplwordle/providers/auth_provider.dart';
-import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:random_avatar/random_avatar.dart';
+import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 
-class ProfileScreen extends StatelessWidget {
+import 'package:fplwordle/helpers/utils/color_palette.dart';
+import 'package:fplwordle/helpers/utils/navigator.dart';
+import 'package:fplwordle/helpers/widgets/custom_btn.dart';
+import 'package:fplwordle/helpers/widgets/custom_texts.dart';
+import 'package:fplwordle/main.dart';
+import 'package:fplwordle/models/profile.dart';
+import 'package:fplwordle/models/user.dart';
+import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:fplwordle/providers/profile_provider.dart';
+import 'package:fplwordle/screens/signin_screen.dart';
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  AuthProvider _authProvider = AuthProvider();
+  ProfileProvider _profileProvider = ProfileProvider();
+  User? _user;
+  bool _isLoggingOut = false;
+  bool _isDesktop = false;
+
+  @override
+  void initState() {
+    _authProvider = context.read<AuthProvider>();
+    _profileProvider = context.read<ProfileProvider>();
+    _user = _authProvider.user;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    AuthProvider authProvider = context.read<AuthProvider>();
-    User? user = authProvider.user;
+    _isDesktop = MediaQuery.of(context).size.width > 600;
+    Profile profile = context.select<ProfileProvider, Profile>((provider) => provider.profile);
+
+    int gamesPlayed = profile.gamesPlayed!;
+    int playedToday = profile.playedToday!;
+    int winStreak = profile.longestWinStreak!;
+    int playersFound = profile.playersFound!;
+    int correctFirstGuesses = profile.correctFirstGuess!;
+    int noHintsUsed = profile.noHintsUsed!;
+    int scoresShared = profile.scoresShared!;
+    int multiplayerModePlayed = profile.multiplayerModePlayed!;
+    int winsInMultiplayerMode = profile.winsInMultiplayerMode!;
+
+    List<Stat> stats = [
+      Stat(name: "Played", value: profile.gamesPlayed!),
+      Stat(name: "Won", value: profile.gamesWon!),
+      Stat(name: "Lost", value: profile.gamesLost!),
+      Stat(name: "Abandoned", value: profile.gamesAbandoned!),
+      Stat(name: "Win Streak", value: profile.winStreak!),
+      Stat(name: "Longest Win Streak", value: profile.longestWinStreak!),
+    ];
+
+    List<Achievement> achievements = [
+      Achievement(
+          name: "Games Played X5",
+          description: profile.achievements!.gamesPlayedX5! ? "Completed" : "$gamesPlayed/5",
+          unlocked: profile.achievements!.gamesPlayedX5!,
+          progress: calculateAchievementProgress(gamesPlayed, 5)),
+      Achievement(
+          name: "Games Played X10",
+          description: profile.achievements!.gamesPlayedX10! ? "Completed" : "$gamesPlayed/10",
+          unlocked: profile.achievements!.gamesPlayedX10!,
+          progress: calculateAchievementProgress(gamesPlayed, 10)),
+      Achievement(
+          name: "Games Played X20",
+          description: profile.achievements!.gamesPlayedX20! ? "Completed" : "$gamesPlayed/20",
+          unlocked: profile.achievements!.gamesPlayedX20!,
+          progress: calculateAchievementProgress(gamesPlayed, 20)),
+      Achievement(
+          name: "Games In One Day X3",
+          description: profile.achievements!.gamesInOneDayX3! ? "Completed" : "$playedToday/3",
+          unlocked: profile.achievements!.gamesInOneDayX3!,
+          progress: calculateAchievementProgress(playedToday, 3)),
+      Achievement(
+          name: "Winning Streak X5",
+          description: profile.achievements!.winningStreakX5! ? "Completed" : "$winStreak/5",
+          unlocked: profile.achievements!.winningStreakX5!,
+          progress: calculateAchievementProgress(winStreak, 5)),
+      Achievement(
+          name: "Players Found X25",
+          description: profile.achievements!.playersFoundX25! ? "Completed" : "$playersFound/25",
+          unlocked: profile.achievements!.playersFoundX25!,
+          progress: calculateAchievementProgress(playersFound, 25)),
+      Achievement(
+          name: "Players Found X50",
+          description: profile.achievements!.playersFoundX50! ? "Completed" : "$playersFound/50",
+          unlocked: profile.achievements!.playersFoundX50!,
+          progress: calculateAchievementProgress(playersFound, 50)),
+      // correctFirstGuessX10
+      Achievement(
+          name: "Correct First Guess X10",
+          description: profile.achievements!.correctFirstGuessX10! ? "Completed" : "$correctFirstGuesses/10",
+          unlocked: profile.achievements!.correctFirstGuessX10!,
+          progress: calculateAchievementProgress(correctFirstGuesses, 10)),
+      // playAgameInMultiPlayerMode,
+      Achievement(
+          name: "Play A Game In Multiplayer Mode",
+          description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "Not Completed",
+          unlocked: profile.achievements!.playAgameInMultiPlayerMode!,
+          progress: calculateAchievementProgress(multiplayerModePlayed, 1)),
+      // winsInMultiplayerModeX5,
+      Achievement(
+          name: "Wins In Multiplayer Mode X5",
+          description: profile.achievements!.winsInMultiplayerModeX5! ? "Completed" : "$winsInMultiplayerMode/5",
+          unlocked: profile.achievements!.winsInMultiplayerModeX5!,
+          progress: calculateAchievementProgress(winsInMultiplayerMode, 5)),
+      // noHintsUsedX5,
+      Achievement(
+          name: "No Hints Used X5",
+          description: profile.achievements!.noHintsUsedX5! ? "Completed" : "$noHintsUsed/5",
+          unlocked: profile.achievements!.noHintsUsedX5!,
+          progress: calculateAchievementProgress(noHintsUsed, 5)),
+      // scoresSharedX3,
+      Achievement(
+          name: "Scores Shared X3",
+          description: profile.achievements!.scoresSharedX3! ? "Completed" : "$scoresShared/3",
+          unlocked: profile.achievements!.scoresSharedX3!,
+          progress: calculateAchievementProgress(scoresShared, 3)),
+      // scoresSharedX10;
+      Achievement(
+          name: "Scores Shared X10",
+          description: profile.achievements!.scoresSharedX10! ? "Completed" : "$scoresShared/10",
+          unlocked: profile.achievements!.scoresSharedX10!,
+          progress: calculateAchievementProgress(scoresShared, 10)),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -26,73 +143,283 @@ class ProfileScreen extends StatelessWidget {
         leading: IconButton(
             onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios, color: Colors.white)),
         actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            child: InkWell(
-              onTap: () {
-                // TODO: implement shop screen (navigate or dialog)
-              },
-              child: AnimatedNeumorphicContainer(
-                  depth: 0,
-                  color: Palette.primary,
-                  height: 40,
-                  radius: 25.0,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset('assets/coin.png', height: 25, width: 25),
-                        const SizedBox(width: 8),
-                        bodyText(text: '14', color: Colors.white, fontSize: 20, bold: true), //TODO: implement coins
-                        const SizedBox(width: 8),
-                        Container(
-                            width: 30,
-                            height: 30,
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Palette.scaffold),
-                            child: const Icon(Icons.add, color: Colors.white, size: 25))
-                      ],
-                    ),
-                  )),
+          // coins button
+          if (_user != null)
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: InkWell(
+                onTap: () {
+                  // TODO: implement shop screen (navigate or dialog)
+                },
+                child: AnimatedNeumorphicContainer(
+                    depth: 0,
+                    color: Palette.primary,
+                    height: 40,
+                    radius: 25.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/coin.png', height: 25, width: 25),
+                          const SizedBox(width: 8),
+                          bodyText(text: profile.coins.toString(), color: Colors.white, fontSize: 20, bold: true),
+                          const SizedBox(width: 8),
+                          Container(
+                              width: 30,
+                              height: 30,
+                              decoration: const BoxDecoration(shape: BoxShape.circle, color: Palette.scaffold),
+                              child: const Icon(Icons.add, color: Colors.white, size: 25))
+                        ],
+                      ),
+                    )),
+              ),
             ),
-          )
+          const SizedBox(width: 10),
+          // logout/sign in
+          if (_isDesktop)
+            Container(
+              margin: const EdgeInsets.all(8),
+              width: 150,
+              child: customButton(context,
+                  icon: Icons.logout,
+                  text: _user == null ? 'Sign in' : 'Logout',
+                  isLoading: _isLoggingOut, onTap: () async {
+                if (_user == null) {
+                  transitioner(const SignInScreen(), context);
+                } else {
+                  setState(() => _isLoggingOut = true);
+                  await _authProvider.signOut();
+                  setState(() => _isLoggingOut = false);
+                  if (context.mounted) pushAndRemoveNavigator(const MyApp(), context);
+                }
+              }),
+            )
         ],
       ),
+      bottomNavigationBar: _isDesktop
+          ? null
+          : Container(
+              height: 70,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              color: Colors.transparent,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // settings
+                  InkWell(
+                    onTap: () {
+                      // TODO: implement settings screen (navigate or dialog)
+                    },
+                    child: const AnimatedNeumorphicContainer(
+                        depth: 0,
+                        color: Palette.primary,
+                        width: 50,
+                        height: 50,
+                        radius: 25.0,
+                        child: Icon(Icons.settings, color: Colors.white, size: 35)),
+                  ),
+                  // logout/sign in
+                  SizedBox(
+                    width: 150,
+                    child: customButton(context,
+                        icon: Icons.logout,
+                        text: _user == null ? 'Sign in' : 'Logout',
+                        isLoading: _isLoggingOut, onTap: () async {
+                      if (_user == null) {
+                        transitioner(const SignInScreen(), context);
+                      } else {
+                        setState(() => _isLoggingOut = true);
+                        await _authProvider.signOut();
+                        setState(() => _isLoggingOut = false);
+                        if (context.mounted) pushAndRemoveNavigator(const MyApp(), context);
+                      }
+                    }),
+                  )
+                ],
+              ),
+            ),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               // profile info
-              if (user == null)
-                RichText(
-                    text: TextSpan(
-                        text: 'You are not signed in \n',
-                        style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
-                        children: [
-                      TextSpan(
-                          text: 'Sign in to sync your progress and access many more features',
-                          style: GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              transitioner(const SignInScreen(), context);
-                            })
-                    ]))
+              if (_user == null)
+                Align(
+                  alignment: _isDesktop ? Alignment.center : Alignment.centerLeft,
+                  child: RichText(
+                      textAlign: _isDesktop ? TextAlign.center : TextAlign.left,
+                      text: TextSpan(
+                          text: 'You are not signed in \n',
+                          style: GoogleFonts.ntr(
+                              color: Colors.grey, fontWeight: FontWeight.bold, fontSize: _isDesktop ? 18 : 14),
+                          children: [
+                            TextSpan(
+                                text: 'Sign in to sync your progress and access many more features',
+                                style: GoogleFonts.ntr(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: _isDesktop ? 18 : 14,
+                                )),
+                          ])),
+                )
               else
                 Column(
                   children: [
                     Center(
-                      child: RandomAvatar(user.name!, height: 100, width: 100, allowDrawingOutsideViewBox: true),
+                      child: RandomAvatar(_user!.name!, height: 100, width: 100, allowDrawingOutsideViewBox: true),
                     ),
                     const SizedBox(height: 10),
-                    bodyText(text: user.name!, fontSize: 20, bold: true),
-                    bodyText(text: user.email!),
+                    bodyText(text: _user!.name!, fontSize: 20, bold: true),
+                    bodyText(text: _user!.email!),
                   ],
                 ),
-              const SizedBox(height: 20),
-              //
+              const SizedBox(height: 10),
+              // level and xp progress bar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: headingText(
+                        text: "Level ${profile.level.toString()}", fontSize: _isDesktop ? 25 : 18, variation: 2),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
+                    child: ProgressBar(
+                        height: _isDesktop ? 15.0 : 10.0,
+                        value: calculateProgress(profile.level!, profile.xp!),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.yellowAccent, Colors.deepOrange],
+                        )),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              const SizedBox(height: 10),
+              // stats grid view
+              if (_isDesktop)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: stats.map((e) {
+                    return Container(margin: const EdgeInsets.only(right: 15), child: statCard(stat: e));
+                  }).toList(),
+                )
+              else
+                GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    children: stats.map((e) {
+                      return statCard(stat: e);
+                    }).toList()),
+              const SizedBox(height: 10),
+              // achievements
+              Center(child: headingText(text: 'Achievements', fontSize: _isDesktop ? 25 : 18, variation: 1)),
+              const SizedBox(height: 10),
+              if (!_isDesktop) Column(
+                children: achievements.map((e) {
+                  return achievementTile(e);
+                }).toList(),
+              )
             ],
           )),
     );
   }
+
+  double calculateProgress(int level, int xp) {
+    int xpNeeded = 10 * level;
+    return xp / xpNeeded;
+  }
+
+  double calculateAchievementProgress(int current, int max) {
+    double result = current / max;
+    if (result > 1.0) result = 1.0;
+    return result;
+  }
+
+  Widget statCard({required Stat stat}) {
+    return AnimatedNeumorphicContainer(
+      depth: 0,
+      color: Palette.scaffold,
+      width: _isDesktop ? 120 : 80,
+      height: _isDesktop ? 120 : 80,
+      radius: 20.0,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(child: bodyText(text: stat.name, fontSize: 18, bold: true, textAlign: TextAlign.center)),
+          const SizedBox(height: 5),
+          Center(child: headingText(text: stat.value.toString(), fontSize: 25, variation: 3)),
+        ],
+      ),
+    );
+  }
+
+  Widget achievementTile(Achievement achievement) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          children: [
+            bodyText(text: achievement.name, fontSize: 16, bold: true),
+            const SizedBox(height: 5),
+            // progress bar
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
+              child: ProgressBar(
+                  height: 10.0,
+                  value: achievement.progress,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.yellowAccent, Colors.deepOrange],
+                  )),
+            ),
+          ],
+        ),
+        const SizedBox(width: 10),
+        if (achievement.unlocked)
+          headingText(text: "COMPLETED", fontSize: 16, variation: 3)
+        else
+          bodyText(text: achievement.description, fontSize: 16, bold: true, textAlign: TextAlign.center)
+      ],
+    );
+  }
+}
+
+class Stat {
+  String name;
+  int value;
+
+  Stat({required this.name, required this.value});
+}
+
+class Achievement {
+  String name;
+  String description;
+  bool unlocked;
+  double progress;
+
+  Achievement({
+    required this.name,
+    required this.description,
+    required this.unlocked,
+    required this.progress,
+  });
 }

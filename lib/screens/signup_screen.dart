@@ -46,38 +46,20 @@ class SignupScreenState extends State<SignupScreen> {
       if (constraints.maxWidth < 600) {
         return Scaffold(
             appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                title: Row(
-                  children: [
-                    Image.asset(
-                      'assets/icon.png',
-                      height: 25,
-                    ),
-                    const SizedBox(width: 10),
-                    headingText(text: 'Fantasy Football Guesser', variation: 2, fontSize: 14)
-                  ],
-                ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 20.0),
-                    alignment: Alignment.center,
-                    child: RichText(
-                        text: TextSpan(
-                            text: 'HAVE AN ACCOUNT?  ',
-                            style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 14),
-                            children: [
-                          TextSpan(
-                              text: 'SIGN IN',
-                              style: GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  transitioner(const SignInScreen(), context);
-                                })
-                        ])),
-                  )
-                ]),
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Row(
+                children: [
+                  Image.asset(
+                    'assets/icon.png',
+                    height: 25,
+                  ),
+                  const SizedBox(width: 10),
+                  headingText(text: 'Fantasy Football Guesser', variation: 2, fontSize: 18)
+                ],
+              ),
+            ),
             body: Container(
               width: double.infinity,
               height: double.infinity,
@@ -239,6 +221,23 @@ class SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      // already have an account
+                      Center(
+                        child: RichText(
+                            text: TextSpan(
+                                text: 'HAVE AN ACCOUNT?  ',
+                                style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16),
+                                children: [
+                              TextSpan(
+                                  text: 'SIGN IN',
+                                  style:
+                                      GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      transitioner(const SignInScreen(), context);
+                                    })
+                            ])),
+                      ),
                       const Divider(color: Colors.white, thickness: 1.5),
                       const SizedBox(height: 10),
                       // google login button

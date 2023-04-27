@@ -43,40 +43,23 @@ class SignInScreenState extends State<SignInScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < 600) {
+          // mobile view
           return Scaffold(
               appBar: AppBar(
-                  backgroundColor: Colors.transparent,
-                  automaticallyImplyLeading: false,
-                  elevation: 0,
-                  title: Row(
-                    children: [
-                      Image.asset(
-                        'assets/icon.png',
-                        height: 25,
-                      ),
-                      const SizedBox(width: 5),
-                      headingText(text: 'Fantasy Football Guesser', variation: 2, fontSize: 14)
-                    ],
-                  ),
-                  actions: [
-                    Container(
-                      margin: const EdgeInsets.only(right: 10.0),
-                      alignment: Alignment.center,
-                      child: RichText(
-                          text: TextSpan(
-                              text: 'DON\'T HAVE  AN ACCOUNT?  ',
-                              style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13),
-                              children: [
-                            TextSpan(
-                                text: 'SIGN UP',
-                                style: GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    transitioner(const SignupScreen(), context);
-                                  })
-                          ])),
-                    )
-                  ]),
+                backgroundColor: Colors.transparent,
+                automaticallyImplyLeading: false,
+                elevation: 0,
+                title: Row(
+                  children: [
+                    Image.asset(
+                      'assets/icon.png',
+                      height: 25,
+                    ),
+                    const SizedBox(width: 5),
+                    headingText(text: 'Fantasy Football Guesser', variation: 2, fontSize: 16)
+                  ],
+                ),
+              ),
               body: Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -129,8 +112,9 @@ class SignInScreenState extends State<SignInScreen> {
                           child: TextField(
                               controller: _password,
                               obscureText: _hidePassword,
+                              obscuringCharacter: '*',
                               keyboardType: TextInputType.visiblePassword,
-                              style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                              style: GoogleFonts.ntr(color: Colors.white, fontSize: 14),
                               decoration: InputDecoration(
                                   contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 8),
                                   hintText: '********',
@@ -197,6 +181,24 @@ class SignInScreenState extends State<SignInScreen> {
                                 ? loadingAnimation()
                                 : Center(child: headingText(text: 'Continue', color: Colors.white)),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        // don't have an account
+                        Center(
+                          child: RichText(
+                              text: TextSpan(
+                                  text: 'DON\'T HAVE  AN ACCOUNT?  ',
+                                  style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16),
+                                  children: [
+                                TextSpan(
+                                    text: 'SIGN UP',
+                                    style:
+                                        GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        transitioner(const SignupScreen(), context);
+                                      })
+                              ])),
                         ),
                         const SizedBox(height: 20),
                         const Divider(color: Colors.white, thickness: 1.5),
@@ -269,6 +271,7 @@ class SignInScreenState extends State<SignInScreen> {
                 ),
               ));
         } else {
+          // desktop view
           return Scaffold(
               body: Row(
             children: [

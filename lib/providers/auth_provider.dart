@@ -75,7 +75,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       await account.createOAuth2Session(
         provider: 'google',
-        success: "http://localhost:62541/auth.html",
+        success: "http://localhost:57625/auth.html", // TODO: change this to production url
       );
 
       return true;
