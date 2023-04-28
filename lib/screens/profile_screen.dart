@@ -1,6 +1,8 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/helpers/widgets/leading_button.dart';
+import 'package:fplwordle/screens/settings_screen.dart';
+import 'package:fplwordle/screens/shop_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:random_avatar/random_avatar.dart';
@@ -28,7 +30,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   AuthProvider _authProvider = AuthProvider();
   SoundsProvider _soundsProvider = SoundsProvider();
-  // ProfileProvider _profileProvider = ProfileProvider();
+  ProfileProvider _profileProvider = ProfileProvider();
   User? _user;
   bool _isLoggingOut = false;
   bool _isDesktop = false;
@@ -37,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     _authProvider = context.read<AuthProvider>();
     _soundsProvider = context.read<SoundsProvider>();
-    // _profileProvider = context.read<ProfileProvider>();
+    _profileProvider = context.read<ProfileProvider>();
     _user = _authProvider.user;
     super.initState();
   }
@@ -46,42 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     _isDesktop = MediaQuery.of(context).size.width > 600;
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
-    // if profile is null, assign fields to 0
-    profile ??= Profile(
-      gamesPlayed: 0,
-      gamesWon: 0,
-      gamesLost: 0,
-      gamesAbandoned: 0,
-      winStreak: 0,
-      longestWinStreak: 0,
-      playedToday: 0,
-      playersFound: 0,
-      correctFirstGuess: 0,
-      noHintsUsed: 0,
-      scoresShared: 0,
-      multiplayerModePlayed: 0,
-      winsInMultiplayerMode: 0,
-      level: 1,
-      xp: 0,
-      difficulty: 1,
-      achievements: Achievements(
-        gamesPlayedX5: false,
-        gamesPlayedX10: false,
-        gamesPlayedX20: false,
-        gamesInOneDayX3: false,
-        winningStreakX5: false,
-        playersFoundX25: false,
-        playersFoundX50: false,
-        correctFirstGuessX10: false,
-        playAgameInMultiPlayerMode: false,
-        scoresSharedX3: false,
-        scoresSharedX10: false,
-        noHintsUsedX5: false,
-        winsInMultiplayerModeX5: false,
-      ),
-    );
-
-    int gamesPlayed = profile.gamesPlayed!;
+    if (profile == null) _profileProvider.creatreLocalProfile();
+    int gamesPlayed = profile!.gamesPlayed!;
     int playedToday = profile.playedToday!;
     int winStreak = profile.longestWinStreak!;
     int playersFound = profile.playersFound!;
@@ -187,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: InkWell(
                 onTap: () async {
                   await _soundsProvider.playClick();
-                  // TODO: implement shop screen (navigate or dialog)
+                  if (mounted) transitioner(const ShopScreen(), context);
                 },
                 child: AnimatedNeumorphicContainer(
                     depth: 0,
@@ -250,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   InkWell(
                     onTap: () async {
                       await _soundsProvider.playClick();
-                      // TODO: implement settings screen (navigate or dialog)
+                      if (mounted) transitioner(const SettingsScreen(), context);
                     },
                     child: const AnimatedNeumorphicContainer(
                         depth: 0,

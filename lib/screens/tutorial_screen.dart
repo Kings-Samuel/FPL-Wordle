@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart' show Intro;
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../helpers/widgets/leading_button.dart';
 
 class TutorialScreen extends StatefulWidget {
@@ -67,61 +69,74 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDesktop = MediaQuery.of(context).size.width > 600;
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: leadingButton(context),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: headingText(
-          text: "HOW TO PLAY",
-        ),
-      ),
-      bottomNavigationBar: !_canShow
-          ? null
-          : SizedBox(
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      _controller.previousPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-                    },
-                    child: const Text(
-                      "Previous",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (_controller.page == _screens.length - 1) {
-                        Navigator.of(context).pop();
-                      } else {
-                        _controller.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-                      }
-                    },
-                    child: Text(
-                      _controller.page == _screens.length - 1 ? "Finish" : "Next",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ],
+    return LayoutBuilder(builder: (context, constraints) {
+      if (constraints.maxWidth < 600) {
+        return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              leading: leadingButton(context),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: headingText(
+                text: "HOW TO PLAY",
               ),
             ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 600) {
-            return PageView.builder(
+            bottomNavigationBar: !_canShow
+                ? null
+                : SizedBox(
+                    height: 60,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // previous button
+                        TextButton(
+                          onPressed: () {
+                            _controller.previousPage(
+                                duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                          },
+                          child: const Text(
+                            "Previous",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                        // inidicator
+                        SmoothPageIndicator(
+                            controller: _controller,
+                            count: _screens.length,
+                            effect: const ExpandingDotsEffect(
+                              dotWidth: 10,
+                              dotHeight: 10,
+                            ),
+                            onDotClicked: (index) {
+                              _controller.animateToPage(index,
+                                  duration: const Duration(milliseconds: 500), curve: Curves.ease);
+                            }),
+                        // next button
+                        TextButton(
+                          onPressed: () {
+                            if (_controller.page == _screens.length - 1) {
+                              Navigator.of(context).pop();
+                            } else {
+                              _controller.nextPage(
+                                  duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                            }
+                          },
+                          child: Text(
+                            _controller.page == _screens.length - 1 ? "Finish" : "Next",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+            body: PageView.builder(
               controller: _controller,
               itemCount: _screens.length,
               itemBuilder: (context, index) {
@@ -156,19 +171,99 @@ class _TutorialScreenState extends State<TutorialScreen> {
                   bodyText(text: intro.desc, fontSize: 20, textAlign: TextAlign.center),
                 ]);
               },
-            );
-          } else {
-            return ListView.builder(
+            ));
+      } else {
+        return Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              leading: leadingButton(context),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: headingText(
+                text: "HOW TO PLAY",
+              ),
+            ),
+            body: ListView.builder(
               itemCount: _screens.length,
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return Container();
+              itemBuilder: (context, index) {
+                Intro screen = _screens[index];
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(35),
+                  alignment: Alignment.center,
+                  color: index % 2 == 0 ? Colors.transparent : Palette.cardHeaderGrey,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // image (only on odd indexes)
+                        if (index % 2 != 0)
+                          Image.asset(
+                            screen.image,
+                            height: 350,
+                            width: 350,
+                          ),
+                        if (index % 2 != 0)
+                          const SizedBox(
+                            width: 50,
+                          ),
+                        // content
+                        Expanded(
+                          child: Column(
+                            children: [
+                              // title
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: headingText(
+                                      text: screen.title,
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      textAlign: TextAlign.left)),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              // subtitle
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: bodyText(
+                                      text: screen.subtitle!,
+                                      color: Colors.grey,
+                                      fontSize: 22,
+                                      textAlign: TextAlign.left)),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              // description
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: bodyText(text: screen.desc, fontSize: 20, textAlign: TextAlign.left)),
+                            ],
+                          ),
+                        ),
+                        if (index % 2 == 0)
+                          const SizedBox(
+                            width: 50,
+                          ),
+                        // image (only on even indexes)
+                        if (index % 2 == 0)
+                          Image.asset(
+                            screen.image,
+                            height: 350,
+                            width: 350,
+                          ),
+                      ],
+                    ),
+                  ),
+                );
               },
-            );
-          }
-        },
-      ),
-    );
+            ));
+      }
+    });
   }
 }

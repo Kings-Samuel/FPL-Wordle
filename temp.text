@@ -40,4 +40,4 @@ AnimatedNeumorphicContainer(
                                     child: headingText(text: 'Continue', color: Colors.white)),
                               )),
                     
-        
+

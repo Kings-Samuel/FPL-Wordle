@@ -13,6 +13,9 @@ class SoundsProvider extends ChangeNotifier {
   bool _isSoundMuted = false;
   bool _isClickMuted = false;
 
+  bool get isSoundMuted => _isSoundMuted;
+  bool get isClickMuted => _isClickMuted;
+
   SoundsProvider() {
     _checkMuteSettings();
   }
@@ -27,13 +30,13 @@ class SoundsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> muteUnmuteClick() async {
+  Future<void> toggleClick() async {
     _isClickMuted = !_isClickMuted;
     await secStorage.write(key: 'isClickMuted', value: _isClickMuted.toString());
     notifyListeners();
   }
 
-  Future<void> muteUnmuteSound() async {
+  Future<void> toggleSound() async {
     _isSoundMuted = !_isSoundMuted;
     await secStorage.write(key: 'isSoundMuted', value: _isSoundMuted.toString());
     notifyListeners();

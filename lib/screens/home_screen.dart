@@ -7,6 +7,8 @@ import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/screens/profile_screen.dart';
+import 'package:fplwordle/screens/settings_screen.dart';
+import 'package:fplwordle/screens/shop_screen.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:fplwordle/screens/tutorial_screen.dart';
 import 'package:provider/provider.dart';
@@ -55,13 +57,22 @@ class HomeScreenState extends State<HomeScreen> {
       // leader board
       // Button(icon: Icons.leaderboard, title: "Leaderboard", onTap: () {}),
       // shop
-      Button(icon: FontAwesomeIcons.coins, title: "Shop", onTap: () {}),
+      Button(
+          icon: FontAwesomeIcons.coins,
+          title: "Shop",
+          onTap: () {
+            if (_user == null) {
+              _unAuthDialog();
+            } else {
+              transitioner(const ShopScreen(), context);
+            }
+          }),
       // how to play
       Button(icon: Icons.help, title: "How to play", onTap: () => transitioner(const TutorialScreen(), context)),
       // profile
       Button(icon: Icons.person, title: "Profile", onTap: () => transitioner(const ProfileScreen(), context)),
       // settings
-      Button(icon: Icons.settings, title: "Settings", onTap: () {}),
+      Button(icon: Icons.settings, title: "Settings", onTap: () => transitioner(const SettingsScreen(), context)),
     ];
   }
 
@@ -319,6 +330,21 @@ class HomeScreenState extends State<HomeScreen> {
             color: Colors.white.withOpacity(0.8),
           );
     }
+  }
+
+  _unAuthDialog() {
+    customDialog(context: context, title: "Sign In", contentList: [
+      Center(
+        child: bodyText(
+            text: "You need to be signed in to access this feature", fontSize: 16, textAlign: TextAlign.center),
+      ),
+      const SizedBox(height: 30),
+      SizedBox(
+        width: 150,
+        child: customButton(context,
+            icon: Icons.login, text: "Sign In", onTap: () => transitioner(const SignInScreen(), context)),
+      )
+    ]);
   }
 }
 
