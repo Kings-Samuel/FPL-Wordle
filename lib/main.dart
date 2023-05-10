@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
+import 'package:fplwordle/helpers/utils/router.dart';
 import 'package:fplwordle/helpers/widgets/loading_animation.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/providers.dart';
@@ -44,7 +46,31 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      return materialApp();
+      return MultiProvider(
+        providers: providers,
+        child: MaterialApp.router(
+          routerConfig: router,
+          title: 'Fantasy Football Guesser',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: MsMaterialColor(Palette.primary.value),
+            primaryColor: Colors.white,
+            appBarTheme: const AppBarTheme(
+              iconTheme: IconThemeData(color: Palette.cardHeaderGrey),
+            ),
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            scaffoldBackgroundColor: Palette.scaffold,
+            scrollbarTheme: ScrollbarThemeData(
+              thumbColor: MaterialStateProperty.all(Colors.grey),
+            ),
+            textTheme: kIsWeb
+                ? null
+                : GoogleFonts.ntrTextTheme(
+                    Theme.of(context).textTheme,
+                  ),
+          ),
+        ).animate().fadeIn(duration: const Duration(milliseconds: 400)),
+      );
     } else {
       return ConnectionNotifier(
           disconnectedContent: Row(
@@ -80,36 +106,32 @@ class _MyAppState extends State<MyApp> {
               const Icon(Icons.check, color: Colors.white)
             ],
           ),
-          child: materialApp());
-    }
-  }
-
-  Widget materialApp() {
-    return MultiProvider(
-      providers: providers,
-      child: MaterialApp(
-        title: 'Fantasy Football Guesser',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: MsMaterialColor(Palette.primary.value),
-          primaryColor: Colors.white,
-          appBarTheme: const AppBarTheme(
-            iconTheme: IconThemeData(color: Palette.cardHeaderGrey),
-          ),
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          scaffoldBackgroundColor: Palette.scaffold,
-          scrollbarTheme: ScrollbarThemeData(
-            thumbColor: MaterialStateProperty.all(Colors.grey),
-          ),
-          textTheme: kIsWeb
-              ? null
-              : GoogleFonts.ntrTextTheme(
-                  Theme.of(context).textTheme,
+          child: MultiProvider(
+            providers: providers,
+            child: MaterialApp(
+              title: 'Fantasy Football Guesser',
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                primarySwatch: MsMaterialColor(Palette.primary.value),
+                primaryColor: Colors.white,
+                appBarTheme: const AppBarTheme(
+                  iconTheme: IconThemeData(color: Palette.cardHeaderGrey),
                 ),
-        ),
-        home: const AuthFlow(),
-      ).animate().fadeIn(duration: const Duration(milliseconds: 400)),
-    );
+                visualDensity: VisualDensity.adaptivePlatformDensity,
+                scaffoldBackgroundColor: Palette.scaffold,
+                scrollbarTheme: ScrollbarThemeData(
+                  thumbColor: MaterialStateProperty.all(Colors.grey),
+                ),
+                textTheme: kIsWeb
+                    ? null
+                    : GoogleFonts.ntrTextTheme(
+                        Theme.of(context).textTheme,
+                      ),
+              ),
+              home: const AuthFlow(),
+            ).animate().fadeIn(duration: const Duration(milliseconds: 400)),
+          ));
+    }
   }
 }
 
@@ -145,24 +167,26 @@ class _AuthFlowState extends State<AuthFlow> {
 
         if (isVerified) {
           if (!kIsWeb) FlutterNativeSplash.remove();
-          transitioner(const HomeScreen(), context, replacement: true);
+          transitioner(const HomeScreen(), context, Routes.home, replacement: true);
         } else {
           if (!kIsWeb) FlutterNativeSplash.remove();
           transitioner(
               EmailVerificationScreen(
                 email: user.email!,
                 name: user.name!,
+                userId: user.id!,
               ),
               context,
+              Routes.verifyEmail,
               replacement: true);
         }
       } else {
         if (!kIsWeb) FlutterNativeSplash.remove();
-        transitioner(const HomeScreen(), context, replacement: true);
+        transitioner(const HomeScreen(), context, Routes.home, replacement: true);
       }
     } else {
       if (!kIsWeb) FlutterNativeSplash.remove();
-      transitioner(const OnboardingScreen(), context, replacement: true);
+      transitioner(const OnboardingScreen(), context, Routes.onboarding, replacement: true);
     }
   }
 

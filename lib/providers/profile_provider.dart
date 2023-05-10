@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
-import 'package:fplwordle/consts.dart';
+import 'package:fplwordle/consts/consts.dart';
 import 'package:fplwordle/helpers/utils/init_appwrite.dart';
 import 'package:fplwordle/helpers/utils/sec_storage.dart';
 import 'package:fplwordle/models/profile.dart';

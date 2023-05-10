@@ -25,6 +25,7 @@ dependencies:
   flutter_animate: ^4.1.1+1
   flutter_native_splash: ^2.2.19
   flutter_secure_storage: ^8.0.0
+  go_router: ^7.0.0
   google_fonts: ^4.0.3
   loading_animation_widget: ^1.2.0+4
   ms_material_color: ^1.0.0

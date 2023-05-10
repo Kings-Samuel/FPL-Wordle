@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
-import 'package:fplwordle/consts.dart';
+import 'package:fplwordle/consts/consts.dart';
 import 'package:fplwordle/helpers/utils/sec_storage.dart';
 import '../helpers/utils/init_appwrite.dart';
 import '../models/user.dart';
@@ -90,11 +91,12 @@ class AuthProvider extends ChangeNotifier {
   void startOtpResendCountdown() {
     _otpResendCountdown = 60;
     notifyListeners();
-    Future.delayed(const Duration(seconds: 1), () {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
       _otpResendCountdown--;
       notifyListeners();
-      if (_otpResendCountdown > 0) {
-        startOtpResendCountdown();
+      if (_otpResendCountdown == 0) {
+        timer.cancel();
+        return;
       }
     });
   }

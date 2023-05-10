@@ -1,5 +1,5 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fplwordle/helpers/utils/sec_storage.dart';
 
 class SoundsProvider extends ChangeNotifier {
@@ -10,6 +10,7 @@ class SoundsProvider extends ChangeNotifier {
   static const String _gameOver = 'assets/sound-effects/game-over.mp3';
   static const String _gamemusic = 'assets/sound-effects/gamemusic.mp3';
   final _assetsAudioPlayer = AssetsAudioPlayer();
+  final _gameMusicPlayer = AssetsAudioPlayer();
   bool _isSoundMuted = false;
   bool _isClickMuted = false;
 
@@ -43,81 +44,108 @@ class SoundsProvider extends ChangeNotifier {
   }
 
   Future<void> playClick() async {
-    if (!_isClickMuted) {
+    if (!_isClickMuted && !kIsWeb) {
+      await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_click),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await resumeGameMusic();
     }
   }
 
   Future<void> playCorrect() async {
-    if (!_isSoundMuted) {
+    if (!_isSoundMuted && !kIsWeb) {
+      await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_correct),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await resumeGameMusic();
     }
   }
 
   Future<void> playCheer() async {
-    if (!_isSoundMuted) {
+    if (!_isSoundMuted && !kIsWeb) {
+      await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_cheer),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await resumeGameMusic();
     }
   }
 
   Future<void> playError() async {
-    if (!_isSoundMuted) {
+    if (!_isSoundMuted && !kIsWeb) {
+      await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_error),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await resumeGameMusic();
     }
   }
 
   Future<void> playGameOver() async {
-    if (!_isSoundMuted) {
+    if (!_isSoundMuted && !kIsWeb) {
+      await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_gameOver),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await resumeGameMusic();
     }
   }
 
-  Future<void> playGameMusic() async {
-    if (!_isSoundMuted) {
-      await _assetsAudioPlayer.open(
+  Future<void> startGameMusic() async {
+    if (!_isSoundMuted && !kIsWeb) {
+      await _gameMusicPlayer.open(
         Audio(_gamemusic),
         autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         loopMode: LoopMode.single,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
-        audioFocusStrategy: const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
-      );
+        audioFocusStrategy:
+            const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
+      );    }
+  }
+
+  Future<void> pauseGameMusic() async {
+    if (!_isSoundMuted && !kIsWeb) {
+      await _gameMusicPlayer.pause();
+    }
+  }
+
+  Future<void> resumeGameMusic() async {
+    if (!_isSoundMuted && !kIsWeb) {
+      await _gameMusicPlayer.play();
     }
   }
 }

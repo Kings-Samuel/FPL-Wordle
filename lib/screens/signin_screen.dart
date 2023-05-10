@@ -3,6 +3,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
@@ -196,7 +197,7 @@ class SignInScreenState extends State<SignInScreen> {
                                         GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        transitioner(const SignupScreen(), context);
+                                        transitioner(const SignupScreen(), context, Routes.signup);
                                       })
                               ])),
                         ),
@@ -321,7 +322,7 @@ class SignInScreenState extends State<SignInScreen> {
                                               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () {
-                                              transitioner(const SignupScreen(), context);
+                                              transitioner(const SignupScreen(), context, Routes.signup);
                                             })
                                     ])),
                               )

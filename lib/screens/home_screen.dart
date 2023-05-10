@@ -13,6 +13,7 @@ import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:fplwordle/screens/tutorial_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_countdown/slide_countdown.dart';
+import '../consts/routes.dart';
 import '../helpers/utils/color_palette.dart';
 import '../helpers/widgets/custom_btn.dart';
 import '../helpers/widgets/custom_texts.dart';
@@ -21,6 +22,7 @@ import '../providers/auth_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/sound_provider.dart';
+import 'game_play_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -44,14 +46,18 @@ class HomeScreenState extends State<HomeScreen> {
     _authProvider = context.read<AuthProvider>();
     _miscProvider = context.read<GameProvider>();
     _soundsProvider = context.read<SoundsProvider>();
-    _soundsProvider.playGameMusic();
+    if (!kIsWeb) _soundsProvider.startGameMusic();
     _user = _authProvider.user;
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();
     if (_user != null) _profileProvider.createOrConfirmProfile(user: _user!);
     _buttons = [
       // play
-      Button(icon: Icons.play_arrow, title: "Play", onTap: () {}),
+      Button(
+        icon: Icons.play_arrow,
+        title: "Play",
+        onTap: () => transitioner(const GamePlayScreen(), context, Routes.play),
+      ),
       // multi player mode
       Button(icon: Icons.people, title: "Multiplayer", onTap: () {}),
       // leader board
@@ -64,15 +70,24 @@ class HomeScreenState extends State<HomeScreen> {
             if (_user == null) {
               _unAuthDialog();
             } else {
-              transitioner(const ShopScreen(), context);
+              transitioner(const ShopScreen(), context, Routes.shop);
             }
           }),
       // how to play
-      Button(icon: Icons.help, title: "How to play", onTap: () => transitioner(const TutorialScreen(), context)),
+      Button(
+          icon: Icons.help,
+          title: "How to play",
+          onTap: () => transitioner(const TutorialScreen(), context, Routes.tutorial)),
       // profile
-      Button(icon: Icons.person, title: "Profile", onTap: () => transitioner(const ProfileScreen(), context)),
+      Button(
+          icon: Icons.person,
+          title: "Profile",
+          onTap: () => transitioner(const ProfileScreen(), context, Routes.profile)),
       // settings
-      Button(icon: Icons.settings, title: "Settings", onTap: () => transitioner(const SettingsScreen(), context)),
+      Button(
+          icon: Icons.settings,
+          title: "Settings",
+          onTap: () => transitioner(const SettingsScreen(), context, Routes.settings)),
     ];
   }
 
@@ -109,7 +124,7 @@ class HomeScreenState extends State<HomeScreen> {
                             text: "Sign In",
                             width: 120,
                             backgroundColor: Palette.scaffold,
-                            onTap: () => transitioner(const SignInScreen(), context)),
+                            onTap: () => transitioner(const SignInScreen(), context, Routes.signin)),
                       const SizedBox(width: 15),
                       // free coins
                       if (!kIsWeb && _user != null)
@@ -300,7 +315,7 @@ class HomeScreenState extends State<HomeScreen> {
               text: "Sign In",
               width: 110,
               backgroundColor: Palette.scaffold,
-              onTap: () => transitioner(const SignInScreen(), context)),
+              onTap: () => transitioner(const SignInScreen(), context, Routes.signin)),
         );
       } else {
         return const Text('');
@@ -342,7 +357,9 @@ class HomeScreenState extends State<HomeScreen> {
       SizedBox(
         width: 150,
         child: customButton(context,
-            icon: Icons.login, text: "Sign In", onTap: () => transitioner(const SignInScreen(), context)),
+            icon: Icons.login,
+            text: "Sign In",
+            onTap: () => transitioner(const SignInScreen(), context, Routes.signin)),
       )
     ]);
   }

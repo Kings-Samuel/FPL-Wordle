@@ -1,4 +1,5 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/helpers/widgets/custom_btn.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
@@ -40,45 +41,46 @@ class SettingsScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 30),
           // click and sound icon buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // click
-              InkWell(
-                onTap: () async {
-                  await soundsProvider.playClick();
-                  await soundsProvider.toggleClick();
-                },
-                child: AnimatedNeumorphicContainer(
-                    depth: 0,
-                    color: Palette.primary,
-                    width: 50,
-                    height: 50,
-                    radius: 25.0,
-                    child: Center(
-                      child: Icon(isClickMuted ? Icons.volume_off : Icons.volume_up, color: Colors.white, size: 30),
-                    )),
-              ),
-              const SizedBox(width: 15),
-              // sound
-              InkWell(
-                onTap: () async {
-                  await soundsProvider.playClick();
-                  await soundsProvider.toggleSound();
-                },
-                child: AnimatedNeumorphicContainer(
-                    depth: 0,
-                    color: Palette.primary,
-                    width: 50,
-                    height: 50,
-                    radius: 25.0,
-                    child: Center(
-                      child: Icon(isSoundMuted ? Icons.music_off : Icons.music_note, color: Colors.white, size: 30),
-                    )),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
+          if (!kIsWeb)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // click
+                InkWell(
+                  onTap: () async {
+                    await soundsProvider.playClick();
+                    await soundsProvider.toggleClick();
+                  },
+                  child: AnimatedNeumorphicContainer(
+                      depth: 0,
+                      color: Palette.primary,
+                      width: 50,
+                      height: 50,
+                      radius: 25.0,
+                      child: Center(
+                        child: Icon(isClickMuted ? Icons.volume_off : Icons.volume_up, color: Colors.white, size: 30),
+                      )),
+                ),
+                const SizedBox(width: 15),
+                // sound
+                InkWell(
+                  onTap: () async {
+                    await soundsProvider.playClick();
+                    await soundsProvider.toggleSound();
+                  },
+                  child: AnimatedNeumorphicContainer(
+                      depth: 0,
+                      color: Palette.primary,
+                      width: 50,
+                      height: 50,
+                      radius: 25.0,
+                      child: Center(
+                        child: Icon(isSoundMuted ? Icons.music_off : Icons.music_note, color: Colors.white, size: 30),
+                      )),
+                ),
+              ],
+            ),
+          if (!kIsWeb) const SizedBox(height: 15),
           SizedBox(
               width: isDesktop ? 500 : double.infinity, child: const Divider(color: Palette.primary, thickness: 1)),
           const SizedBox(height: 15),

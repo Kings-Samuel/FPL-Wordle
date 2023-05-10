@@ -1,22 +1,27 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:fplwordle/helpers/widgets/snack_bar_helper.dart';
 import 'package:fplwordle/main.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import '../helpers/widgets/loading_animation.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
+  final String userId;
   final String email;
   final String name;
-  const EmailVerificationScreen({Key? key, required this.email, required this.name}) : super(key: key);
+  const EmailVerificationScreen({Key? key, required this.email, required this.name, required this.userId})
+      : super(key: key);
 
   @override
   EmailVerificationScreenState createState() => EmailVerificationScreenState();
@@ -131,7 +136,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         TextSpan(
                             text: 'Resend',
                             style: GoogleFonts.ntr(
-                                color: otpResendCountdownSelector == 0 ? Palette.primary : Palette.scaffold,
+                                color: otpResendCountdownSelector == 0 ? Palette.primary : Palette.cardHeaderGrey,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold),
                             recognizer: TapGestureRecognizer()
@@ -142,6 +147,11 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                   setState(() {});
                                 }
                               }),
+                        if (otpResendCountdownSelector != 0)
+                          TextSpan(
+                              text: "   ${otpResendCountdownSelector.toString()}",
+                              style: GoogleFonts.ntr(
+                                  color: Palette.cardHeaderGrey, fontSize: 16, fontWeight: FontWeight.bold)),
                       ])),
                       const SizedBox(height: 20),
                       // verify button
@@ -162,7 +172,9 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                     // verify email account
                                     await _authProvider.verifyEmail().then((success) {
                                       if (success) {
-                                        pushAndRemoveNavigator(const MyApp(), context);
+                                        kIsWeb
+                                            ? context.go(Routes.home)
+                                            : pushAndRemoveNavigator(const MyApp(), context);
                                       } else {
                                         snackBarHelper(context,
                                             message: _authProvider.error, type: AnimatedSnackBarType.error);

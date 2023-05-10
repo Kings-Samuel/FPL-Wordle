@@ -3,6 +3,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
@@ -10,6 +11,7 @@ import 'package:fplwordle/helpers/widgets/loading_animation.dart';
 import 'package:fplwordle/main.dart';
 import 'package:fplwordle/providers/auth_provider.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -234,7 +236,7 @@ class SignupScreenState extends State<SignupScreen> {
                                       GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      transitioner(const SignInScreen(), context);
+                                      transitioner(const SignInScreen(), context, Routes.signin);
                                     })
                             ])),
                       ),
@@ -357,7 +359,7 @@ class SignupScreenState extends State<SignupScreen> {
                                             color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                         recognizer: TapGestureRecognizer()
                                           ..onTap = () {
-                                            transitioner(const SignInScreen(), context);
+                                            transitioner(const SignInScreen(), context, Routes.signin);
                                           })
                                   ])),
                             )
@@ -513,8 +515,15 @@ class SignupScreenState extends State<SignupScreen> {
                                   bool success = await _authProvider.emailSignIn(
                                       email: _email.text.trim(), password: _password.text.trim());
 
+                                  await _authProvider.isLoggedIn();
+
                                   if (success && mounted) {
-                                    pushAndRemoveNavigator(const MyApp(), context);
+                                    context.goNamed(Routes.verifyEmail.replaceAll("/", ""), pathParameters: {
+                                      "userId": _authProvider.user!.id!
+                                    }, queryParameters: {
+                                      "email": _authProvider.user!.email!,
+                                      "name": _authProvider.user!.name!
+                                    });
                                   } else {
                                     snackBarHelper(context,
                                         message: _authProvider.error, type: AnimatedSnackBarType.error);

@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import '../../consts.dart';
+import '../../consts/consts.dart';
 
 Client _client = Client();
 late Databases _database;

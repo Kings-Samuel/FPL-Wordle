@@ -1,5 +1,6 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/widgets/leading_button.dart';
 import 'package:fplwordle/screens/settings_screen.dart';
 import 'package:fplwordle/screens/shop_screen.dart';
@@ -155,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: InkWell(
                 onTap: () async {
                   await _soundsProvider.playClick();
-                  if (mounted) transitioner(const ShopScreen(), context);
+                  if (mounted) transitioner(const ShopScreen(), context, Routes.shop);
                 },
                 child: AnimatedNeumorphicContainer(
                     depth: 0,
@@ -193,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   text: _user == null ? 'Sign in' : 'Logout',
                   isLoading: _isLoggingOut, onTap: () async {
                 if (_user == null) {
-                  transitioner(const SignInScreen(), context);
+                  transitioner(const SignInScreen(), context, Routes.signin);
                 } else {
                   setState(() => _isLoggingOut = true);
                   await _authProvider.signOut();
@@ -218,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   InkWell(
                     onTap: () async {
                       await _soundsProvider.playClick();
-                      if (mounted) transitioner(const SettingsScreen(), context);
+                      if (mounted) transitioner(const SettingsScreen(), context, Routes.settings);
                     },
                     child: const AnimatedNeumorphicContainer(
                         depth: 0,
@@ -236,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         text: _user == null ? 'Sign in' : 'Logout',
                         isLoading: _isLoggingOut, onTap: () async {
                       if (_user == null) {
-                        transitioner(const SignInScreen(), context);
+                        transitioner(const SignInScreen(), context, Routes.signin);
                       } else {
                         setState(() => _isLoggingOut = true);
                         await _authProvider.signOut();

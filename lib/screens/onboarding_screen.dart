@@ -1,5 +1,6 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
 import 'package:flutter/material.dart';
+import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -45,7 +46,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void onFinished(BuildContext context) {
     var authProvider = context.read<AuthProvider>();
     authProvider.completeOnboarding();
-    transitioner(const HomeScreen(), context, replacement: true);
+    transitioner(const HomeScreen(), context, Routes.home, replacement: true);
   }
 
   @override
