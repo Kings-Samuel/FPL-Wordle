@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../helpers/widgets/loading_animation.dart';
+import 'home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -443,7 +444,7 @@ class SignInScreenState extends State<SignInScreen> {
                               });
 
                               if (success && mounted) {
-                                pushAndRemoveNavigator(const MyApp(), context);
+                                transitioner(const HomeScreen(), context, Routes.home);
                               } else {
                                 snackBarHelper(context, message: _authProvider.error, type: AnimatedSnackBarType.error);
                               }

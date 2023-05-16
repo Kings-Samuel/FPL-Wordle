@@ -62,11 +62,11 @@ class KeyboardProvider extends ChangeNotifier {
     _suggestions = _playerNames.where((element) => element.toLowerCase().contains(input.toLowerCase())).toList();
   }
 
-  void useSuggestion(String suggestion) {
+  void useSuggestion(String suggestion) async {
     _input = suggestion.toUpperCase();
     _suggestions = [];
     notifyListeners();
-    Future.delayed(const Duration(minutes: 1), () {
+    await Future.delayed(const Duration(seconds: 1), () {
       _input = '';
       notifyListeners();
     });
@@ -75,7 +75,7 @@ class KeyboardProvider extends ChangeNotifier {
   // get all player names from player_names.json in assets
   void getPlayerNames(BuildContext context) async {
     final assetBundle = DefaultAssetBundle.of(context);
-    final data = await assetBundle.loadString('players_names.json');
+    final data = await assetBundle.loadString('assets/players_names.json');
     final body = json.decode(data);
 
     _playerNames = body.map<String>((json) => json['fullName'] as String).toList();

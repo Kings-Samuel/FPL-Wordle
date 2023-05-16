@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
     bool isClickMuted = context.select<SoundsProvider, bool>((provider) => provider.isClickMuted);
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
     bool isNotificationEnabled = context.select<ProfileProvider, bool>((provider) => provider.isNotificationEnabled);
-    if (profile == null) profileProvider.creatreLocalProfile();
+    if (profile == null) profileProvider.createLocalProfile();
     bool isDesktop = MediaQuery.of(context).size.width > 600;
     List<String> difficulties = ['Easy', 'Medium', 'Hard'];
 

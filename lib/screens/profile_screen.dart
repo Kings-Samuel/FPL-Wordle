@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     _isDesktop = MediaQuery.of(context).size.width > 600;
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
-    if (profile == null) _profileProvider.creatreLocalProfile();
+    if (profile == null) _profileProvider.createLocalProfile();
     int gamesPlayed = profile!.gamesPlayed!;
     int playedToday = profile.playedToday!;
     int winStreak = profile.longestWinStreak!;
