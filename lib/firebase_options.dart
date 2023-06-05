@@ -66,11 +66,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD7k6YDhEshqCbyPlirDB3ATza4CJBVwxE',
-    appId: '1:261849237371:ios:887f106b87e689821a1fde',
+    appId: '1:261849237371:ios:7a6d46cf012a15f11a1fde',
     messagingSenderId: '261849237371',
     projectId: 'fpl-wordle',
     storageBucket: 'fpl-wordle.appspot.com',
-    iosClientId: '261849237371-tdjtont9659ptuefnlldflbj5qssu3o2.apps.googleusercontent.com',
-    iosBundleId: 'com.kronicalsolutions.fplwordle',
+    iosClientId: '261849237371-ig1vv7m4hi739jlhbt0f5c91k7vbprf6.apps.googleusercontent.com',
+    iosBundleId: 'com.fantasyfootballguesser.ffg',
   );
 }
