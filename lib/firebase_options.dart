@@ -48,17 +48,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyALJLhQvGmirjrmw11Iou454k5-giFvcUU',
-    appId: '1:261849237371:web:d085b834c1922f601a1fde',
+    appId: '1:261849237371:web:9d835b4eaeb2afcb1a1fde',
     messagingSenderId: '261849237371',
     projectId: 'fpl-wordle',
     authDomain: 'fpl-wordle.firebaseapp.com',
     storageBucket: 'fpl-wordle.appspot.com',
-    measurementId: 'G-HDXRPPHTFD',
+    measurementId: 'G-W6KCBY9MQZ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBBcZtQScryIqNofRPQQkR1Nf3vYlBzL_8',
-    appId: '1:261849237371:android:3a562674315ee5181a1fde',
+    appId: '1:261849237371:android:f6f3dee2726b4ee21a1fde',
     messagingSenderId: '261849237371',
     projectId: 'fpl-wordle',
     storageBucket: 'fpl-wordle.appspot.com',
@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD7k6YDhEshqCbyPlirDB3ATza4CJBVwxE',
-    appId: '1:261849237371:ios:dd910e828c9200fc1a1fde',
+    appId: '1:261849237371:ios:887f106b87e689821a1fde',
     messagingSenderId: '261849237371',
     projectId: 'fpl-wordle',
     storageBucket: 'fpl-wordle.appspot.com',

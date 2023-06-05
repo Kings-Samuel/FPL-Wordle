@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:261849237371:android:3a562674315ee5181a1fde",
+        "mobilesdk_app_id": "1:261849237371:android:f6f3dee2726b4ee21a1fde",
         "android_client_info": {
-          "package_name": "com.kronicalsolutions.fplwordle"
+          "package_name": "com.fantasyfootballguesser.ffg"
         }
       },
       "oauth_client": [
         {
-          "client_id": "261849237371-jrduvqi22qbopnt498ecrpcvcmsg5a9o.apps.googleusercontent.com",
+          "client_id": "261849237371-eepusr2f6n1onvrqf6uq6qt7t26o42aa.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +27,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "261849237371-jrduvqi22qbopnt498ecrpcvcmsg5a9o.apps.googleusercontent.com",
+              "client_id": "261849237371-eepusr2f6n1onvrqf6uq6qt7t26o42aa.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "261849237371-tdjtont9659ptuefnlldflbj5qssu3o2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kronicalsolutions.fplwordle"
+              }
             }
           ]
         }
