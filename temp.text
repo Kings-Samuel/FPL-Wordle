@@ -41,3 +41,7 @@ AnimatedNeumorphicContainer(
                               )),
                     
 
+//   var response = await http.get(Uri.parse('https://fantasy.premierleague.com/api/bootstrap-static/'));
+//   var data = jsonDecode(response.body);
+
+//   var playersData = data["elements"] as List<dynamic>;

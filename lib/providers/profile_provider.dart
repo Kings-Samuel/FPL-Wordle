@@ -28,7 +28,7 @@ class ProfileProvider extends ChangeNotifier {
       // check if there is a profile document for this user on local storage
       String? profile_ = await secStorage.read(key: 'profile');
 
-      // check if useris null (user is null when user is not logged in)
+      // check if user is null (user is null when user is not logged in)
       if (user!.id == null && profile_ != null) {
         Map<String, dynamic> profileJson = jsonDecode(profile_);
         _profile = Profile.fromJson(profileJson);
@@ -138,7 +138,7 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   // create profile locally
-  Future<void> creatreLocalProfile() async {
+  Future<void> createLocalProfile() async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: 'profile');
 
@@ -235,5 +235,25 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
     // TODO: check android and iOS notification channels
+  }
+
+  // increase forfeit count
+  Future<void> increaseForfeitCount() async {
+    // check if there is a profile document for this user on local storage
+    String? profile_ = await secStorage.read(key: "profile");
+
+    if (profile_ != null) {
+      _profile!.gamesAbandoned! + 1;
+      String profileString = jsonEncode(_profile!.toJson());
+
+      await secStorage.write(key: "profile", value: profileString);
+
+      notifyListeners();
+    } else {
+      _profile!.gamesAbandoned! + 1;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"gamesAbandoned": _profile!.gamesAbandoned});
+      notifyListeners();
+    }
   }
 }

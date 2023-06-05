@@ -19,7 +19,7 @@ import '../helpers/widgets/custom_btn.dart';
 import '../helpers/widgets/custom_texts.dart';
 import '../models/profile.dart';
 import '../providers/auth_provider.dart';
-import '../providers/game_provider.dart';
+import '../providers/single_mode_game_provider.dart';
 import '../providers/profile_provider.dart';
 import '../providers/sound_provider.dart';
 import 'game_play_screen.dart';
@@ -33,7 +33,7 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   AuthProvider _authProvider = AuthProvider();
-  GameProvider _miscProvider = GameProvider();
+  SingleModeGameProvider _miscProvider = SingleModeGameProvider();
   ProfileProvider _profileProvider = ProfileProvider();
   SoundsProvider _soundsProvider = SoundsProvider();
   Duration _duration = Duration.zero;
@@ -44,7 +44,7 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _authProvider = context.read<AuthProvider>();
-    _miscProvider = context.read<GameProvider>();
+    _miscProvider = context.read<SingleModeGameProvider>();
     _soundsProvider = context.read<SoundsProvider>();
     if (!kIsWeb) _soundsProvider.startGameMusic();
     _user = _authProvider.user;

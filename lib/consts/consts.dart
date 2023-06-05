@@ -7,7 +7,7 @@ class Consts {
 
   // collections
   static const String profile = '64403c608160e7137db3';
-  // static const String db = '6446ccd7ab056a2a233b';
+  static const String dailyPuzzle = '6456280fce7bda9ca877';
 
   // functions
   static const String otpSender = '643d33e8197328674e40';
