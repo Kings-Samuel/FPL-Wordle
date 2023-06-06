@@ -8,7 +8,7 @@ import '../helpers/utils/init_appwrite.dart';
 import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
-  late String _error;
+  String _error = '';
   User? _user;
   int _otpResendCountdown = 0;
 
@@ -103,40 +103,11 @@ class AuthProvider extends ChangeNotifier {
 
   // execute email verification OTP sender function
   Future<String?> sendOTP({required String email, required String name}) async {
-    Map<String, dynamic> data = {
-      'email': email,
-      'name': name,
-    };
-    String payload = jsonEncode(data);
-
     try {
-      final res = await functions.createExecution(
-        functionId: Consts.otpSender,
-        data: payload,
-      );
-
-      String responseString = res.response;
-      Map<String, dynamic> response = jsonDecode(responseString);
-
-      if (response['status'] == 'success') {
-        // save time of OTP generation
-        String now = DateTime.now().millisecondsSinceEpoch.toString();
-        await secStorage.write(key: 'otp_time', value: now);
-
-        // save and return OTP
-        String otp = response['otp'].toString();
-        await secStorage.write(key: 'otp', value: otp);
-
-        // start countdown timer
-        startOtpResendCountdown();
-
-        return response['otp'].toString();
-      } else {
-        _error = response['message'];
-        return null;
-      }
-    } on AppwriteException catch (e) {
-      _error = e.message!;
+      // start countdown timer
+      // startOtpResendCountdown();
+    } catch (e) {
+      _error = e.toString();
       debugPrint(_error);
       return null;
     }

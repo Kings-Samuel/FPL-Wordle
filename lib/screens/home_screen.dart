@@ -3,6 +3,7 @@ import 'package:awesome_icons/awesome_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fplwordle/helpers/utils/init_onesignal.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
 import 'package:fplwordle/models/user.dart';
@@ -51,6 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();
     if (_user != null) _profileProvider.createOrConfirmProfile(user: _user!);
+    initOnesignal(context);
     _buttons = [
       // play
       Button(

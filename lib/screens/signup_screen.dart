@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
+import 'package:fplwordle/helpers/utils/init_onesignal.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:fplwordle/helpers/widgets/loading_animation.dart';
@@ -201,7 +202,8 @@ class SignupScreenState extends State<SignupScreen> {
                                       email: _email.text.trim(), password: _password.text.trim());
 
                                   if (success && mounted) {
-                                    pushAndRemoveNavigator(const MyApp(), context);
+                                    await initOnesignal(context);
+                                    if (mounted) pushAndRemoveNavigator(const MyApp(), context);
                                   } else {
                                     snackBarHelper(context,
                                         message: _authProvider.error, type: AnimatedSnackBarType.error);
@@ -518,12 +520,15 @@ class SignupScreenState extends State<SignupScreen> {
                                   await _authProvider.isLoggedIn();
 
                                   if (success && mounted) {
-                                    context.goNamed(Routes.verifyEmail.replaceAll("/", ""), pathParameters: {
-                                      "userId": _authProvider.user!.id!
-                                    }, queryParameters: {
-                                      "email": _authProvider.user!.email!,
-                                      "name": _authProvider.user!.name!
-                                    });
+                                    await initOnesignal(context);
+                                    if (mounted) {
+                                      context.goNamed(Routes.verifyEmail.replaceAll("/", ""), pathParameters: {
+                                        "userId": _authProvider.user!.id!
+                                      }, queryParameters: {
+                                        "email": _authProvider.user!.email!,
+                                        "name": _authProvider.user!.name!
+                                      });
+                                    }
                                   } else {
                                     snackBarHelper(context,
                                         message: _authProvider.error, type: AnimatedSnackBarType.error);
