@@ -52,7 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();
     if (_user != null) _profileProvider.createOrConfirmProfile(user: _user!);
-    initOnesignal(context);
+    if (!kIsWeb) initOnesignal(context);
     _buttons = [
       // play
       Button(

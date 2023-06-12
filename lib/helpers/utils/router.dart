@@ -13,6 +13,7 @@ import 'package:fplwordle/screens/tutorial_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../consts/routes.dart';
+import '../../providers/profile_provider.dart';
 import '../../screens/not_found_page.dart';
 import '../widgets/web_page_transitioner.dart';
 import 'color_palette.dart';
@@ -30,10 +31,15 @@ final GoRouter _router = GoRouter(
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
+        bool isOnboardingComplete = await authProvider.isOnboardingComplete();
+
+        if (!isOnboardingComplete) {
+          return Routes.onboarding;
+        }
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
             return null;
           }
@@ -57,7 +63,7 @@ final GoRouter _router = GoRouter(
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
             return Routes.home;
           }
@@ -81,7 +87,7 @@ final GoRouter _router = GoRouter(
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
             return Routes.home;
           }
@@ -98,8 +104,8 @@ final GoRouter _router = GoRouter(
       ),
     ),
     GoRoute(
-        name: Routes.verifyEmail.replaceAll("/", ""),
-        path: "${Routes.verifyEmail}/:userId",
+        name: Routes.verifyAccount.replaceAll("/", ""),
+        path: "${Routes.verifyAccount}/:userId",
         redirect: (context, state) async {
           if (state.pathParameters.isEmpty || state.queryParameters.isEmpty) {
             return Routes.home;
@@ -149,7 +155,7 @@ final GoRouter _router = GoRouter(
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
             return null;
           }
@@ -169,12 +175,14 @@ final GoRouter _router = GoRouter(
       path: Routes.shop,
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
+        final profileProvider = context.read<ProfileProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
+            await profileProvider.createOrConfirmProfile(user: authProvider.user);
             return null;
           }
         } else {
@@ -193,12 +201,14 @@ final GoRouter _router = GoRouter(
       path: Routes.settings,
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
+        final profileProvider = context.read<ProfileProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
+            await profileProvider.createOrConfirmProfile(user: authProvider.user);
             return null;
           }
         } else {
@@ -217,12 +227,14 @@ final GoRouter _router = GoRouter(
       path: Routes.tutorial,
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
+        final profileProvider = context.read<ProfileProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
+            await profileProvider.createOrConfirmProfile(user: authProvider.user);
             return null;
           }
         } else {
@@ -241,12 +253,14 @@ final GoRouter _router = GoRouter(
       path: Routes.profile,
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
+        final profileProvider = context.read<ProfileProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
+            await profileProvider.createOrConfirmProfile(user: authProvider.user);
             return null;
           }
         } else {
@@ -265,12 +279,14 @@ final GoRouter _router = GoRouter(
       path: Routes.play,
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
+        final profileProvider = context.read<ProfileProvider>();
         bool isLoggedIn = await authProvider.isLoggedIn();
 
         if (isLoggedIn) {
           if (!authProvider.user!.emailVerification!) {
-            return Routes.verifyEmail;
+            return "${Routes.verifyAccount}/${authProvider.user!.id}?email=${authProvider.user!.email}&name=${authProvider.user!.name}";
           } else {
+            await profileProvider.createOrConfirmProfile(user: authProvider.user);
             return null;
           }
         } else {

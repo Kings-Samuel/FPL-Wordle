@@ -1,6 +1,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fplwordle/helpers/utils/sec_storage.dart';
+import 'package:fplwordle/consts/shared_prefs_consts.dart';
+import 'package:fplwordle/helpers/utils/init_sec_storage.dart';
 
 class SoundsProvider extends ChangeNotifier {
   static const String _click = 'assets/sound-effects/click.mp3';
@@ -21,9 +22,9 @@ class SoundsProvider extends ChangeNotifier {
     _checkMuteSettings();
   }
 
-  Future<void> _checkMuteSettings() async {
-    String? isSoundMuted = await secStorage.read(key: 'isSoundMuted');
-    String? isClickMuted = await secStorage.read(key: 'isClickMuted');
+Future<void> _checkMuteSettings() async {
+    String? isSoundMuted = await secStorage.read(key: SharedPrefsConsts.isSoundMuted);
+    String? isClickMuted = await secStorage.read(key: SharedPrefsConsts.isClickMuted);
 
     _isSoundMuted = isSoundMuted == 'true' ? true : false;
     _isClickMuted = isClickMuted == 'true' ? true : false;
@@ -33,13 +34,13 @@ class SoundsProvider extends ChangeNotifier {
 
   Future<void> toggleClick() async {
     _isClickMuted = !_isClickMuted;
-    await secStorage.write(key: 'isClickMuted', value: _isClickMuted.toString());
+    await secStorage.write(key: SharedPrefsConsts.isClickMuted, value: _isClickMuted.toString());
     notifyListeners();
   }
 
   Future<void> toggleSound() async {
     _isSoundMuted = !_isSoundMuted;
-    await secStorage.write(key: 'isSoundMuted', value: _isSoundMuted.toString());
+    await secStorage.write(key: SharedPrefsConsts.isSoundMuted, value: _isSoundMuted.toString());
     notifyListeners();
   }
 

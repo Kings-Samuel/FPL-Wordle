@@ -522,7 +522,7 @@ class SignupScreenState extends State<SignupScreen> {
                                   if (success && mounted) {
                                     await initOnesignal(context);
                                     if (mounted) {
-                                      context.goNamed(Routes.verifyEmail.replaceAll("/", ""), pathParameters: {
+                                      context.goNamed(Routes.verifyAccount.replaceAll("/", ""), pathParameters: {
                                         "userId": _authProvider.user!.id!
                                       }, queryParameters: {
                                         "email": _authProvider.user!.email!,

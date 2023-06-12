@@ -2,7 +2,7 @@ class Routes {
   static const String home = '/';
   static const String signin = '/signin';
   static const String signup = '/signup';
-  static const String verifyEmail = '/verify-email';
+  static const String verifyAccount = '/verify-account';
   static const String onboarding = '/onboarding';
   static const String shop = '/shop';
   static const String settings = '/settings';

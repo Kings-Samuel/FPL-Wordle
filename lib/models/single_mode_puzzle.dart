@@ -11,6 +11,7 @@ class SingleModePuzzle {
       player5unveiled;
   List<String>? selectedAttributes;
   int? lives, hints;
+  bool? isFinished;
 
   SingleModePuzzle({
     this.player1,
@@ -26,6 +27,7 @@ class SingleModePuzzle {
     this.selectedAttributes,
     this.lives,
     this.hints,
+    this.isFinished,
   });
 
   SingleModePuzzle.fromJson(Map<String, dynamic> json) {
@@ -34,7 +36,15 @@ class SingleModePuzzle {
     player3 = json['player3'];
     player4 = json['player4'];
     player5 = json['player5'];
+    player1unveiled = json['player1unveiled'];
+    player2unveiled = json['player2unveiled'];
+    player3unveiled = json['player3unveiled'];
+    player4unveiled = json['player4unveiled'];
+    player5unveiled = json['player5unveiled'];
     selectedAttributes = json['selectedAttributes'].cast<String>();
+    lives = json['lives'];
+    hints = json['hints'];
+    isFinished = json['isFinished'];
   }
 
   Map<String, dynamic> toJson() {
@@ -52,6 +62,7 @@ class SingleModePuzzle {
     data['selectedAttributes'] = selectedAttributes;
     data['lives'] = lives;
     data['hints'] = hints;
+    data['isFinished'] = isFinished;
     return data;
   }
 }

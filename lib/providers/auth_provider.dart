@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
-import 'package:fplwordle/consts/consts.dart';
-import 'package:fplwordle/helpers/utils/sec_storage.dart';
+import 'package:fplwordle/consts/appwrite_consts.dart';
+import 'package:fplwordle/helpers/utils/init_sec_storage.dart';
+import '../consts/shared_prefs_consts.dart';
 import '../helpers/utils/init_appwrite.dart';
 import '../models/user.dart';
 
@@ -18,8 +19,8 @@ class AuthProvider extends ChangeNotifier {
 
   // check if onboarding is complete
   Future<bool> isOnboardingComplete() async {
-    String? res = await secStorage.read(key: 'onboarding');
-    if (res == null || res != 'complete') {
+    String? res = await secStorage.read(key: SharedPrefsConsts.onboardingComplete);
+    if (res == null || res != 'true') {
       return false;
     } else {
       return true;
@@ -28,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
 
   // complete onboarding
   Future<void> completeOnboarding() async {
-    await secStorage.write(key: "onboarding", value: "complete");
+    await secStorage.write(key: SharedPrefsConsts.onboardingComplete, value: "true");
   }
 
   // check if user is logged in
@@ -76,7 +77,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       await account.createOAuth2Session(
         provider: 'google',
-        success: "https://fplwordle.web.app/auth.html", // TODO: change this to production url
+        // TODO: change this to production url
+        // success: "https://fplwordle.web.app/auth.html",
+        success: "http://localhost:52625/auth.html",
       );
 
       return true;
@@ -103,11 +106,38 @@ class AuthProvider extends ChangeNotifier {
 
   // execute email verification OTP sender function
   Future<String?> sendOTP({required String email, required String name}) async {
+    Map<String, dynamic> data = {
+      'email': email,
+      'name': name,
+    };
+    String payload = jsonEncode(data);
+
     try {
-      // start countdown timer
-      // startOtpResendCountdown();
-    } catch (e) {
-      _error = e.toString();
+      final res = await functions.createExecution(
+        functionId: AppwriteConsts.otpSender,
+        data: payload,
+      );
+
+      String otp = res.response;
+
+      if (res.statusCode == 200) {
+        // save time of OTP generation
+        String now = DateTime.now().millisecondsSinceEpoch.toString();
+        await secStorage.write(key: "otp_time", value: now);
+
+        // save and return OTP
+        await secStorage.write(key: "otp", value: otp);
+
+        // start countdown timer
+        startOtpResendCountdown();
+
+        return otp.toString();
+      } else {
+        _error = "OTP sending failed";
+        return null;
+      }
+    } on AppwriteException catch (e) {
+      _error = e.message!;
       debugPrint(_error);
       return null;
     }
@@ -145,17 +175,17 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final res = await functions.createExecution(
-        functionId: Consts.emailVerifier,
+        functionId: AppwriteConsts.emailVerifier,
         data: payload,
       );
 
-      String responseString = res.response;
-      Map<String, dynamic> response = jsonDecode(responseString);
+      String response = res.response;
 
-      if (response['status'] == 'success') {
+      if (res.statusCode == 200) {
+        debugPrint(response);
         return true;
       } else {
-        _error = response['message'];
+        _error = "Error: ${res.stderr}";
         return false;
       }
     } on AppwriteException catch (e) {

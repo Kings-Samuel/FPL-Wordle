@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import '../../consts/consts.dart';
+import '../../consts/appwrite_consts.dart';
 
 Client _client = Client();
 late Databases _database;
@@ -15,7 +15,7 @@ Functions get functions => _functions;
 Teams get teams => _teams;
 
 Future<void> initAppwrite() async {
-  _client.setProject(Consts.projectId).setEndpoint(Consts.endpoint);
+  _client.setProject(AppwriteConsts.projectId).setEndpoint(AppwriteConsts.endpoint);
   _database = Databases(_client);
   _storage = Storage(_client);
   _account = Account(_client);

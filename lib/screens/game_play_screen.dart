@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
@@ -10,8 +12,9 @@ import 'package:fplwordle/screens/profile_screen.dart';
 import 'package:fplwordle/screens/shop_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:random_avatar/random_avatar.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
-
+import '../models/player.dart';
 import '../models/profile.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
@@ -76,6 +79,16 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     if (profile == null) _profileProvider.createLocalProfile();
     // game provider
     SingleModePuzzle? puzzle = context.select<SingleModeGameProvider, SingleModePuzzle?>((provider) => provider.puzzle);
+    Player? player1 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player1!));
+    // Player? player2 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2!));
+    // Player? player3 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3!));
+    // Player? player4 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4!));
+    // Player? player5 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5!));
+    Player? player1unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player1unveiled!));
+    // Player? player2unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2unveiled!));
+    // Player? player3unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3unveiled!));
+    // Player? player4unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4unveiled!));
+    // Player? player5unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5unveiled!));
 
     return Scaffold(
         backgroundColor: Palette.scaffold,
@@ -178,227 +191,254 @@ class GamePlayScreenState extends State<GamePlayScreen> {
             ],
           ),
         ),
-        body: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Spacer(),
-          // keyboard
-          Center(
-            child: Container(
-              height: 295,
-              width: isDesktop ? 550 : double.infinity,
-              padding:
-                  isDesktop ? const EdgeInsets.all(15) : const EdgeInsets.only(top: 10, bottom: 20, left: 5, right: 5),
-              color: Palette.cardHeaderGrey,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // ** INPUT ** //
-                  if (input.isEmpty)
-                    Center(child: bodyText(text: "Type in a PLAYER NAME", color: Colors.grey, fontSize: 18))
-                  else
-                    Center(child: bodyText(text: input, color: Colors.white, fontSize: 18)),
-                  const SizedBox(height: 15),
-                  // ** SUGGESTIONS ** //
-                  if (input.isNotEmpty && input != " ")
-                    Container(
-                      height: 50,
-                      width: isDesktop ? 550 : double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // previous
-                          if (suggestions.isNotEmpty && _controller.hasClients)
-                            Center(
-                              child: IconButton(
-                                onPressed: () => _controller.animateTo(
-                                  _controller.offset - 100,
-                                  curve: Curves.easeOut,
-                                  duration: const Duration(milliseconds: 300),
-                                ),
-                                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+        // keyboard
+        bottomNavigationBar: Container(
+          height: 215,
+          alignment: Alignment.center,
+          child: Container(
+            width: isDesktop ? 500 : double.infinity,
+            padding:
+                isDesktop ? const EdgeInsets.all(15) : const EdgeInsets.only(top: 10, bottom: 20, left: 5, right: 5),
+            color: Palette.cardHeaderGrey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // ** INPUT ** //
+                if (input.isEmpty)
+                  Center(child: bodyText(text: "Type in a Player name", color: Colors.grey, fontSize: 16))
+                else
+                  Center(child: bodyText(text: input, color: Colors.white, fontSize: 16)),
+                // ** SUGGESTIONS ** //
+                if (input.isNotEmpty && input != " ")
+                  Container(
+                    height: 20,
+                    margin: const EdgeInsets.all(5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // previous
+                        if (suggestions.isNotEmpty && _controller.hasClients)
+                          Center(
+                            child: InkWell(
+                              onTap: () => _controller.animateTo(
+                                _controller.offset - 100,
+                                curve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 300),
                               ),
+                              child: const Icon(Icons.arrow_back_ios, size: 15, color: Colors.white),
                             ),
-                          const SizedBox(width: 5),
-                          // suggestions
-                          Expanded(
-                            child: Center(
-                              child: ListView.builder(
-                                controller: _controller,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: suggestions.length,
-                                itemBuilder: (context, index) {
-                                  String suggestion = suggestions[index];
-                                  return Center(
-                                    child: InkWell(
-                                      onTap: () => _keyboardProvider.useSuggestion(suggestion),
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Palette.cardHeaderGrey,
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: bodyText(
-                                            text: suggestion.toUpperCase(),
-                                            color: Colors.white.withOpacity(0.8),
-                                            fontSize: 18,
-                                            bold: true),
+                          ),
+                        const SizedBox(width: 5),
+                        // suggestions
+                        Expanded(
+                          child: Center(
+                            child: ListView.builder(
+                              controller: _controller,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: suggestions.length,
+                              itemBuilder: (context, index) {
+                                String suggestion = suggestions[index];
+                                return Center(
+                                  child: InkWell(
+                                    onTap: () => _keyboardProvider.useSuggestion(suggestion),
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
                                       ),
+                                      decoration: BoxDecoration(
+                                        color: Palette.cardHeaderGrey,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: bodyText(
+                                          text: suggestion.toUpperCase(),
+                                          color: Colors.white.withOpacity(0.8),
+                                          fontSize: 18,
+                                          bold: true),
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          const SizedBox(width: 5),
-                          // next
-                          if (suggestions.isNotEmpty && _controller.hasClients)
-                            Center(
-                              child: IconButton(
-                                onPressed: () => _controller.animateTo(
-                                  _controller.offset + 100,
-                                  curve: Curves.easeOut,
-                                  duration: const Duration(milliseconds: 300),
-                                ),
-                                icon: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  // ** KEYBOARD ** //
-                  // line 1
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(
-                      _line1Letters.length,
-                      (index) => Expanded(
-                        child: Container(
-                          margin: EdgeInsets.only(
-                              left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
-                          child: _key(_line1Letters[index]),
                         ),
-                      ),
+                        const SizedBox(width: 5),
+                        // next
+                        if (suggestions.isNotEmpty && _controller.hasClients)
+                          Center(
+                            child: InkWell(
+                              onTap: () => _controller.animateTo(
+                                _controller.offset + 100,
+                                curve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 300),
+                              ),
+                              child: const Icon(Icons.arrow_forward_ios, size: 15, color: Colors.white),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  // line 2
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(
-                      _line2Letters.length,
-                      (index) => Expanded(
-                          child: Container(
-                              margin: EdgeInsets.only(
-                                  left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
-                              child: _key(_line2Letters[index]))),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  // line 3
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                    _key("-", width: 25),
-                    const SizedBox(width: 2),
-                    _key("'", width: 25),
-                    const SizedBox(width: 2),
-                    ...List.generate(
-                      _line3Letters.length,
-                      (index) => Expanded(
-                          child: Container(
-                              margin: EdgeInsets.only(
-                                  left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
-                              child: _key(_line3Letters[index]))),
-                    ),
-                    const SizedBox(width: 2),
-                    // backspace
-                    InkWell(
-                      onTap: () => _keyboardProvider.backSpace(),
-                      onLongPress: () => _keyboardProvider.clearInput(),
+                // ** KEYBOARD ** //
+                // line 1
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(
+                    _line1Letters.length,
+                    (index) => Expanded(
                       child: Container(
-                        width: 55,
-                        height: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isBackspaceClicked ? Palette.primary : Palette.scaffold,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: const Center(child: Icon(Icons.backspace, color: Colors.white)),
+                        margin:
+                            EdgeInsets.only(left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
+                        child: _key(_line1Letters[index]),
                       ),
                     ),
-                  ]),
-                  // line 4
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      // hint button
-                      InkWell(
-                        onTap: () => _keyboardProvider.useHint(),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                // line 2
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: List.generate(
+                    _line2Letters.length,
+                    (index) => Expanded(
                         child: Container(
-                            height: 40,
-                            margin: const EdgeInsets.only(left: 3, right: 3),
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isHintClicked ? Palette.primary : Palette.cardBodyGrey,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.lightbulb, color: Palette.brightYellow),
-                                const SizedBox(width: 5),
-                                bodyText(text: 'Hint', color: Colors.white, fontSize: 18),
-                              ],
-                            )),
+                            margin: EdgeInsets.only(
+                                left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
+                            child: _key(_line2Letters[index]))),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                // line 3
+                Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  _key("-", width: 25),
+                  const SizedBox(width: 2),
+                  _key("'", width: 25),
+                  const SizedBox(width: 2),
+                  ...List.generate(
+                    _line3Letters.length,
+                    (index) => Expanded(
+                        child: Container(
+                            margin: EdgeInsets.only(
+                                left: index == 0 ? 0 : 2, right: index == _line1Letters.length - 1 ? 0 : 2),
+                            child: _key(_line3Letters[index]))),
+                  ),
+                  const SizedBox(width: 2),
+                  // backspace
+                  InkWell(
+                    onTap: () => _keyboardProvider.backSpace(),
+                    onLongPress: () => _keyboardProvider.clearInput(),
+                    child: Container(
+                      width: 55,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: isBackspaceClicked ? Palette.primary : Palette.scaffold,
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      // spacebar
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            _keyboardProvider.setTyped(' ');
-                            _keyboardProvider.addInput(' ');
-                          },
-                          child: Container(
-                            height: 40,
-                            margin: const EdgeInsets.only(left: 3, right: 3),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: typedSelector == " " ? Palette.primary : Palette.cardBodyGrey,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: bodyText(text: 'Space', color: Colors.white, fontSize: 18),
+                      child: const Center(child: Icon(Icons.backspace, color: Colors.white)),
+                    ),
+                  ),
+                ]),
+                // line 4
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    // hint button
+                    InkWell(
+                      onTap: () => _keyboardProvider.useHint(),
+                      child: Container(
+                          height: 40,
+                          margin: const EdgeInsets.only(left: 3, right: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: isHintClicked ? Palette.primary : Palette.cardBodyGrey,
+                            borderRadius: BorderRadius.circular(5),
                           ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.lightbulb, color: Palette.brightYellow),
+                              const SizedBox(width: 5),
+                              bodyText(text: 'Hint', color: Colors.white, fontSize: 18),
+                            ],
+                          )),
+                    ),
+                    // spacebar
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          _keyboardProvider.setTyped(' ');
+                          _keyboardProvider.addInput(' ');
+                        },
+                        child: Container(
+                          height: 40,
+                          margin: const EdgeInsets.only(left: 3, right: 3),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: typedSelector == " " ? Palette.primary : Palette.cardBodyGrey,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: bodyText(text: 'Space', color: Colors.white, fontSize: 18),
                         ),
                       ),
-                      // enter
-                      Visibility(
-                        visible: false,
-                        child: InkWell(
-                          onTap: () {}, //  TODO: add enter function
-                          child: Container(
-                            height: 40,
-                            margin: const EdgeInsets.only(left: 3, right: 3),
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Palette.primary,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: bodyText(text: 'Guess', color: Colors.white, fontSize: 18),
+                    ),
+                    // enter
+                    Visibility(
+                      visible: false,
+                      child: InkWell(
+                        onTap: () {}, //  TODO: add enter function
+                        child: Container(
+                          height: 40,
+                          margin: const EdgeInsets.only(left: 3, right: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Palette.primary,
+                            borderRadius: BorderRadius.circular(5),
                           ),
+                          child: bodyText(text: 'Guess', color: Colors.white, fontSize: 18),
                         ),
                       ),
-                    ],
-                  )
-                ],
-              ),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
-        ]));
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(5),
+          physics: const BouncingScrollPhysics(),
+          child: Column(children: [
+            // heading text
+            Center(
+              child: bodyText(text: "Find today's Premier League Players"),
+            ),
+            // puzzle
+            if (puzzle == null)
+              SizedBox(
+                width: isDesktop ? 550 : double.infinity,
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  Expanded(child: _shimmer(isDesktop)),
+                  Expanded(child: _shimmer(isDesktop)),
+                  Expanded(child: _shimmer(isDesktop)),
+                  Expanded(child: _shimmer(isDesktop)),
+                  Expanded(child: _shimmer(isDesktop))
+                ]),
+              ),
+            // else
+            //   Expanded(
+            //     child: SizedBox(
+            //       width: isDesktop ? 550 : double.infinity,
+            //       child: Row(
+            //         children: List.generate(5, (index) => puzzleCard()),
+            //       ),
+            //     ),
+            //   ),
+            const SizedBox(height: 10),
+          ]),
+        ));
   }
 
   double calculateProgress(int level, int xp) {
@@ -406,7 +446,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     return xp / xpNeeded;
   }
 
-  Widget _key(String letter, {double width = 40}) {
+  Widget _key(String letter, {double width = 30}) {
     String typedSelector = context.select((KeyboardProvider keyboardProvider) => keyboardProvider.typed);
 
     return InkWell(
@@ -416,7 +456,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
       },
       child: Container(
           width: width,
-          height: 40,
+          height: 28,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: typedSelector == letter ? Palette.primary : Palette.scaffold,
@@ -424,5 +464,196 @@ class GamePlayScreenState extends State<GamePlayScreen> {
           ),
           child: Center(child: bodyText(text: letter, color: Colors.white, fontSize: 18))),
     );
+  }
+
+  Widget _puzzleCard(Player player, Player playerUnveiled, List<String> selectedAttributes) {
+    String position = _getPosition(player.elementType!);
+    final team = _getTeam(player.team!, position == "GK");
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+      width: 100,
+      decoration: BoxDecoration(
+        color: Palette.cardBodyGrey,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // price
+          Container(
+            height: 30,
+            decoration: const BoxDecoration(
+              color: Palette.cardHeaderGrey,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
+              ),
+            ),
+            child: Center(
+              child: bodyText(text: "£${player.nowCost}", color: Colors.white, fontSize: 18),
+            ),
+          ),
+          const SizedBox(height: 5),
+          // team shirt
+          Column(
+            children: [
+              // shirt
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                height: 70,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                  image: AssetImage(team.shirtAsset),
+                )),
+              ),
+              // name
+              Center(
+                child: bodyText(text: team.name, color: Colors.grey),
+              ),
+            ],
+          ),
+          // 
+          // position
+          Container(
+            height: 30,
+            decoration: const BoxDecoration(
+              color: Palette.cardHeaderGrey,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
+              ),
+            ),
+            child: Center(
+              child: bodyText(text: position, color: Colors.white, fontSize: 18),
+            ),
+          ),
+        ],
+      ),
+    ).animate().scale();
+  }
+
+  Widget _shimmer(bool isDesktop) {
+    return Container(
+      height: isDesktop ? 350 : 400,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Shimmer(
+        color: Palette.primary,
+        direction: const ShimmerDirection.fromLTRB(),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+          width: 100,
+          height: isDesktop ? 350 : 400,
+          decoration: BoxDecoration(
+            color: Palette.cardBodyGrey,
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ({String name, String asset}) _getAttrDetails(String attribute) {
+    switch (attribute) {
+      case "totalPoints":
+        return (name: "Total Points", asset: "assets/attrIcons/totalPoints.png");
+      case "bonus":
+        return (name: "Bonus", asset: "assets/attrIcons/bonus.png");
+      case "goalsScored":
+        return (name: "Goals Scored", asset: "assets/attrIcons/goalsScored.png");
+      case "assists":
+        return (name: "Assists", asset: "assets/attrIcons/assists.png");
+      case "cleanSheets":
+        return (name: "Clean Sheets", asset: "assets/attrIcons/cleanSheets.png");
+      case "goalsConceded":
+        return (name: "Goals Conceded", asset: "assets/attrIcons/goalsConceded.png");
+      case "ownGoals":
+        return (name: "Own Goals", asset: "assets/attrIcons/ownGoals.png");
+      case "penaltiesMissed":
+        return (name: "Penalties Missed", asset: "assets/attrIcons/penaltiesMissed.png");
+      case "yellowCards":
+        return (name: "Yellow Cards", asset: "assets/attrIcons/yellowCards.png");
+      case "redCards":
+        return (name: "Red Cards", asset: "assets/attrIcons/redCards.png");
+      case "starts":
+        return (name: "Starts", asset: "assets/attrIcons/starts.png");
+      case "pointsPerGame":
+        return (name: "Points Per Game", asset: "assets/attrIcons/pointsPerGame.png");
+      default:
+        return (name: "Total Points", asset: "assets/attrIcons/totalPoints.png");
+    }
+  }
+
+  // Widget _attrCard(String attribute, bool isRevealed) {
+  //   final details = _getAttrDetails(attribute);
+
+  //   return Column(children: [
+  //     // icon image
+
+  //   ]);
+  // }
+
+  ({String name, String shirtAsset}) _getTeam(int teamNo, bool isGk) {
+    switch (teamNo) {
+      case 1:
+        return (name: "Arsenal", shirtAsset: isGk ? "assets/shirts/shirt_1_1.png" : "assets/shirts/shirt_1.png");
+      case 2:
+        return (name: "Aston Villa", shirtAsset: isGk ? "assets/shirts/shirt_2_1.png" : "assets/shirts/shirt_2.png");
+      case 3:
+        return (name: "Bournemouth", shirtAsset: isGk ? "assets/shirts/shirt_3_1.png" : "assets/shirts/shirt_3.png");
+      case 4:
+        return (name: "Brentford", shirtAsset: isGk ? "assets/shirts/shirt_4_1.png" : "assets/shirts/shirt_4.png");
+      case 5:
+        return (name: "Brighton", shirtAsset: isGk ? "assets/shirts/shirt_5_1.png" : "assets/shirts/shirt_5.png");
+      case 6:
+        return (name: "Chelsea", shirtAsset: isGk ? "assets/shirts/shirt_6_1.png" : "assets/shirts/shirt_6.png");
+      case 7:
+        return (name: "Crystal Palace", shirtAsset: isGk ? "assets/shirts/shirt_7_1.png" : "assets/shirts/shirt_7.png");
+      case 8:
+        return (name: "Everton", shirtAsset: isGk ? "assets/shirts/shirt_8_1.png" : "assets/shirts/shirt_8.png");
+      case 9:
+        return (name: "Fulham", shirtAsset: isGk ? "assets/shirts/shirt_9_1.png" : "assets/shirts/shirt_9.png");
+      case 10:
+        return (name: "Leicester", shirtAsset: isGk ? "assets/shirts/shirt_10_1.png" : "assets/shirts/shirt_10.png");
+      case 11:
+        return (name: "Leeds", shirtAsset: isGk ? "assets/shirts/shirt_11_1.png" : "assets/shirts/shirt_11.png");
+      case 12:
+        return (name: "Liverpool", shirtAsset: isGk ? "assets/shirts/shirt_12_1.png" : "assets/shirts/shirt_12.png");
+      case 13:
+        return (name: "Man City", shirtAsset: isGk ? "assets/shirts/shirt_13_1.png" : "assets/shirts/shirt_13.png");
+      case 14:
+        return (name: "Man Utd", shirtAsset: isGk ? "assets/shirts/shirt_12_1.png" : "assets/shirts/shirt_12.png");
+      case 15:
+        return (name: "Newcastle", shirtAsset: isGk ? "assets/shirts/shirt_15_1.png" : "assets/shirts/shirt_15.png");
+      case 16:
+        return (name: "Nott Forest", shirtAsset: isGk ? "assets/shirts/shirt_16_1.png" : "assets/shirts/shirt_16.png");
+      case 17:
+        return (name: "Southampton", shirtAsset: isGk ? "assets/shirts/shirt_17_1.png" : "assets/shirts/shirt_17.png");
+      case 18:
+        return (name: "Tottenham", shirtAsset: isGk ? "assets/shirts/shirt_18_1.png" : "assets/shirts/shirt_18.png");
+      case 19:
+        return (name: "West Ham", shirtAsset: isGk ? "assets/shirts/shirt_19_1.png" : "assets/shirts/shirt_19.png");
+      case 20:
+        return (name: "Wolves", shirtAsset: isGk ? "assets/shirts/shirt_20_1.png" : "assets/shirts/shirt_20.png");
+      default:
+        return (name: "Team", shirtAsset: "assets/shirts/shirt_0.png");
+    }
+  }
+
+  String _getPosition(int positionNo) {
+    switch (positionNo) {
+      case 1:
+        return "GK";
+      case 2:
+        return "DEF";
+      case 3:
+        return "MID";
+      case 4:
+        return "FWD";
+      default:
+        return "";
+    }
   }
 }

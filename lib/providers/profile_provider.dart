@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
-import 'package:fplwordle/consts/consts.dart';
+import 'package:fplwordle/consts/appwrite_consts.dart';
 import 'package:fplwordle/helpers/utils/init_appwrite.dart';
-import 'package:fplwordle/helpers/utils/sec_storage.dart';
+import 'package:fplwordle/helpers/utils/init_sec_storage.dart';
 import 'package:fplwordle/models/profile.dart';
 import 'package:fplwordle/models/user.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import '../consts/shared_prefs_consts.dart';
 
 class ProfileProvider extends ChangeNotifier {
   String _error = '';
-  final String _db = Consts.db;
-  final String _collection = Consts.profile;
+  final String _db = AppwriteConsts.db;
+  final String _collection = AppwriteConsts.profile;
   Profile? _profile;
   bool _isNotificationEnabled = true;
 
@@ -26,7 +28,7 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> createOrConfirmProfile({User? user}) async {
     try {
       // check if there is a profile document for this user on local storage
-      String? profile_ = await secStorage.read(key: 'profile');
+      String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
       // check if user is null (user is null when user is not logged in)
       if (user!.id == null && profile_ != null) {
@@ -51,7 +53,7 @@ class ProfileProvider extends ChangeNotifier {
         // if not exists, create new profile document (handled by catch block)/
 
         // clear local storage
-        await secStorage.delete(key: 'profile');
+        await secStorage.delete(key: SharedPrefsConsts.profile);
       } else {
         // check if doc already exixst.
         final res = await database.getDocument(databaseId: _db, collectionId: _collection, documentId: user.id!);
@@ -68,7 +70,7 @@ class ProfileProvider extends ChangeNotifier {
       // if profile document does not exist, create new profile document
       if (_error == "Document with the requested ID could not be found.") {
         // check if local profile exists
-        String? profile_ = await secStorage.read(key: 'profile');
+        String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
         if (profile_ == null) {
           _profile = Profile(
@@ -128,7 +130,7 @@ class ProfileProvider extends ChangeNotifier {
             notifyListeners();
             // debugPrint(value.toMap().toString());
             // clear local storage
-            await secStorage.delete(key: 'profile');
+            await secStorage.delete(key: SharedPrefsConsts.profile);
           }).catchError((e) {
             debugPrint(e.toString());
           });
@@ -140,7 +142,7 @@ class ProfileProvider extends ChangeNotifier {
   // create profile locally
   Future<void> createLocalProfile() async {
     // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: 'profile');
+    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ == null) {
       _profile = Profile(
@@ -177,7 +179,7 @@ class ProfileProvider extends ChangeNotifier {
         ),
       );
       String profileString = jsonEncode(_profile!.toJson());
-      await secStorage.write(key: 'profile', value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
@@ -190,13 +192,13 @@ class ProfileProvider extends ChangeNotifier {
   // update difficulty
   Future<void> updateDifficulty(int level) async {
     // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: "profile");
+    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
       _profile!.difficulty = level;
       String profileString = jsonEncode(_profile!.toJson());
 
-      await secStorage.write(key: "profile", value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
@@ -209,50 +211,49 @@ class ProfileProvider extends ChangeNotifier {
 
   // check if user has enabled notifications
   Future<void> checkNotificationStatus() async {
-    String? notifStatus = await secStorage.read(key: "notifStatus");
+    String? notifStatus = await secStorage.read(key: SharedPrefsConsts.notifStatus);
 
     if (notifStatus == null || notifStatus == "true") {
       _isNotificationEnabled = true;
-      notifyListeners();
     } else {
       _isNotificationEnabled = false;
-      notifyListeners();
     }
-    // TODO: check android and iOS notification channels
   }
 
   // toggle notifications
   Future<void> toggleNotifications() async {
-    String? notifStatus = await secStorage.read(key: "notifStatus");
-
-    if (notifStatus == null || notifStatus == "true") {
+    if (_isNotificationEnabled) {
       _isNotificationEnabled = false;
-      await secStorage.write(key: "notifStatus", value: "false");
+      await secStorage.write(key: SharedPrefsConsts.notifStatus, value: "false");
+      await OneSignal.shared.disablePush(true);
       notifyListeners();
     } else {
       _isNotificationEnabled = true;
-      await secStorage.write(key: "notifStatus", value: "true");
+      await secStorage.write(key: SharedPrefsConsts.notifStatus, value: "true");
+      await OneSignal.shared.disablePush(false);
       notifyListeners();
     }
-    // TODO: check android and iOS notification channels
   }
 
   // increase forfeit count
   Future<void> increaseForfeitCount() async {
     // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: "profile");
+    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
       _profile!.gamesAbandoned! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
-      await secStorage.write(key: "profile", value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
       _profile!.gamesAbandoned! + 1;
       await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"gamesAbandoned": _profile!.gamesAbandoned});
+          databaseId: _db,
+          collectionId: _collection,
+          documentId: _profile!.id!,
+          data: {"gamesAbandoned": _profile!.gamesAbandoned});
       notifyListeners();
     }
   }

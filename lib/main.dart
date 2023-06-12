@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
           title: 'Fantasy Football Guesser',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+            useMaterial3: true,
             primarySwatch: MsMaterialColor(Palette.primary.value),
             primaryColor: Colors.white,
             appBarTheme: const AppBarTheme(
@@ -177,7 +178,7 @@ class _AuthFlowState extends State<AuthFlow> {
                 userId: user.id!,
               ),
               context,
-              Routes.verifyEmail,
+              Routes.verifyAccount,
               replacement: true);
         }
       } else {

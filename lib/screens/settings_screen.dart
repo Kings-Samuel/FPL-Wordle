@@ -84,6 +84,7 @@ class SettingsScreen extends StatelessWidget {
           SizedBox(
               width: isDesktop ? 500 : double.infinity, child: const Divider(color: Palette.primary, thickness: 1)),
           const SizedBox(height: 15),
+          // others
           SizedBox(
               width: isDesktop ? 500 : double.infinity,
               child: Column(
@@ -121,7 +122,7 @@ class SettingsScreen extends StatelessWidget {
                             onChanged: (String? newValue) async {
                               soundsProvider.playClick();
                               await profileProvider.updateDifficulty(_difficultyLevelInt(newValue!));
-                              if (context.mounted) snackBarHelper(context, message: "Difficulty updated");
+                              if (context.mounted) snackBarHelper(context, message: "Difficulty updated. Changes will be applied in the next game");
                             },
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -195,7 +196,7 @@ class SettingsScreen extends StatelessWidget {
                             onChanged: (value) async {
                               soundsProvider.playClick();
                               await profileProvider.toggleNotifications();
-                              if (context.mounted) snackBarHelper(context, message: "Notifications updated");
+                              if (context.mounted) snackBarHelper(context, message: "Notifications updated.");
                             },
                             activeTrackColor: Colors.white,
                             activeColor: Palette.primary,
