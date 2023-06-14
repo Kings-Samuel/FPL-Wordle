@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
+import 'package:fplwordle/helpers/widgets/custom_btn.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
+import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
 import 'package:fplwordle/helpers/widgets/leading_button.dart';
 import 'package:fplwordle/models/single_mode_puzzle.dart';
 import 'package:fplwordle/providers/keyboard_provider.dart';
@@ -40,6 +43,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
   ProfileProvider _profileProvider = ProfileProvider();
   SingleModeGameProvider _gameProvider = SingleModeGameProvider();
   User? _user;
+  bool _scaleAttrCards = false;
 
   @override
   void initState() {
@@ -55,6 +59,9 @@ class GamePlayScreenState extends State<GamePlayScreen> {
   }
 
   Future<void> _loadPuzzle() async {
+    // await secStorage.delete(key: "gameInSession"); // for testing purposes only
+    // await secStorage.delete(key: "gameInSession"); // for testing purposes only
+
     bool isGameInSession = await _gameProvider.isGameInSession(_profileProvider);
 
     if (isGameInSession && mounted) {
@@ -79,16 +86,34 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     if (profile == null) _profileProvider.createLocalProfile();
     // game provider
     SingleModePuzzle? puzzle = context.select<SingleModeGameProvider, SingleModePuzzle?>((provider) => provider.puzzle);
+    _scaleAttrCards = context.select<SingleModeGameProvider, bool>((provider) => provider.scaleAttrCards);
     Player? player1 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player1!));
-    // Player? player2 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2!));
-    // Player? player3 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3!));
-    // Player? player4 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4!));
-    // Player? player5 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5!));
+    Player? player2 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2!));
+    Player? player3 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3!));
+    Player? player4 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4!));
+    Player? player5 = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5!));
     Player? player1unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player1unveiled!));
-    // Player? player2unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2unveiled!));
-    // Player? player3unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3unveiled!));
-    // Player? player4unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4unveiled!));
-    // Player? player5unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5unveiled!));
+    Player? player2unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player2unveiled!));
+    Player? player3unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player3unveiled!));
+    Player? player4unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player4unveiled!));
+    Player? player5unveiled = puzzle == null ? null : Player.fromJson(jsonDecode(puzzle.player5unveiled!));
+
+    // set game complete if all players are unveiled
+    bool isGameCompleted = false;
+
+    if (puzzle != null) {
+      puzzle.hints = 10; // for testing purposes only
+      // secStorage.write(key: "gameInSession", value: jsonEncode(puzzle.toJson()));
+      isGameCompleted = player1unveiled!.isUnveiled == true &&
+          player2unveiled!.isUnveiled == true &&
+          player3unveiled!.isUnveiled == true &&
+          player4unveiled!.isUnveiled == true &&
+          player5unveiled!.isUnveiled == true;
+    }
+
+    if (isGameCompleted) {
+      _gameProvider.setGameComplete();
+    }
 
     return Scaffold(
         backgroundColor: Palette.scaffold,
@@ -137,7 +162,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                             child: ProgressBar(
                                 height: 7,
                                 width: 70.0,
-                                value: calculateProgress(profile.level!, profile.xp!),
+                                value: _calculateProgress(profile.level!, profile.xp!),
                                 gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -345,7 +370,35 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                   children: [
                     // hint button
                     InkWell(
-                      onTap: () => _keyboardProvider.useHint(),
+                      onTap: _scaleAttrCards && puzzle!.hints! <= 0
+                          ? null
+                          : () async {
+                              _soundsProvider.playClick();
+                              await _keyboardProvider.hintButtonFeedback();
+                              if (mounted) {
+                                await customDialog(context: context, title: "Select a trait to reveal", contentList: [
+                                  SizedBox(
+                                    width: 150,
+                                    child: customButton(context,
+                                        backgroundColor: Colors.green,
+                                        icon: CupertinoIcons.arrow_right_circle,
+                                        text: "Proceed", onTap: () {
+                                      _gameProvider.setScaleAttrIcons(true);
+                                      popNavigator(context, rootNavigator: true);
+                                    }),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  SizedBox(
+                                    width: 150,
+                                    child: customButton(context,
+                                        backgroundColor: Colors.red,
+                                        icon: Icons.close,
+                                        text: "Cancel",
+                                        onTap: () => popNavigator(context, rootNavigator: true)),
+                                  )
+                                ]);
+                              }
+                            },
                       child: Container(
                           height: 40,
                           margin: const EdgeInsets.only(left: 3, right: 3),
@@ -384,23 +437,23 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                       ),
                     ),
                     // enter
-                    Visibility(
-                      visible: false,
-                      child: InkWell(
-                        onTap: () {}, //  TODO: add enter function
-                        child: Container(
-                          height: 40,
-                          margin: const EdgeInsets.only(left: 3, right: 3),
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Palette.primary,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: bodyText(text: 'Guess', color: Colors.white, fontSize: 18),
-                        ),
-                      ),
-                    ),
+                    // Visibility(
+                    //   visible: false,
+                    //   child: InkWell(
+                    //     onTap: () {}, //  todo: add enter function
+                    //     child: Container(
+                    //       height: 40,
+                    //       margin: const EdgeInsets.only(left: 3, right: 3),
+                    //       padding: const EdgeInsets.symmetric(horizontal: 5),
+                    //       alignment: Alignment.center,
+                    //       decoration: BoxDecoration(
+                    //         color: Palette.primary,
+                    //         borderRadius: BorderRadius.circular(5),
+                    //       ),
+                    //       child: bodyText(text: 'Guess', color: Colors.white, fontSize: 18),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 )
               ],
@@ -415,7 +468,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
             Center(
               child: bodyText(text: "Find today's Premier League Players"),
             ),
-            // puzzle
+            // loading shimmer
             if (puzzle == null)
               SizedBox(
                 width: isDesktop ? 550 : double.infinity,
@@ -426,26 +479,25 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                   Expanded(child: _shimmer(isDesktop)),
                   Expanded(child: _shimmer(isDesktop))
                 ]),
+              )
+            // puzzle
+            else
+              SizedBox(
+                width: isDesktop ? 550 : double.infinity,
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  Expanded(child: _puzzleCard(player1!, player1unveiled!, puzzle.selectedAttributes!, isDesktop, 1)),
+                  Expanded(child: _puzzleCard(player2!, player2unveiled!, puzzle.selectedAttributes!, isDesktop, 2)),
+                  Expanded(child: _puzzleCard(player3!, player3unveiled!, puzzle.selectedAttributes!, isDesktop, 3)),
+                  Expanded(child: _puzzleCard(player4!, player4unveiled!, puzzle.selectedAttributes!, isDesktop, 4)),
+                  Expanded(child: _puzzleCard(player5!, player5unveiled!, puzzle.selectedAttributes!, isDesktop, 5)),
+                ]),
               ),
-            // else
-            //   Expanded(
-            //     child: SizedBox(
-            //       width: isDesktop ? 550 : double.infinity,
-            //       child: Row(
-            //         children: List.generate(5, (index) => puzzleCard()),
-            //       ),
-            //     ),
-            //   ),
             const SizedBox(height: 10),
           ]),
         ));
   }
 
-  double calculateProgress(int level, int xp) {
-    int xpNeeded = 10 * level;
-    return xp / xpNeeded;
-  }
-
+  // ** WIDGETS ** //
   Widget _key(String letter, {double width = 30}) {
     String typedSelector = context.select((KeyboardProvider keyboardProvider) => keyboardProvider.typed);
 
@@ -466,15 +518,35 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     );
   }
 
-  Widget _puzzleCard(Player player, Player playerUnveiled, List<String> selectedAttributes) {
+  Widget _puzzleCard(
+      Player player, Player playerUnveiled, List<String> selectedAttributes, bool isDesktop, int puzzlePosition) {
+    double price = player.nowCost! / 10;
     String position = _getPosition(player.elementType!);
-    final team = _getTeam(player.team!, position == "GK");
+    final team = _getTeam(playerUnveiled.team!, position == "GK");
+    String teamName = team.name.toUpperCase();
+    bool isUnveiled = playerUnveiled.isUnveiled ?? false;
+
+    String attribute1 = selectedAttributes[0];
+    String attr1Value = _getAttrValue(attribute1, playerUnveiled);
+    bool isAttr1Revealed = attr1Value != "0";
+    String attribute2 = selectedAttributes[1];
+    String attr2Value = _getAttrValue(attribute2, playerUnveiled);
+    bool isAttr2Revealed = attr2Value != "0";
+    String attribute3 = selectedAttributes[2];
+    bool isAttr3Revealed = attr2Value != "0";
+    String attr3Value = _getAttrValue(attribute3, playerUnveiled);
+
+    // set unveiled as true if all items are  revealed
+    bool isAllRevealed = isAttr1Revealed && isAttr2Revealed && isAttr3Revealed && teamName != "TEAM";
+    if (isAllRevealed) {
+      _gameProvider.setPlayerUnveiled(player: player, playerUnveiled: playerUnveiled, puzzlePosition: puzzlePosition);
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       width: 100,
       decoration: BoxDecoration(
-        color: Palette.cardBodyGrey,
+        color: isUnveiled ? Palette.cardBodyGreeen : Palette.cardBodyGrey,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -483,45 +555,88 @@ class GamePlayScreenState extends State<GamePlayScreen> {
           // price
           Container(
             height: 30,
-            decoration: const BoxDecoration(
-              color: Palette.cardHeaderGrey,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: isUnveiled ? Palette.cardHeadGreen : Palette.cardHeaderGrey,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),
                 topRight: Radius.circular(10.0),
               ),
             ),
             child: Center(
-              child: bodyText(text: "£${player.nowCost}", color: Colors.white, fontSize: 18),
+              child: bodyText(text: "£$price", color: Colors.white, fontSize: 18),
             ),
           ),
           const SizedBox(height: 5),
           // team shirt
-          Column(
-            children: [
-              // shirt
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                height: 70,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: AssetImage(team.shirtAsset),
-                )),
+          if (teamName == "TEAM" && _scaleAttrCards)
+            InkWell(
+              onTap: () async {
+                await _gameProvider.useHint(
+                    player: player, playerUnveiled: playerUnveiled, puzzlePosition: puzzlePosition);
+                setState(() {});
+              },
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    height: 40,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                      image: AssetImage(team.shirtAsset),
+                    )),
+                  ).animate(onComplete: (controller) => controller.repeat(min: 0.85, max: 1.0, period: 800.ms)).scale(
+                        delay: Duration.zero,
+                        duration: 800.ms,
+                      ),
+                  const SizedBox(height: 5),
+                  // name
+                  FittedBox(
+                    child: bodyText(
+                        text: teamName,
+                        color: teamName == "TEAM" ? Colors.grey : Colors.white,
+                        fontSize: isDesktop ? 14 : 12),
+                  ),
+                ],
               ),
-              // name
-              Center(
-                child: bodyText(text: team.name, color: Colors.grey),
-              ),
-            ],
-          ),
-          // 
+            )
+          else
+            Column(
+              children: [
+                // shirt
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  height: 40,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                    image: AssetImage(team.shirtAsset),
+                  )),
+                ),
+                const SizedBox(height: 5),
+                // name
+                FittedBox(
+                  child: bodyText(
+                      text: teamName,
+                      color: teamName == "TEAM" ? Colors.grey : Colors.white,
+                      fontSize: isDesktop ? 14 : 12),
+                ),
+              ],
+            ),
+          const SizedBox(height: 5),
+          // attributes
+          _attrCard(attribute1, attr1Value, isAttr1Revealed, isDesktop, player, playerUnveiled, puzzlePosition),
+          const SizedBox(height: 5),
+          _attrCard(attribute2, attr2Value, isAttr2Revealed, isDesktop, player, playerUnveiled, puzzlePosition),
+          const SizedBox(height: 5),
+          _attrCard(attribute3, attr3Value, isAttr3Revealed, isDesktop, player, playerUnveiled, puzzlePosition),
+          const SizedBox(height: 5),
           // position
           Container(
             height: 30,
-            decoration: const BoxDecoration(
-              color: Palette.cardHeaderGrey,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(10.0),
-                topRight: Radius.circular(10.0),
+            decoration: BoxDecoration(
+              color: isUnveiled ? Palette.cardHeadGreen : Palette.cardHeaderGrey,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(10.0),
+                bottomRight: Radius.circular(10.0),
               ),
             ),
             child: Center(
@@ -555,52 +670,95 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     );
   }
 
-  ({String name, String asset}) _getAttrDetails(String attribute) {
-    switch (attribute) {
-      case "totalPoints":
-        return (name: "Total Points", asset: "assets/attrIcons/totalPoints.png");
-      case "bonus":
-        return (name: "Bonus", asset: "assets/attrIcons/bonus.png");
-      case "goalsScored":
-        return (name: "Goals Scored", asset: "assets/attrIcons/goalsScored.png");
-      case "assists":
-        return (name: "Assists", asset: "assets/attrIcons/assists.png");
-      case "cleanSheets":
-        return (name: "Clean Sheets", asset: "assets/attrIcons/cleanSheets.png");
-      case "goalsConceded":
-        return (name: "Goals Conceded", asset: "assets/attrIcons/goalsConceded.png");
-      case "ownGoals":
-        return (name: "Own Goals", asset: "assets/attrIcons/ownGoals.png");
-      case "penaltiesMissed":
-        return (name: "Penalties Missed", asset: "assets/attrIcons/penaltiesMissed.png");
-      case "yellowCards":
-        return (name: "Yellow Cards", asset: "assets/attrIcons/yellowCards.png");
-      case "redCards":
-        return (name: "Red Cards", asset: "assets/attrIcons/redCards.png");
-      case "starts":
-        return (name: "Starts", asset: "assets/attrIcons/starts.png");
-      case "pointsPerGame":
-        return (name: "Points Per Game", asset: "assets/attrIcons/pointsPerGame.png");
-      default:
-        return (name: "Total Points", asset: "assets/attrIcons/totalPoints.png");
+  Widget _attrCard(String attribute, String value, bool isRevealed, bool isDesktop, Player player,
+      Player playerUnveiled, int puzzlePosition) {
+    final details = _getAttrDetails(attribute);
+
+    if (_scaleAttrCards && !isRevealed) {
+      return InkWell(
+        onTap: () async {
+          await _gameProvider.useHint(
+              player: player, playerUnveiled: playerUnveiled, puzzlePosition: puzzlePosition, attribute: attribute);
+          setState(() {});
+        },
+        child: Column(children: [
+          // icon image
+          Badge(
+            backgroundColor: Palette.primary,
+            isLabelVisible: isRevealed,
+            label: Center(child: bodyText(text: value, textAlign: TextAlign.center, fontSize: 14)),
+            child: Image.asset(details.asset, height: 40, width: 40, color: isRevealed ? null : Colors.grey),
+          ).animate(onComplete: (controller) => controller.repeat(min: 0.85, max: 1.0, period: 800.ms)).scale(
+                delay: Duration.zero,
+                duration: 800.ms,
+              ),
+          const SizedBox(height: 3),
+          FittedBox(
+              child: bodyText(
+                  text: details.name,
+                  color: isRevealed ? Colors.white : Colors.grey,
+                  fontSize: isDesktop ? 14 : 12,
+                  textAlign: TextAlign.center)),
+        ]),
+      );
+    } else {
+      return Column(children: [
+        // icon image
+        Badge(
+          backgroundColor: Palette.primary,
+          isLabelVisible: isRevealed,
+          label: Center(child: bodyText(text: value, textAlign: TextAlign.center, fontSize: 14)),
+          child: Image.asset(details.asset, height: 40, width: 40, color: isRevealed ? null : Colors.grey),
+        ),
+        const SizedBox(height: 3),
+        FittedBox(
+            child: bodyText(
+                text: details.name,
+                color: isRevealed ? Colors.white : Colors.grey,
+                fontSize: isDesktop ? 14 : 12,
+                textAlign: TextAlign.center)),
+      ]);
     }
   }
 
-  // Widget _attrCard(String attribute, bool isRevealed) {
-  //   final details = _getAttrDetails(attribute);
-
-  //   return Column(children: [
-  //     // icon image
-
-  //   ]);
-  // }
+  // ** SWITCH CASES && FUNCTIONS** //
+  ({String name, String asset}) _getAttrDetails(String attribute) {
+    switch (attribute) {
+      case "totalPoints":
+        return (name: "Total Points", asset: "attrIcons/totalPoints.png");
+      case "bonus":
+        return (name: "Bonus", asset: "attrIcons/bonus.png");
+      case "goalsScored":
+        return (name: "Goals Scored", asset: "attrIcons/goalsScored.png");
+      case "assists":
+        return (name: "Assists", asset: "attrIcons/assists.png");
+      case "cleanSheets":
+        return (name: "Clean Sheets", asset: "attrIcons/cleanSheets.png");
+      case "goalsConceded":
+        return (name: "Goals Conceded", asset: "attrIcons/goalsConceded.png");
+      case "ownGoals":
+        return (name: "Own Goals", asset: "attrIcons/ownGoals.png");
+      case "penaltiesMissed":
+        return (name: "Penalties Missed", asset: "attrIcons/penaltiesMissed.png");
+      case "yellowCards":
+        return (name: "Yellow Cards", asset: "attrIcons/yellowCards.png");
+      case "redCards":
+        return (name: "Red Cards", asset: "attrIcons/redCards.png");
+      case "starts":
+        return (name: "Starts", asset: "attrIcons/starts.png");
+      case "pointsPerGame":
+        return (name: "Points Per Game", asset: "attrIcons/pointsPerGame.png");
+      default:
+        return (name: "Total Points", asset: "attrIcons/totalPoints.png");
+    }
+  }
 
   ({String name, String shirtAsset}) _getTeam(int teamNo, bool isGk) {
     switch (teamNo) {
       case 1:
         return (name: "Arsenal", shirtAsset: isGk ? "assets/shirts/shirt_1_1.png" : "assets/shirts/shirt_1.png");
       case 2:
-        return (name: "Aston Villa", shirtAsset: isGk ? "assets/shirts/shirt_2_1.png" : "assets/shirts/shirt_2.png");
+        return (name: "A. Villa", shirtAsset: isGk ? "assets/shirts/shirt_2_1.png" : "assets/shirts/shirt_2.png");
       case 3:
         return (name: "Bournemouth", shirtAsset: isGk ? "assets/shirts/shirt_3_1.png" : "assets/shirts/shirt_3.png");
       case 4:
@@ -624,7 +782,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
       case 13:
         return (name: "Man City", shirtAsset: isGk ? "assets/shirts/shirt_13_1.png" : "assets/shirts/shirt_13.png");
       case 14:
-        return (name: "Man Utd", shirtAsset: isGk ? "assets/shirts/shirt_12_1.png" : "assets/shirts/shirt_12.png");
+        return (name: "Man Utd", shirtAsset: isGk ? "assets/shirts/shirt_14_1.png" : "assets/shirts/shirt_14.png");
       case 15:
         return (name: "Newcastle", shirtAsset: isGk ? "assets/shirts/shirt_15_1.png" : "assets/shirts/shirt_15.png");
       case 16:
@@ -654,6 +812,42 @@ class GamePlayScreenState extends State<GamePlayScreen> {
         return "FWD";
       default:
         return "";
+    }
+  }
+
+  double _calculateProgress(int level, int xp) {
+    int xpNeeded = 10 * level;
+    return xp / xpNeeded;
+  }
+
+  String _getAttrValue(String attribute, Player playerUnveiled) {
+    switch (attribute) {
+      case "totalPoints":
+        return playerUnveiled.totalPoints.toString();
+      case "bonus":
+        return playerUnveiled.bonus.toString();
+      case "goalsScored":
+        return playerUnveiled.goalsScored.toString();
+      case "assists":
+        return playerUnveiled.assists.toString();
+      case "cleanSheets":
+        return playerUnveiled.cleanSheets.toString();
+      case "goalsConceded":
+        return playerUnveiled.goalsConceded.toString();
+      case "ownGoals":
+        return playerUnveiled.ownGoals.toString();
+      case "penaltiesMissed":
+        return playerUnveiled.penaltiesMissed.toString();
+      case "yellowCards":
+        return playerUnveiled.yellowCards.toString();
+      case "redCards":
+        return playerUnveiled.redCards.toString();
+      case "starts":
+        return playerUnveiled.starts.toString();
+      case "pointsPerGame":
+        return playerUnveiled.pointsPerGame.toString();
+      default:
+        return playerUnveiled.totalPoints.toString();
     }
   }
 }

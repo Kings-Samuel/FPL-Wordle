@@ -42,11 +42,10 @@ class KeyboardProvider extends ChangeNotifier {
     }
   }
 
-  void useHint() {
-    // TODO: implement useHint
+  Future<void> hintButtonFeedback() async {
     _isHintClicked = true;
     notifyListeners();
-    Future.delayed(const Duration(milliseconds: 150), () {
+    await Future.delayed(const Duration(milliseconds: 150), () {
       _isHintClicked = false;
       notifyListeners();
     });

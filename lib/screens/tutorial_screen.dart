@@ -20,25 +20,25 @@ class _TutorialScreenState extends State<TutorialScreen> {
         title: "Start the Game",
         subtitle: "5 hidden players",
         desc:
-            "At midnight, 5 new hidden players will become available to find, their estimated value and preferred position listed at the top and bottom respectively. Your goal is to guess as many of the players as possible within 20 attempts.",
+            "Five new hidden players will be provided to the game at 17:00 UTC every day, with their favorite position and likely worth listed at the top and bottom, respectively. Depending on the difficulty level you select, your objective is to correctly predict as many players as you can in 20, 15, or 10 attempts.",
         image: "assets/tutorials/1.png"),
     Intro(
         title: "Guess a Player",
         subtitle: "Search & Auto-Complete",
         desc:
-            'To guess a player, begin typing their name using the provided keyboard. As you type, suggestions will appear, use the arrows to navigate the suggestions. When your desired player is highlighted, hit the "Guess" button.',
+            "Start entering a player's name on the given keyboard and try to guess who it is. Use the arrows to move through the recommendations that display as you type. Click on the palyer name once your desired player is highlighted.",
         image: "assets/tutorials/2.png"),
     Intro(
         title: "Match Traits",
         subtitle: "Compare Player Guesses",
         desc:
-            "If your guessed player has matching traits with the hidden players, such as nationality, club, age, or shirt number, those traits will be revealed. Use this information to help narrow down your future guesses.",
+            "Players' traits will be displayed if any characteristics, such as nationality, club, age, or shirt number, match those of the concealed players. This helps to narrow down your future guesses",
         image: "assets/tutorials/3.png"),
     Intro(
         title: "Find Players",
         subtitle: "Correct Guesses",
         desc:
-            "A correct player guess will reveal their name and highlight them in green. However, if your guess is incorrect, regardless of whether the player has any matching traits, you will lose a life.",
+            "When a player's guess is correct, their name is revealed and they are highlighted in green. You are going to lose a life if your guess is wrong, regardless of whether the player possesses any attributes that match your prediction.",
         image: "assets/tutorials/4.png"),
     Intro(
         title: "Use Hints",
@@ -50,7 +50,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
         title: "Win the Game",
         subtitle: "Streaks & Awards",
         desc:
-            "To win the game, you must find all 5 hidden players before losing your 20 lives. Winning the game counts toward your win streak, provided you won the previous day's game. If you don't win, you can still make progress and receive awards for completing other challenges.",
+            "To win the game, you must find all 5 hidden players before losing all your lives. Winning the game counts toward your win streak, provided you won the previous day's game. If you don't win, you can still make progress and receive awards for completing other challenges.",
         image: "assets/tutorials/6.png")
   ];
 

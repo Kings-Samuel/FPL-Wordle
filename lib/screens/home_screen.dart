@@ -293,10 +293,11 @@ class HomeScreenState extends State<HomeScreen> {
   Widget appbarTitle() {
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
     if (_user != null) {
+      String firstName = _user!.name!.split(" ")[0];
       return Row(
         children: [
           // user name
-          Center(child: bodyText(text: _user!.name!, color: Colors.white, fontSize: 20, bold: true)),
+          Center(child: bodyText(text: "Hi, $firstName", color: Colors.white, fontSize: 20, bold: true)),
           const SizedBox(width: 8),
           // coins
           Center(child: Image.asset('assets/coin.png', height: 25, width: 25)),

@@ -13,7 +13,9 @@ class Player {
       penaltiesMissed,
       yellowCards,
       redCards,
-      starts;
+      starts,
+      puzzzlePosition;
+  bool? isUnveiled;
 
   Player({
     this.firstName,
@@ -34,6 +36,7 @@ class Player {
     this.starts,
     this.selectedByPercent,
     this.pointsPerGame,
+    this.isUnveiled
   });
 
   Player.fromJson(Map<String, dynamic> json) {
@@ -69,6 +72,7 @@ class Player {
     starts = json['starts'];
     selectedByPercent = json['selected_by_percent'];
     pointsPerGame = json['points_per_game'];
+    isUnveiled = json['isUnveiled'];
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +95,7 @@ class Player {
     data['starts'] = starts;
     data['selected_by_percent'] = selectedByPercent;
     data['points_per_game'] = pointsPerGame;
+    data['isUnveiled'] = isUnveiled;
     return data;
   }
 }
