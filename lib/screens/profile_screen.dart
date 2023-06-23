@@ -25,10 +25,10 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
   AuthProvider _authProvider = AuthProvider();
   SoundsProvider _soundsProvider = SoundsProvider();
   ProfileProvider _profileProvider = ProfileProvider();
@@ -301,7 +301,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
                     child: ProgressBar(
                         height: _isDesktop ? 15.0 : 10.0,
-                        value: calculateProgress(profile.level!, profile.xp!),
+                        value: profile.xp! / 100,
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -311,6 +311,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               const SizedBox(height: 10),
+              // highscore
+              AnimatedNeumorphicContainer(
+                depth: 0,
+                color: Palette.scaffold,
+                width: _isDesktop ? 200 : 150,
+                height: _isDesktop ? 200 : 150,
+                radius: 20.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Center(child: headingText(text: 'HIGHSCORE', fontSize: _isDesktop ? 25 : 20, variation: 1)),
+                    const SizedBox(height: 10),
+                    Center(child: headingText(text: profile.highScore.toString(), fontSize: _isDesktop ? 35 : 30)),
+                  ],
+                ),
+              ),
               const SizedBox(height: 10),
               // stats grid view
               if (_isDesktop)
@@ -368,11 +385,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           )),
     );
-  }
-
-  double calculateProgress(int level, int xp) {
-    int xpNeeded = 10 * level;
-    return xp / xpNeeded;
   }
 
   double calculateAchievementProgress(int current, int max) {

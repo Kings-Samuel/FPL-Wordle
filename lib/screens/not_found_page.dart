@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-
 import '../consts/routes.dart';
 import '../helpers/utils/color_palette.dart';
 import '../helpers/widgets/custom_btn.dart';

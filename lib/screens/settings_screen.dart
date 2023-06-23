@@ -122,7 +122,9 @@ class SettingsScreen extends StatelessWidget {
                             onChanged: (String? newValue) async {
                               soundsProvider.playClick();
                               await profileProvider.updateDifficulty(_difficultyLevelInt(newValue!));
-                              if (context.mounted) snackBarHelper(context, message: "Difficulty updated. Changes will be applied in the next game");
+                              if (context.mounted)
+                                snackBarHelper(context,
+                                    message: "Difficulty updated. Changes will be applied in the next game");
                             },
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),

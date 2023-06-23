@@ -6,9 +6,11 @@ Future<void> customDialog(
     {required BuildContext context,
     required String title,
     required List<Widget> contentList,
+    bool barrierDismissible = true,
     List<Widget> actions = const []}) async {
   await showDialog(
       context: context,
+      barrierDismissible: barrierDismissible,
       builder: (_) {
         return AlertDialog(
           shape: RoundedRectangleBorder(

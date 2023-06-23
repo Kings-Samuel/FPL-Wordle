@@ -10,6 +10,7 @@ class Profile {
       difficulty,
       level,
       xp,
+      highScore,
       playedToday,
       playersFound,
       correctFirstGuess,
@@ -31,6 +32,7 @@ class Profile {
     this.difficulty,
     this.level,
     this.xp,
+    this.highScore,
     this.playedToday, // ! this doesn't need to be updated once the value equals 3
     this.playersFound,
     this.correctFirstGuess,
@@ -53,6 +55,7 @@ class Profile {
     difficulty = json['difficulty'];
     level = json['level'];
     xp = json['xp'];
+    highScore = json['highScore'];
     playedToday = json['playedToday'];
     playersFound = json['playersFound'];
     correctFirstGuess = json['correctFirstGuess'];
@@ -75,6 +78,7 @@ class Profile {
     data['difficulty'] = difficulty;
     data['level'] = level;
     data['xp'] = xp;
+    data['highScore'] = highScore;
     data['playedToday'] = playedToday;
     data['playersFound'] = playersFound;
     data['correctFirstGuess'] = correctFirstGuess;

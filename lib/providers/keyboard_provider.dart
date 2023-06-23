@@ -1,12 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../models/player.dart';
 
 class KeyboardProvider extends ChangeNotifier {
   String _input = '';
   String _typed = '';
   bool _isBackSpaceClicked = false;
   bool _isHintClicked = false;
-  List<String> _playerNames = [];
+  final List<String> _playerNames = [];
   List<String> _suggestions = [];
 
   String get input => _input;
@@ -59,26 +59,39 @@ class KeyboardProvider extends ChangeNotifier {
 
   void setSuggestions(String input) {
     _suggestions = _playerNames.where((element) => element.toLowerCase().contains(input.toLowerCase())).toList();
+    // sort suggestions alphabetically
+    _suggestions.sort((a, b) => a.compareTo(b));
+    notifyListeners();
   }
 
   void useSuggestion(String suggestion) async {
     _input = suggestion.toUpperCase();
     _suggestions = [];
     notifyListeners();
-    await Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () {
       _input = '';
       notifyListeners();
     });
   }
 
   // get all player names from player_names.json in assets
-  void getPlayerNames(BuildContext context) async {
-    final assetBundle = DefaultAssetBundle.of(context);
-    final data = await assetBundle.loadString('assets/players_names.json');
-    final body = json.decode(data);
+  void getPlayerNames(List<Player> players) async {
+    // clear list before adding new names
+    _playerNames.clear();
 
-    _playerNames = body.map<String>((json) => json['fullName'] as String).toList();
+    for (Player player in players) {
+      String firstName = player.firstName!;
+      String secondName = player.secondName!;
+      String fullName = '$firstName $secondName';
+      _playerNames.add(fullName);
+    }
 
+    notifyListeners();
+  }
+
+  // when player name is found, remove it from the list
+  void removePlayerName(String playerName) {
+    _playerNames.remove(playerName);
     notifyListeners();
   }
 }

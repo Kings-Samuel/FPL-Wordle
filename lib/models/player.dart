@@ -1,5 +1,5 @@
 class Player {
-  String? firstName, secondName, pointsPerGame, selectedByPercent;
+  String? firstName, secondName, webName, pointsPerGame, selectedByPercent;
   int? elementType,
       team,
       nowCost,
@@ -17,45 +17,32 @@ class Player {
       puzzzlePosition;
   bool? isUnveiled;
 
-  Player({
-    this.firstName,
-    this.secondName,
-    this.elementType,
-    this.team,
-    this.nowCost,
-    this.totalPoints,
-    this.bonus,
-    this.goalsScored,
-    this.assists,
-    this.cleanSheets,
-    this.goalsConceded,
-    this.ownGoals,
-    this.penaltiesMissed,
-    this.yellowCards,
-    this.redCards,
-    this.starts,
-    this.selectedByPercent,
-    this.pointsPerGame,
-    this.isUnveiled
-  });
+  Player(
+      {this.firstName,
+      this.secondName,
+      this.webName,
+      this.elementType,
+      this.team,
+      this.nowCost,
+      this.totalPoints,
+      this.bonus,
+      this.goalsScored,
+      this.assists,
+      this.cleanSheets,
+      this.goalsConceded,
+      this.ownGoals,
+      this.penaltiesMissed,
+      this.yellowCards,
+      this.redCards,
+      this.starts,
+      this.selectedByPercent,
+      this.pointsPerGame,
+      this.isUnveiled});
 
   Player.fromJson(Map<String, dynamic> json) {
-    firstName = json['first_name']
-        .replaceAll('á', 'a')
-        .replaceAll('é', 'e')
-        .replaceAll('í', 'i')
-        .replaceAll('ó', 'o')
-        .replaceAll('ú', 'u')
-        .replaceAll('ü', 'u')
-        .replaceAll('ñ', 'n');
-    secondName = json['second_name']
-        .replaceAll('á', 'a')
-        .replaceAll('é', 'e')
-        .replaceAll('í', 'i')
-        .replaceAll('ó', 'o')
-        .replaceAll('ú', 'u')
-        .replaceAll('ü', 'u')
-        .replaceAll('ñ', 'n');
+    firstName = json['first_name'];
+    secondName = json['second_name'];
+    webName = json['web_name'];
     elementType = json['element_type'];
     team = json['team'];
     nowCost = json['now_cost'];
@@ -79,6 +66,7 @@ class Player {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['first_name'] = firstName;
     data['second_name'] = secondName;
+    data['web_name'] = webName;
     data['element_type'] = elementType;
     data['team'] = team;
     data['now_cost'] = nowCost;

@@ -8,7 +8,8 @@ class SingleModePuzzle {
       player2unveiled,
       player3unveiled,
       player4unveiled,
-      player5unveiled;
+      player5unveiled,
+      allPlayersEncodedJSONstring;
   List<String>? selectedAttributes;
   int? lives, hints;
   bool? isFinished;
@@ -24,6 +25,7 @@ class SingleModePuzzle {
     this.player3unveiled,
     this.player4unveiled,
     this.player5unveiled,
+    this.allPlayersEncodedJSONstring,
     this.selectedAttributes,
     this.lives,
     this.hints,
@@ -41,6 +43,7 @@ class SingleModePuzzle {
     player3unveiled = json['player3unveiled'];
     player4unveiled = json['player4unveiled'];
     player5unveiled = json['player5unveiled'];
+    allPlayersEncodedJSONstring = json['allPlayersEncodedJSONstring'];
     selectedAttributes = json['selectedAttributes'].cast<String>();
     lives = json['lives'];
     hints = json['hints'];
@@ -59,6 +62,7 @@ class SingleModePuzzle {
     data['player3unveiled'] = player3unveiled;
     data['player4unveiled'] = player4unveiled;
     data['player5unveiled'] = player5unveiled;
+    data['allPlayersEncodedJSONstring'] = allPlayersEncodedJSONstring;
     data['selectedAttributes'] = selectedAttributes;
     data['lives'] = lives;
     data['hints'] = hints;

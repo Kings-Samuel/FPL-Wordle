@@ -12,6 +12,7 @@ import 'package:fplwordle/screens/settings_screen.dart';
 import 'package:fplwordle/screens/shop_screen.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
 import 'package:fplwordle/screens/tutorial_screen.dart';
+import 'package:hovering/hovering.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 import '../consts/routes.dart';
@@ -265,20 +266,37 @@ class HomeScreenState extends State<HomeScreen> {
                                     await _soundsProvider.playClick();
                                     e.onTap();
                                   },
-                                  child: AnimatedNeumorphicContainer(
-                                      depth: 0,
-                                      color: Palette.scaffold,
-                                      width: 100,
-                                      height: 100,
-                                      radius: 25.0,
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(e.icon, color: Colors.white, size: 30),
-                                          const SizedBox(height: 10),
-                                          bodyText(text: e.title, color: Colors.white, fontSize: 20, bold: true),
-                                        ],
-                                      )),
+                                  child: HoverWidget(
+                                    hoverChild: AnimatedNeumorphicContainer(
+                                        depth: 0,
+                                        color: Palette.scaffold.withOpacity(0.5),
+                                        width: 100,
+                                        height: 100,
+                                        radius: 25.0,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(e.icon, color: Colors.white, size: 30),
+                                            const SizedBox(height: 10),
+                                            bodyText(text: e.title, color: Colors.white, fontSize: 20, bold: true),
+                                          ],
+                                        )).animate().moveY(begin: 0.75, end: 1),
+                                    onHover: (event) {},
+                                    child: AnimatedNeumorphicContainer(
+                                        depth: 0,
+                                        color: Palette.scaffold,
+                                        width: 100,
+                                        height: 100,
+                                        radius: 25.0,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(e.icon, color: Colors.white, size: 30),
+                                            const SizedBox(height: 10),
+                                            bodyText(text: e.title, color: Colors.white, fontSize: 20, bold: true),
+                                          ],
+                                        )),
+                                  ),
                                 ));
                           }).toList(),
                         );
