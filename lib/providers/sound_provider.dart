@@ -22,7 +22,7 @@ class SoundsProvider extends ChangeNotifier {
     _checkMuteSettings();
   }
 
-Future<void> _checkMuteSettings() async {
+  Future<void> _checkMuteSettings() async {
     String? isSoundMuted = await secStorage.read(key: SharedPrefsConsts.isSoundMuted);
     String? isClickMuted = await secStorage.read(key: SharedPrefsConsts.isClickMuted);
 
@@ -41,6 +41,11 @@ Future<void> _checkMuteSettings() async {
   Future<void> toggleSound() async {
     _isSoundMuted = !_isSoundMuted;
     await secStorage.write(key: SharedPrefsConsts.isSoundMuted, value: _isSoundMuted.toString());
+    if (_isSoundMuted) {
+      await stopGameMusic();
+    } else {
+      startGameMusic();
+    }
     notifyListeners();
   }
 
@@ -125,7 +130,9 @@ Future<void> _checkMuteSettings() async {
   }
 
   Future<void> startGameMusic() async {
-    if (!_isSoundMuted && !kIsWeb) {
+    bool isPlaying = _gameMusicPlayer.isPlaying.value;
+
+    if (!_isSoundMuted && !kIsWeb && !isPlaying) {
       await _gameMusicPlayer.open(
         Audio(_gamemusic),
         autoStart: true,
@@ -135,7 +142,8 @@ Future<void> _checkMuteSettings() async {
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
-      );    }
+      );
+    }
   }
 
   Future<void> pauseGameMusic() async {
@@ -147,6 +155,12 @@ Future<void> _checkMuteSettings() async {
   Future<void> resumeGameMusic() async {
     if (!_isSoundMuted && !kIsWeb) {
       await _gameMusicPlayer.play();
+    }
+  }
+
+  Future<void> stopGameMusic() async {
+    if (!_isSoundMuted && !kIsWeb) {
+      await _gameMusicPlayer.stop();
     }
   }
 }

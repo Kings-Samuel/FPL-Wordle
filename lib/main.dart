@@ -19,6 +19,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ms_material_color/ms_material_color.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
+import 'package:wakelock/wakelock.dart';
 import 'helpers/utils/init_appwrite.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  Wakelock.enable();
   await initAppwrite();
   runApp(const MyApp());
 }
@@ -73,42 +75,42 @@ class _MyAppState extends State<MyApp> {
         ).animate().fadeIn(duration: const Duration(milliseconds: 400)),
       );
     } else {
-      return ConnectionNotifier(
-          disconnectedContent: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: Text(
-                  '😣 You are currently offline',
+      return MultiProvider(
+        providers: providers,
+        child: ConnectionNotifier(
+            disconnectedContent: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Text(
+                    '😣 You are currently offline',
+                    style: GoogleFonts.ntr(color: Colors.white, fontSize: 12, fontWeight: FontWeight.normal),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Container(
+                  alignment: Alignment.center,
+                  height: 20,
+                  width: 20,
+                  child: const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              ],
+            ),
+            connectedContent: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '😃 Back Online',
                   style: GoogleFonts.ntr(color: Colors.white, fontSize: 12, fontWeight: FontWeight.normal),
                   textAlign: TextAlign.center,
                 ),
-              ),
-              const SizedBox(width: 5),
-              Container(
-                alignment: Alignment.center,
-                height: 20,
-                width: 20,
-                child: const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            ],
-          ),
-          connectedContent: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '😃 Back Online',
-                style: GoogleFonts.ntr(color: Colors.white, fontSize: 12, fontWeight: FontWeight.normal),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(width: 5),
-              const Icon(Icons.check, color: Colors.white)
-            ],
-          ),
-          child: MultiProvider(
-            providers: providers,
+                const SizedBox(width: 5),
+                const Icon(Icons.check, color: Colors.white)
+              ],
+            ),
             child: MaterialApp(
               title: 'Fantasy Football Guesser',
               debugShowCheckedModeBanner: false,
@@ -123,15 +125,13 @@ class _MyAppState extends State<MyApp> {
                 scrollbarTheme: ScrollbarThemeData(
                   thumbColor: MaterialStateProperty.all(Colors.grey),
                 ),
-                textTheme: kIsWeb
-                    ? null
-                    : GoogleFonts.ntrTextTheme(
-                        Theme.of(context).textTheme,
-                      ),
+                textTheme: GoogleFonts.ntrTextTheme(
+                  Theme.of(context).textTheme,
+                ),
               ),
               home: const AuthFlow(),
-            ).animate().fadeIn(duration: const Duration(milliseconds: 400)),
-          ));
+            ).animate().fadeIn(duration: const Duration(milliseconds: 400))),
+      );
     }
   }
 }

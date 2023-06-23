@@ -3,6 +3,7 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/init_onesignal.dart';
@@ -18,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../helpers/widgets/snack_bar_helper.dart';
+import '../providers/sound_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -28,11 +30,13 @@ class SignupScreen extends StatefulWidget {
 
 class SignupScreenState extends State<SignupScreen> {
   AuthProvider _authProvider = AuthProvider();
+  SoundsProvider _soundsProvider = SoundsProvider();
 
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _name = TextEditingController();
   bool _hidePassword = true;
+  final _formKey = GlobalKey<FormState>();
 
   bool _isEmailAuthLoading = false;
   bool _isGoogleAuthLoading = false;
@@ -41,6 +45,8 @@ class SignupScreenState extends State<SignupScreen> {
   void initState() {
     super.initState();
     _authProvider = context.read<AuthProvider>();
+    _soundsProvider = context.read<SoundsProvider>();
+    _soundsProvider.stopGameMusic();
   }
 
   @override
@@ -76,237 +82,253 @@ class SignupScreenState extends State<SignupScreen> {
                 color: Palette.scaffold.withOpacity(0.85),
                 padding: const EdgeInsets.all(30),
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 30),
-                      // heading
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: headingText(text: 'SIGN UP', variation: 3, fontSize: 45)),
-                      const SizedBox(height: 20),
-                      // email
-                      Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Email Address')),
-                      AnimatedNeumorphicContainer(
-                        depth: 0,
-                        color: const Color(0xFF1E293B),
-                        height: 50,
-                        radius: 16.0,
-                        child: TextField(
-                          controller: _email,
-                          keyboardType: TextInputType.emailAddress,
-                          style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                            hintText: 'example@gmail.com',
-                            hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // name
-                      Align(alignment: Alignment.centerLeft, child: bodyText(text: 'First Name And Last Name')),
-                      AnimatedNeumorphicContainer(
-                        depth: 0,
-                        color: const Color(0xFF1E293B),
-                        height: 50,
-                        radius: 16.0,
-                        child: TextField(
-                            controller: _name,
-                            keyboardType: TextInputType.text,
-                            style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                              hintText: 'John Doe',
-                              hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                            )),
-                      ),
-                      const SizedBox(height: 10),
-                      // password
-                      Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Create Password')),
-                      AnimatedNeumorphicContainer(
-                        depth: 0,
-                        color: const Color(0xFF1E293B),
-                        height: 50,
-                        radius: 16.0,
-                        child: TextField(
-                            controller: _password,
-                            obscureText: _hidePassword,
-                            keyboardType: TextInputType.visiblePassword,
-                            style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                            decoration: InputDecoration(
-                                contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 8),
-                                hintText: '********',
+                  child: AutofillGroup(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 30),
+                          // heading
+                          Align(
+                              alignment: Alignment.centerLeft,
+                              child: headingText(text: 'SIGN UP', variation: 3, fontSize: 45)),
+                          const SizedBox(height: 20),
+                          // email
+                          Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Email Address')),
+                          AnimatedNeumorphicContainer(
+                            depth: 0,
+                            color: const Color(0xFF1E293B),
+                            height: 50,
+                            radius: 16.0,
+                            child: TextFormField(
+                              controller: _email,
+                              autofillHints: const [AutofillHints.email],
+                              textInputAction: TextInputAction.next,
+                              keyboardType: TextInputType.emailAddress,
+                              style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                                hintText: 'example@gmail.com',
                                 hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _hidePassword = !_hidePassword;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _hidePassword ? Icons.visibility_off : Icons.visibility,
-                                    color: Colors.white,
-                                  ),
-                                ))),
-                      ),
-                      const SizedBox(height: 30),
-                      // buttons
-                      InkWell(
-                        onTap: _isGoogleAuthLoading
-                            ? null
-                            : () async {
-                                // validate email
-                                if (EmailValidator.validate(_email.text.trim()) == false) {
-                                  snackBarHelper(context, message: 'Invalid email', type: AnimatedSnackBarType.error);
-                                  return;
-                                }
-
-                                // validate name
-                                if (_name.text.trim().isEmpty || _name.text.trim().length < 3) {
-                                  snackBarHelper(context,
-                                      message: 'Name should be at least 3 characters',
-                                      type: AnimatedSnackBarType.error);
-                                  return;
-                                }
-
-                                // validate password
-                                if (_password.text.trim().isEmpty || _password.text.trim().length < 8) {
-                                  snackBarHelper(context,
-                                      message: 'Password should be at least 8 characters',
-                                      type: AnimatedSnackBarType.error);
-                                  return;
-                                }
-
-                                setState(() {
-                                  _isEmailAuthLoading = true;
-                                });
-
-                                bool success = await _authProvider.emailAccountRegistration(
-                                    email: _email.text.trim(),
-                                    password: _password.text.trim(),
-                                    name: _name.text.trim());
-
-                                setState(() {
-                                  _isEmailAuthLoading = false;
-                                });
-
-                                if (success && mounted) {
-                                  // login
-                                  bool success = await _authProvider.emailSignIn(
-                                      email: _email.text.trim(), password: _password.text.trim());
-
-                                  if (success && mounted) {
-                                    await initOnesignal(context);
-                                    if (mounted) pushAndRemoveNavigator(const MyApp(), context);
-                                  } else {
-                                    snackBarHelper(context,
-                                        message: _authProvider.error, type: AnimatedSnackBarType.error);
-                                  }
-                                } else {
-                                  snackBarHelper(context,
-                                      message: _authProvider.error, type: AnimatedSnackBarType.error);
-                                }
-                              },
-                        child: AnimatedNeumorphicContainer(
-                          depth: 0,
-                          color: Palette.primary,
-                          width: MediaQuery.of(context).size.width,
-                          height: 50,
-                          radius: 16.0,
-                          child: _isEmailAuthLoading
-                              ? loadingAnimation()
-                              : Center(child: headingText(text: 'Continue', color: Colors.white)),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // already have an account
-                      Center(
-                        child: RichText(
-                            text: TextSpan(
-                                text: 'HAVE AN ACCOUNT?  ',
-                                style: GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16),
-                                children: [
-                              TextSpan(
-                                  text: 'SIGN IN',
-                                  style:
-                                      GoogleFonts.ntr(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      transitioner(const SignInScreen(), context, Routes.signin);
-                                    })
-                            ])),
-                      ),
-                      const Divider(color: Colors.white, thickness: 1.5),
-                      const SizedBox(height: 10),
-                      // google login button
-                      Center(
-                        child: bodyText(text: 'Or sign up with', color: Colors.white),
-                      ),
-                      const SizedBox(height: 10),
-                      InkWell(
-                        onTap: _isEmailAuthLoading
-                            ? null
-                            : () async {
-                                setState(() {
-                                  _isGoogleAuthLoading = true;
-                                });
-
-                                bool success = await _authProvider.googleAuth();
-
-                                setState(() {
-                                  _isGoogleAuthLoading = false;
-                                });
-
-                                if (success && mounted) {
-                                  pushAndRemoveNavigator(const MyApp(), context);
-                                } else {
-                                  snackBarHelper(context,
-                                      message: _authProvider.error, type: AnimatedSnackBarType.error);
-                                }
-                              },
-                        child: AnimatedNeumorphicContainer(
-                          depth: 0,
-                          color: const Color(0xFF1E293B),
-                          width: MediaQuery.of(context).size.width,
-                          height: 50,
-                          radius: 16.0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset('assets/google.png', width: 20, height: 20),
-                              const SizedBox(width: 10),
-                              headingText(text: 'Google', color: Colors.white),
-                            ],
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 10),
+                          // name
+                          Align(alignment: Alignment.centerLeft, child: bodyText(text: 'First Name And Last Name')),
+                          AnimatedNeumorphicContainer(
+                            depth: 0,
+                            color: const Color(0xFF1E293B),
+                            height: 50,
+                            radius: 16.0,
+                            child: TextFormField(
+                                controller: _name,
+                                autofillHints: const [AutofillHints.name],
+                                textInputAction: TextInputAction.next,
+                                keyboardType: TextInputType.text,
+                                style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                                  hintText: 'John Doe',
+                                  hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                )),
+                          ),
+                          const SizedBox(height: 10),
+                          // password
+                          Align(alignment: Alignment.centerLeft, child: bodyText(text: 'Create Password')),
+                          AnimatedNeumorphicContainer(
+                            depth: 0,
+                            color: const Color(0xFF1E293B),
+                            height: 50,
+                            radius: 16.0,
+                            child: TextFormField(
+                                controller: _password,
+                                autofillHints: const [AutofillHints.password],
+                                textInputAction: TextInputAction.done,
+                                obscureText: _hidePassword,
+                                keyboardType: TextInputType.visiblePassword,
+                                style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                                decoration: InputDecoration(
+                                    contentPadding: const EdgeInsets.only(left: 15, right: 15, top: 8),
+                                    hintText: '********',
+                                    hintStyle: GoogleFonts.ntr(color: Colors.grey, fontSize: 16),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _hidePassword = !_hidePassword;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _hidePassword ? Icons.visibility_off : Icons.visibility,
+                                        color: Colors.white,
+                                      ),
+                                    ))),
+                          ),
+                          const SizedBox(height: 30),
+                          // buttons
+                          InkWell(
+                            onTap: _isGoogleAuthLoading
+                                ? null
+                                : () async {
+                                    FocusScope.of(context).unfocus();
+                                    // validate email
+                                    if (EmailValidator.validate(_email.text.trim()) == false) {
+                                      snackBarHelper(context,
+                                          message: 'Invalid email', type: AnimatedSnackBarType.error);
+                                      return;
+                                    }
+
+                                    // validate name
+                                    if (_name.text.trim().isEmpty || _name.text.trim().length < 3) {
+                                      snackBarHelper(context,
+                                          message: 'Name should be at least 3 characters',
+                                          type: AnimatedSnackBarType.error);
+                                      return;
+                                    }
+
+                                    // validate password
+                                    if (_password.text.trim().isEmpty || _password.text.trim().length < 8) {
+                                      snackBarHelper(context,
+                                          message: 'Password should be at least 8 characters',
+                                          type: AnimatedSnackBarType.error);
+                                      return;
+                                    }
+
+                                    setState(() {
+                                      _isEmailAuthLoading = true;
+                                    });
+
+                                    TextInput.finishAutofillContext();
+
+                                    bool success = await _authProvider.emailAccountRegistration(
+                                        email: _email.text.trim(),
+                                        password: _password.text.trim(),
+                                        name: _name.text.trim());
+
+                                    setState(() {
+                                      _isEmailAuthLoading = false;
+                                    });
+
+                                    if (success && mounted) {
+                                      // login
+                                      bool success = await _authProvider.emailSignIn(
+                                          email: _email.text.trim(), password: _password.text.trim());
+
+                                      if (success && mounted) {
+                                        await initOnesignal(context);
+                                        if (mounted) pushAndRemoveNavigator(const MyApp(), context);
+                                      } else {
+                                        snackBarHelper(context,
+                                            message: _authProvider.error, type: AnimatedSnackBarType.error);
+                                      }
+                                    } else {
+                                      snackBarHelper(context,
+                                          message: _authProvider.error, type: AnimatedSnackBarType.error);
+                                    }
+                                  },
+                            child: AnimatedNeumorphicContainer(
+                              depth: 0,
+                              color: Palette.primary,
+                              width: MediaQuery.of(context).size.width,
+                              height: 50,
+                              radius: 16.0,
+                              child: _isEmailAuthLoading
+                                  ? loadingAnimation()
+                                  : Center(child: headingText(text: 'Continue', color: Colors.white)),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // already have an account
+                          Center(
+                            child: RichText(
+                                text: TextSpan(
+                                    text: 'HAVE AN ACCOUNT?  ',
+                                    style:
+                                        GoogleFonts.ntr(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 16),
+                                    children: [
+                                  TextSpan(
+                                      text: 'SIGN IN',
+                                      style: GoogleFonts.ntr(
+                                          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          transitioner(const SignInScreen(), context, Routes.signin);
+                                        })
+                                ])),
+                          ),
+                          const Divider(color: Colors.white, thickness: 1.5),
+                          const SizedBox(height: 10),
+                          // google login button
+                          Center(
+                            child: bodyText(text: 'Or sign up with', color: Colors.white),
+                          ),
+                          const SizedBox(height: 10),
+                          InkWell(
+                            onTap: _isEmailAuthLoading
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      _isGoogleAuthLoading = true;
+                                    });
+
+                                    bool success = await _authProvider.googleAuth();
+
+                                    setState(() {
+                                      _isGoogleAuthLoading = false;
+                                    });
+
+                                    if (success && mounted) {
+                                      pushAndRemoveNavigator(const MyApp(), context);
+                                    } else {
+                                      snackBarHelper(context,
+                                          message: _authProvider.error, type: AnimatedSnackBarType.error);
+                                    }
+                                  },
+                            child: AnimatedNeumorphicContainer(
+                              depth: 0,
+                              color: const Color(0xFF1E293B),
+                              width: MediaQuery.of(context).size.width,
+                              height: 50,
+                              radius: 16.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset('assets/google.png', width: 20, height: 20),
+                                  const SizedBox(width: 10),
+                                  headingText(text: 'Google', color: Colors.white),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // privacy policy (rich text)
+                          RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  text: 'By signing up, you agree to our ',
+                                  style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: 'Terms of Service',
+                                        style: GoogleFonts.ntr(
+                                            color: Palette.primary, fontSize: 16, fontWeight: FontWeight.bold),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            launchUrl(
+                                              Uri.parse('https://www.fplwordle.com/tos'),
+                                              mode: LaunchMode.inAppWebView,
+                                            );
+                                          })
+                                  ]))
+                        ],
                       ),
-                      const SizedBox(height: 20),
-                      // privacy policy (rich text)
-                      RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                              text: 'By signing up, you agree to our ',
-                              style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
-                              children: <TextSpan>[
-                                TextSpan(
-                                    text: 'Terms of Service',
-                                    style: GoogleFonts.ntr(
-                                        color: Palette.primary, fontSize: 16, fontWeight: FontWeight.bold),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        launchUrl(
-                                          Uri.parse('https://www.fplwordle.com/tos'),
-                                          mode: LaunchMode.inAppWebView,
-                                        );
-                                      })
-                              ]))
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -407,8 +429,10 @@ class SignupScreenState extends State<SignupScreen> {
                         color: const Color(0xFF1E293B),
                         height: 50,
                         radius: 16.0,
-                        child: TextField(
+                        child: TextFormField(
                           controller: _email,
+                          autofillHints: const [AutofillHints.email],
+                          textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.emailAddress,
                           style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
                           decoration: InputDecoration(
@@ -428,8 +452,10 @@ class SignupScreenState extends State<SignupScreen> {
                         color: const Color(0xFF1E293B),
                         height: 50,
                         radius: 16.0,
-                        child: TextField(
+                        child: TextFormField(
                             controller: _name,
+                            autofillHints: const [AutofillHints.name],
+                            textInputAction: TextInputAction.next,
                             keyboardType: TextInputType.text,
                             style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
                             decoration: InputDecoration(
@@ -448,8 +474,10 @@ class SignupScreenState extends State<SignupScreen> {
                         color: const Color(0xFF1E293B),
                         height: 50,
                         radius: 16.0,
-                        child: TextField(
+                        child: TextFormField(
                             controller: _password,
+                            autofillHints: const [AutofillHints.password],
+                            textInputAction: TextInputAction.done,
                             obscureText: _hidePassword,
                             keyboardType: TextInputType.visiblePassword,
                             style: GoogleFonts.ntr(color: Colors.white, fontSize: 16),
@@ -477,6 +505,7 @@ class SignupScreenState extends State<SignupScreen> {
                         onTap: _isGoogleAuthLoading
                             ? null
                             : () async {
+                                FocusScope.of(context).unfocus();
                                 // validate email
                                 if (EmailValidator.validate(_email.text.trim()) == false) {
                                   snackBarHelper(context, message: 'Invalid email', type: AnimatedSnackBarType.error);
@@ -502,6 +531,8 @@ class SignupScreenState extends State<SignupScreen> {
                                 setState(() {
                                   _isEmailAuthLoading = true;
                                 });
+
+                                TextInput.finishAutofillContext();
 
                                 bool success = await _authProvider.emailAccountRegistration(
                                     email: _email.text.trim(),
