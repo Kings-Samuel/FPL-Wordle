@@ -14,6 +14,7 @@ Widget customButton(BuildContext context,
     bool isLoading = false,
     required VoidCallback onTap,
     Color backgroundColor = Palette.primary,
+    bool useSound = true,
     Color? textColor,
     double? width}) {
   if (isLoading == true) {
@@ -25,7 +26,7 @@ Widget customButton(BuildContext context,
         highlightColor: Colors.transparent,
         radius: 0.0,
         onTap: () async {
-          await context.read<SoundsProvider>().playClick();
+          if (useSound) await context.read<SoundsProvider>().playClick();
           onTap();
         },
         child: HoverWidget(

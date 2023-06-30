@@ -8,7 +8,7 @@ class SoundsProvider extends ChangeNotifier {
   static const String _correct = 'assets/sound-effects/correct.mp3';
   static const String _cheer = 'assets/sound-effects/cheer.mp3';
   static const String _error = 'assets/sound-effects/error.mp3';
-  static const String _gameOver = 'assets/sound-effects/game-over.mp3';
+  static const String _gameOver = 'assets/sound-effects/gameover.mp3';
   static const String _gamemusic = 'assets/sound-effects/gamemusic.mp3';
   final _assetsAudioPlayer = AssetsAudioPlayer();
   final _gameMusicPlayer = AssetsAudioPlayer();
@@ -159,7 +159,7 @@ class SoundsProvider extends ChangeNotifier {
   }
 
   Future<void> stopGameMusic() async {
-    if (!_isSoundMuted && !kIsWeb) {
+    if (!kIsWeb) {
       await _gameMusicPlayer.stop();
     }
   }

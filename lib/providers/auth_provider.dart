@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fplwordle/consts/appwrite_consts.dart';
 import 'package:fplwordle/helpers/utils/init_sec_storage.dart';
 import '../consts/shared_prefs_consts.dart';
@@ -78,8 +78,11 @@ class AuthProvider extends ChangeNotifier {
       await account.createOAuth2Session(
         provider: 'google',
         // TODO: change this to production url
-        // success: "https://fplwordle.web.app/auth.html",
-        success: "http://localhost:52625/auth.html",
+        success: !kIsWeb
+            ? null
+            : kIsWeb && kDebugMode
+                ? "http://localhost:52625/auth.html"
+                : "https://fplwordle.web.app/auth.html",
       );
 
       return true;

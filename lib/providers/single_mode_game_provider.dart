@@ -4,6 +4,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/consts/appwrite_consts.dart';
+import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/init_appwrite.dart';
 import 'package:fplwordle/helpers/utils/init_sec_storage.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
@@ -238,16 +239,17 @@ class SingleModeGameProvider extends ChangeNotifier {
     if (context.mounted) animateUnveiledPuzzleCard(context, puzzlePosition);
   }
 
-  Future<void> setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) async {
+  void setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) {
+    context.read<SoundsProvider>().playGameOver();
     _puzzle!.isFinished = true;
-    await secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
+    secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
     if (shouldNotifyListeners == true) notifyListeners();
-    if (context.mounted) {
-      context.read<SoundsProvider>().playCheer();
-    }
   }
 
   void setGameOver(BuildContext context) {
+    // play gameover sound
+    context.read<SoundsProvider>().playGameOver();
+    // show gameover dialog
     customDialog(context: context, barrierDismissible: false, title: "GAME OVER!", contentList: [
       // game over gif
       Container(
@@ -271,7 +273,30 @@ class SingleModeGameProvider extends ChangeNotifier {
                 height: 40,
                 width: 150,
                 child: customButton(context,
-                    backgroundColor: Colors.green, icon: Icons.replay, text: "Play Again", onTap: () {}))),
+                    useSound: false,
+                    backgroundColor: Colors.green,
+                    icon: Icons.replay,
+                    text: "Play Again",
+                    onTap: () {}))),
+      ),
+      const SizedBox(height: 20),
+      // back btn
+      Shimmer(
+        color: Colors.white,
+        colorOpacity: 0.45,
+        child: SizedBox(
+            width: 300,
+            child: SizedBox(
+                height: 40,
+                width: 150,
+                child: customButton(context,
+                    backgroundColor: Palette.primary,
+                    icon: Icons.arrow_back_ios,
+                    text: "Go back",
+                    useSound: false, onTap: () {
+                  popNavigator(context, rootNavigator: true);
+                  popNavigator(context);
+                }))),
       ),
       //! for testing purposes only - clear game in session btn
       if (kDebugMode)
@@ -302,7 +327,6 @@ class SingleModeGameProvider extends ChangeNotifier {
           ],
         )
     ]);
-    context.read<SoundsProvider>().playGameOver();
   }
 
   Future<void> useHint(
@@ -1773,19 +1797,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("goalsConceded")) {
-          if (player3.goalsConceded == player1.goalsConceded && player1unveiled.goalsConceded != player3.goalsConceded) {
+          if (player3.goalsConceded == player1.goalsConceded &&
+              player1unveiled.goalsConceded != player3.goalsConceded) {
             player1unveiled.goalsConceded = player3.goalsConceded;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player3.goalsConceded == player2.goalsConceded && player2unveiled.goalsConceded != player3.goalsConceded) {
+          if (player3.goalsConceded == player2.goalsConceded &&
+              player2unveiled.goalsConceded != player3.goalsConceded) {
             player2unveiled.goalsConceded = player3.goalsConceded;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player3.goalsConceded == player4.goalsConceded && player4unveiled.goalsConceded != player3.goalsConceded) {
+          if (player3.goalsConceded == player4.goalsConceded &&
+              player4unveiled.goalsConceded != player3.goalsConceded) {
             player4unveiled.goalsConceded = player3.goalsConceded;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player3.goalsConceded == player5.goalsConceded && player5unveiled.goalsConceded != player3.goalsConceded) {
+          if (player3.goalsConceded == player5.goalsConceded &&
+              player5unveiled.goalsConceded != player3.goalsConceded) {
             player5unveiled.goalsConceded = player3.goalsConceded;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -1811,19 +1839,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("penaltiesMissed")) {
-          if (player3.penaltiesMissed == player1.penaltiesMissed && player1unveiled.penaltiesMissed != player3.penaltiesMissed) {
+          if (player3.penaltiesMissed == player1.penaltiesMissed &&
+              player1unveiled.penaltiesMissed != player3.penaltiesMissed) {
             player1unveiled.penaltiesMissed = player3.penaltiesMissed;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player3.penaltiesMissed == player2.penaltiesMissed && player2unveiled.penaltiesMissed != player3.penaltiesMissed) {
+          if (player3.penaltiesMissed == player2.penaltiesMissed &&
+              player2unveiled.penaltiesMissed != player3.penaltiesMissed) {
             player2unveiled.penaltiesMissed = player3.penaltiesMissed;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player3.penaltiesMissed == player4.penaltiesMissed && player4unveiled.penaltiesMissed != player3.penaltiesMissed) {
+          if (player3.penaltiesMissed == player4.penaltiesMissed &&
+              player4unveiled.penaltiesMissed != player3.penaltiesMissed) {
             player4unveiled.penaltiesMissed = player3.penaltiesMissed;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player3.penaltiesMissed == player5.penaltiesMissed && player5unveiled.penaltiesMissed != player3.penaltiesMissed) {
+          if (player3.penaltiesMissed == player5.penaltiesMissed &&
+              player5unveiled.penaltiesMissed != player3.penaltiesMissed) {
             player5unveiled.penaltiesMissed = player3.penaltiesMissed;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -1887,19 +1919,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("pointsPerGame")) {
-          if (player3.pointsPerGame == player1.pointsPerGame && player1unveiled.pointsPerGame != player3.pointsPerGame) {
+          if (player3.pointsPerGame == player1.pointsPerGame &&
+              player1unveiled.pointsPerGame != player3.pointsPerGame) {
             player1unveiled.pointsPerGame = player3.pointsPerGame;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player3.pointsPerGame == player2.pointsPerGame && player2unveiled.pointsPerGame != player3.pointsPerGame) {
+          if (player3.pointsPerGame == player2.pointsPerGame &&
+              player2unveiled.pointsPerGame != player3.pointsPerGame) {
             player2unveiled.pointsPerGame = player3.pointsPerGame;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player3.pointsPerGame == player4.pointsPerGame && player4unveiled.pointsPerGame != player3.pointsPerGame) {
+          if (player3.pointsPerGame == player4.pointsPerGame &&
+              player4unveiled.pointsPerGame != player3.pointsPerGame) {
             player4unveiled.pointsPerGame = player3.pointsPerGame;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player3.pointsPerGame == player5.pointsPerGame && player5unveiled.pointsPerGame != player3.pointsPerGame) {
+          if (player3.pointsPerGame == player5.pointsPerGame &&
+              player5unveiled.pointsPerGame != player3.pointsPerGame) {
             player5unveiled.pointsPerGame = player3.pointsPerGame;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -2012,19 +2048,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("goalsConceded")) {
-          if (player4.goalsConceded == player1.goalsConceded && player1unveiled.goalsConceded != player4.goalsConceded) {
+          if (player4.goalsConceded == player1.goalsConceded &&
+              player1unveiled.goalsConceded != player4.goalsConceded) {
             player1unveiled.goalsConceded = player4.goalsConceded;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player4.goalsConceded == player2.goalsConceded && player2unveiled.goalsConceded != player4.goalsConceded) {
+          if (player4.goalsConceded == player2.goalsConceded &&
+              player2unveiled.goalsConceded != player4.goalsConceded) {
             player2unveiled.goalsConceded = player4.goalsConceded;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player4.goalsConceded == player3.goalsConceded && player4unveiled.goalsConceded != player3.goalsConceded) {
+          if (player4.goalsConceded == player3.goalsConceded &&
+              player4unveiled.goalsConceded != player3.goalsConceded) {
             player4unveiled.goalsConceded = player4.goalsConceded;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player4.goalsConceded == player5.goalsConceded && player5unveiled.goalsConceded != player4.goalsConceded) {
+          if (player4.goalsConceded == player5.goalsConceded &&
+              player5unveiled.goalsConceded != player4.goalsConceded) {
             player5unveiled.goalsConceded = player4.goalsConceded;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -2050,19 +2090,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("penaltiesMissed")) {
-          if (player4.penaltiesMissed == player1.penaltiesMissed && player1unveiled.penaltiesMissed != player4.penaltiesMissed) {
+          if (player4.penaltiesMissed == player1.penaltiesMissed &&
+              player1unveiled.penaltiesMissed != player4.penaltiesMissed) {
             player1unveiled.penaltiesMissed = player4.penaltiesMissed;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player4.penaltiesMissed == player2.penaltiesMissed && player2unveiled.penaltiesMissed != player4.penaltiesMissed) {
+          if (player4.penaltiesMissed == player2.penaltiesMissed &&
+              player2unveiled.penaltiesMissed != player4.penaltiesMissed) {
             player2unveiled.penaltiesMissed = player4.penaltiesMissed;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player4.penaltiesMissed == player3.penaltiesMissed && player4unveiled.penaltiesMissed != player3.penaltiesMissed) {
+          if (player4.penaltiesMissed == player3.penaltiesMissed &&
+              player4unveiled.penaltiesMissed != player3.penaltiesMissed) {
             player4unveiled.penaltiesMissed = player4.penaltiesMissed;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player4.penaltiesMissed == player5.penaltiesMissed && player5unveiled.penaltiesMissed != player4.penaltiesMissed) {
+          if (player4.penaltiesMissed == player5.penaltiesMissed &&
+              player5unveiled.penaltiesMissed != player4.penaltiesMissed) {
             player5unveiled.penaltiesMissed = player4.penaltiesMissed;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -2126,19 +2170,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("pointsPerGame")) {
-          if (player4.pointsPerGame == player1.pointsPerGame && player1unveiled.pointsPerGame != player4.pointsPerGame) {
+          if (player4.pointsPerGame == player1.pointsPerGame &&
+              player1unveiled.pointsPerGame != player4.pointsPerGame) {
             player1unveiled.pointsPerGame = player4.pointsPerGame;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player4.pointsPerGame == player2.pointsPerGame && player2unveiled.pointsPerGame != player4.pointsPerGame) {
+          if (player4.pointsPerGame == player2.pointsPerGame &&
+              player2unveiled.pointsPerGame != player4.pointsPerGame) {
             player2unveiled.pointsPerGame = player4.pointsPerGame;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player4.pointsPerGame == player3.pointsPerGame && player4unveiled.pointsPerGame != player3.pointsPerGame) {
+          if (player4.pointsPerGame == player3.pointsPerGame &&
+              player4unveiled.pointsPerGame != player3.pointsPerGame) {
             player4unveiled.pointsPerGame = player4.pointsPerGame;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
-          if (player4.pointsPerGame == player5.pointsPerGame && player5unveiled.pointsPerGame != player4.pointsPerGame) {
+          if (player4.pointsPerGame == player5.pointsPerGame &&
+              player5unveiled.pointsPerGame != player4.pointsPerGame) {
             player5unveiled.pointsPerGame = player4.pointsPerGame;
             _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
           }
@@ -2217,19 +2265,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("penaltiesMissed")) {
-          if (player5.penaltiesMissed == player1.penaltiesMissed && player1unveiled.penaltiesMissed != player5.penaltiesMissed) {
+          if (player5.penaltiesMissed == player1.penaltiesMissed &&
+              player1unveiled.penaltiesMissed != player5.penaltiesMissed) {
             player1unveiled.penaltiesMissed = player5.penaltiesMissed;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player5.penaltiesMissed == player2.penaltiesMissed && player2unveiled.penaltiesMissed != player5.penaltiesMissed) {
+          if (player5.penaltiesMissed == player2.penaltiesMissed &&
+              player2unveiled.penaltiesMissed != player5.penaltiesMissed) {
             player2unveiled.penaltiesMissed = player5.penaltiesMissed;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player5.penaltiesMissed == player3.penaltiesMissed && player3unveiled.penaltiesMissed != player5.penaltiesMissed) {
+          if (player5.penaltiesMissed == player3.penaltiesMissed &&
+              player3unveiled.penaltiesMissed != player5.penaltiesMissed) {
             player3unveiled.penaltiesMissed = player5.penaltiesMissed;
             _puzzle!.player3unveiled = jsonEncode(player3unveiled.toJson());
           }
-          if (player5.penaltiesMissed == player4.penaltiesMissed && player4unveiled.penaltiesMissed != player5.penaltiesMissed) {
+          if (player5.penaltiesMissed == player4.penaltiesMissed &&
+              player4unveiled.penaltiesMissed != player5.penaltiesMissed) {
             player4unveiled.penaltiesMissed = player5.penaltiesMissed;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
@@ -2369,19 +2421,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("goalsConceded")) {
-          if (player5.goalsConceded == player1.goalsConceded && player1unveiled.goalsConceded != player5.goalsConceded) {
+          if (player5.goalsConceded == player1.goalsConceded &&
+              player1unveiled.goalsConceded != player5.goalsConceded) {
             player1unveiled.goalsConceded = player5.goalsConceded;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player5.goalsConceded == player2.goalsConceded && player2unveiled.goalsConceded != player5.goalsConceded) {
+          if (player5.goalsConceded == player2.goalsConceded &&
+              player2unveiled.goalsConceded != player5.goalsConceded) {
             player2unveiled.goalsConceded = player5.goalsConceded;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player5.goalsConceded == player3.goalsConceded && player3unveiled.goalsConceded != player5.goalsConceded) {
+          if (player5.goalsConceded == player3.goalsConceded &&
+              player3unveiled.goalsConceded != player5.goalsConceded) {
             player3unveiled.goalsConceded = player5.goalsConceded;
             _puzzle!.player3unveiled = jsonEncode(player3unveiled.toJson());
           }
-          if (player5.goalsConceded == player4.goalsConceded && player4unveiled.goalsConceded != player5.goalsConceded) {
+          if (player5.goalsConceded == player4.goalsConceded &&
+              player4unveiled.goalsConceded != player5.goalsConceded) {
             player4unveiled.goalsConceded = player5.goalsConceded;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
@@ -2407,19 +2463,23 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
 
         if (selectedAttributes.contains("pointsPerGame")) {
-          if (player5.pointsPerGame == player1.pointsPerGame && player1unveiled.pointsPerGame != player5.pointsPerGame) {
+          if (player5.pointsPerGame == player1.pointsPerGame &&
+              player1unveiled.pointsPerGame != player5.pointsPerGame) {
             player1unveiled.pointsPerGame = player5.pointsPerGame;
             _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
           }
-          if (player5.pointsPerGame == player2.pointsPerGame && player2unveiled.pointsPerGame != player5.pointsPerGame) {
+          if (player5.pointsPerGame == player2.pointsPerGame &&
+              player2unveiled.pointsPerGame != player5.pointsPerGame) {
             player2unveiled.pointsPerGame = player5.pointsPerGame;
             _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
           }
-          if (player5.pointsPerGame == player3.pointsPerGame && player3unveiled.pointsPerGame != player5.pointsPerGame) {
+          if (player5.pointsPerGame == player3.pointsPerGame &&
+              player3unveiled.pointsPerGame != player5.pointsPerGame) {
             player3unveiled.pointsPerGame = player5.pointsPerGame;
             _puzzle!.player3unveiled = jsonEncode(player3unveiled.toJson());
           }
-          if (player5.pointsPerGame == player4.pointsPerGame && player4unveiled.pointsPerGame != player5.pointsPerGame) {
+          if (player5.pointsPerGame == player4.pointsPerGame &&
+              player4unveiled.pointsPerGame != player5.pointsPerGame) {
             player4unveiled.pointsPerGame = player5.pointsPerGame;
             _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
           }
@@ -2818,8 +2878,9 @@ class SingleModeGameProvider extends ChangeNotifier {
 
       // show a snackbar if isAnyMatchFound is false
       if (!isAnyMatchFound && context.mounted) {
-        await context.read<SoundsProvider>().playError().then((value) => snackBarHelper(context,
-            message: "No match found. Remaining ${_puzzle!.lives} lives", type: AnimatedSnackBarType.error));
+        context.read<SoundsProvider>().playError();
+        snackBarHelper(context,
+            message: "No match found. Remaining ${_puzzle!.lives} lives", type: AnimatedSnackBarType.error);
       }
 
       if (isAnyMatchFound && !isGuessRight && context.mounted) {

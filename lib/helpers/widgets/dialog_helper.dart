@@ -12,23 +12,47 @@ Future<void> customDialog(
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (_) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(
-              color: Palette.primary,
-              width: 3.0,
+        if (barrierDismissible) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(
+                color: Palette.primary,
+                width: 3.0,
+              ),
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          backgroundColor: Palette.scaffold,
-          contentPadding: const EdgeInsets.all(20),
-          titlePadding: const EdgeInsets.all(20),
-          title: Center(child: headingText(text: title, fontSize: 22, color: Palette.primary)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: contentList,
-          ),
-          actions: actions,
-        );
+            backgroundColor: Palette.scaffold,
+            contentPadding: const EdgeInsets.all(20),
+            titlePadding: const EdgeInsets.all(20),
+            title: Center(child: headingText(text: title, fontSize: 22, color: Palette.primary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: contentList,
+            ),
+            actions: actions,
+          );
+        } else {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                  color: Palette.primary,
+                  width: 3.0,
+                ),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              backgroundColor: Palette.scaffold,
+              contentPadding: const EdgeInsets.all(20),
+              titlePadding: const EdgeInsets.all(20),
+              title: Center(child: headingText(text: title, fontSize: 22, color: Palette.primary)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: contentList,
+              ),
+              actions: actions,
+            ),
+          );
+        }
       });
 }
