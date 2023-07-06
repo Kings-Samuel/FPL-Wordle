@@ -215,20 +215,44 @@ class SingleModeGameProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setPlayerUnveiled(BuildContext context,
-      {required Player player, required Player playerUnveiled, required int puzzlePosition}) async {
+  Future<void> setPlayerUnveiled(BuildContext context, {required Player player, required int puzzlePosition}) async {
     // update player unveiled
     switch (puzzlePosition) {
       case 1:
-        _puzzle!.player1unveiled = jsonEncode(playerUnveiled.toJson());
+        Player player1unveiled = Player.fromJson(jsonDecode(_puzzle!.player1unveiled!));
+        player1unveiled.firstName = player.firstName;
+        player1unveiled.secondName = player.secondName;
+        player1unveiled.webName = player.webName;
+        player1unveiled.isUnveiled = true;
+        _puzzle!.player1unveiled = jsonEncode(player1unveiled.toJson());
       case 2:
-        _puzzle!.player2unveiled = jsonEncode(playerUnveiled.toJson());
+        Player player2unveiled = Player.fromJson(jsonDecode(_puzzle!.player2unveiled!));
+        player2unveiled.firstName = player.firstName;
+        player2unveiled.secondName = player.secondName;
+        player2unveiled.webName = player.webName;
+        player2unveiled.isUnveiled = true;
+        _puzzle!.player2unveiled = jsonEncode(player2unveiled.toJson());
       case 3:
-        _puzzle!.player3unveiled = jsonEncode(playerUnveiled.toJson());
+        Player player3unveiled = Player.fromJson(jsonDecode(_puzzle!.player3unveiled!));
+        player3unveiled.firstName = player.firstName;
+        player3unveiled.secondName = player.secondName;
+        player3unveiled.webName = player.webName;
+        player3unveiled.isUnveiled = true;
+        _puzzle!.player3unveiled = jsonEncode(player3unveiled.toJson());
       case 4:
-        _puzzle!.player4unveiled = jsonEncode(playerUnveiled.toJson());
+        Player player4unveiled = Player.fromJson(jsonDecode(_puzzle!.player4unveiled!));
+        player4unveiled.firstName = player.firstName;
+        player4unveiled.secondName = player.secondName;
+        player4unveiled.webName = player.webName;
+        player4unveiled.isUnveiled = true;
+        _puzzle!.player4unveiled = jsonEncode(player4unveiled.toJson());
       case 5:
-        _puzzle!.player5unveiled = jsonEncode(playerUnveiled.toJson());
+        Player player5unveiled = Player.fromJson(jsonDecode(_puzzle!.player5unveiled!));
+        player5unveiled.firstName = player.firstName;
+        player5unveiled.secondName = player.secondName;
+        player5unveiled.webName = player.webName;
+        player5unveiled.isUnveiled = true;
+        _puzzle!.player5unveiled = jsonEncode(player5unveiled.toJson());
         break;
       default:
     }
@@ -240,7 +264,7 @@ class SingleModeGameProvider extends ChangeNotifier {
   }
 
   void setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) {
-    context.read<SoundsProvider>().playGameOver();
+    context.read<SoundsProvider>().playCheer();
     _puzzle!.isFinished = true;
     secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
     if (shouldNotifyListeners == true) notifyListeners();
@@ -2876,7 +2900,7 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
       }
 
-      // show a snackbar if isAnyMatchFound is false
+      // show a snackbar if no match is found
       if (!isAnyMatchFound && context.mounted) {
         context.read<SoundsProvider>().playError();
         snackBarHelper(context,
@@ -2890,13 +2914,13 @@ class SingleModeGameProvider extends ChangeNotifier {
       }
 
       // check if all players are unveiled, if so, puzzle is solved
-      if (player1unveiled.isUnveiled == true &&
+      bool isAllUnveiled = player1unveiled.isUnveiled == true &&
           player2unveiled.isUnveiled == true &&
           player3unveiled.isUnveiled == true &&
           player4unveiled.isUnveiled == true &&
-          player5unveiled.isUnveiled == true &&
-          context.mounted) {
-        setGameComplete(context);
+          player5unveiled.isUnveiled == true;
+      if (isAllUnveiled && context.mounted) {
+        setGameComplete(context, shouldNotifyListeners: true);
       }
 
       // remove player from suggestions

@@ -48,7 +48,7 @@ class HomeScreenState extends State<HomeScreen> {
     _authProvider = context.read<AuthProvider>();
     _miscProvider = context.read<SingleModeGameProvider>();
     _soundsProvider = context.read<SoundsProvider>();
-    if (!kIsWeb) _soundsProvider.startGameMusic();
+    _soundsProvider.startGameMusic();
     _user = _authProvider.user;
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();

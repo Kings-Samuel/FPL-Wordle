@@ -92,6 +92,5 @@ class KeyboardProvider extends ChangeNotifier {
   // when player name is found, remove it from the list
   void removePlayerName(String playerName) {
     _playerNames.remove(playerName);
-    notifyListeners();
   }
 }

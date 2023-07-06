@@ -32,7 +32,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  Wakelock.enable();
+  if (!kIsWeb) Wakelock.enable();
   await initAppwrite();
   runApp(const MyApp());
 }

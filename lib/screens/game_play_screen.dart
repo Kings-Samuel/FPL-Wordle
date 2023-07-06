@@ -720,8 +720,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     // set unveiled as true if all items are  revealed
     bool isAllRevealed = isAttr1Revealed && isAttr2Revealed && isAttr3Revealed && teamName != "TEAM";
     if (isAllRevealed && !isUnveiled) {
-      _gameProvider.setPlayerUnveiled(context,
-          player: player, playerUnveiled: playerUnveiled, puzzlePosition: puzzlePosition);
+      _gameProvider.setPlayerUnveiled(context, puzzlePosition: puzzlePosition, player: player);
       _keyboardProvider.removePlayerName("${player.firstName} ${player.secondName}");
     }
 
@@ -733,14 +732,14 @@ class GamePlayScreenState extends State<GamePlayScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               width: 100,
               decoration: BoxDecoration(
-                color: isUnveiled ? Palette.cardBodyGreeen : Palette.cardBodyGrey,
+                color: isUnveiled  ? Palette.cardBodyGreeen : Palette.cardBodyGrey,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // name
-                  if (isAllRevealed)
+                  if (isUnveiled)
                     Column(children: [
                       const SizedBox(height: 3),
                       Center(
@@ -748,11 +747,6 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                             text: player.webName!.toUpperCase(), color: Colors.white, fontSize: isDesktop ? 14 : 12),
                       ),
                       const SizedBox(height: 3),
-                      // Center(
-                      //   child: bodyText(
-                      //       text: player.secondName!.toUpperCase(), color: Colors.white, fontSize: isDesktop ? 14 : 12),
-                      // ),
-                      // const SizedBox(height: 3),
                     ]),
                   // price
                   Container(
@@ -868,7 +862,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // name
-                  if (isAllRevealed)
+                  if (isUnveiled)
                     Column(children: [
                       const SizedBox(height: 3),
                       Center(

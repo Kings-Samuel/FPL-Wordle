@@ -39,7 +39,7 @@ class SoundsProvider extends ChangeNotifier {
   }
 
   Future<void> toggleSound() async {
-    _isSoundMuted = !_isSoundMuted;
+    _isSoundMuted = !_isSoundMuted && !kIsWeb;
     await secStorage.write(key: SharedPrefsConsts.isSoundMuted, value: _isSoundMuted.toString());
     if (_isSoundMuted) {
       await stopGameMusic();
@@ -51,16 +51,17 @@ class SoundsProvider extends ChangeNotifier {
 
   Future<void> playClick() async {
     if (!_isClickMuted && !kIsWeb) {
-      await pauseGameMusic();
+      if (!isSoundMuted) await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_click),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _assetsAudioPlayer.play();
       await resumeGameMusic();
     }
   }
@@ -70,13 +71,14 @@ class SoundsProvider extends ChangeNotifier {
       await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_correct),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _assetsAudioPlayer.play();
       await resumeGameMusic();
     }
   }
@@ -86,13 +88,14 @@ class SoundsProvider extends ChangeNotifier {
       await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_cheer),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _assetsAudioPlayer.play();
       await resumeGameMusic();
     }
   }
@@ -102,13 +105,14 @@ class SoundsProvider extends ChangeNotifier {
       await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_error),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _assetsAudioPlayer.play();
       await resumeGameMusic();
     }
   }
@@ -118,13 +122,14 @@ class SoundsProvider extends ChangeNotifier {
       await pauseGameMusic();
       await _assetsAudioPlayer.open(
         Audio(_gameOver),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         playInBackground: PlayInBackground.disabledRestoreOnForeground,
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _assetsAudioPlayer.play();
       await resumeGameMusic();
     }
   }
@@ -135,7 +140,7 @@ class SoundsProvider extends ChangeNotifier {
     if (!_isSoundMuted && !kIsWeb && !isPlaying) {
       await _gameMusicPlayer.open(
         Audio(_gamemusic),
-        autoStart: true,
+        // autoStart: true,
         showNotification: false,
         respectSilentMode: false,
         loopMode: LoopMode.single,
@@ -143,6 +148,7 @@ class SoundsProvider extends ChangeNotifier {
         audioFocusStrategy:
             const AudioFocusStrategy.request(resumeAfterInterruption: true, resumeOthersPlayersAfterDone: true),
       );
+      await _gameMusicPlayer.play();
     }
   }
 
@@ -159,7 +165,7 @@ class SoundsProvider extends ChangeNotifier {
   }
 
   Future<void> stopGameMusic() async {
-    if (!kIsWeb) {
+    if (!_isSoundMuted && !kIsWeb) {
       await _gameMusicPlayer.stop();
     }
   }
