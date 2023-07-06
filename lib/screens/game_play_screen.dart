@@ -168,7 +168,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
               appBar: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                centerTitle: true,
+                centerTitle: isDesktop,
                 leading: leadingButton(context),
                 title: Row(
                   mainAxisAlignment: isDesktop ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
@@ -197,7 +197,8 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                               children: [
                                 Center(
                                   child: headingText(
-                                      text: "Level ${profile!.level.toString()}",
+                                    // TODO:change to level
+                                      text: "Level ${profile!.xp.toString()}",
                                       fontSize: isDesktop ? 18 : 16,
                                       variation: 2),
                                 ),
@@ -210,7 +211,8 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                                   child: ProgressBar(
                                       height: 7,
                                       width: 70.0,
-                                      value: _calculateProgress(profile.level!, profile.xp!),
+                                      // TODO:change to level
+                                      value: _calculateProgress(1, profile.xp!),
                                       gradient: const LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
@@ -229,6 +231,14 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                       padding: const EdgeInsets.all(5),
                       child: Row(
                         children: [
+                          // score (for desktop)
+                          if (isDesktop)
+                            Column(
+                              children: [
+                                headingText(text: "SCORE: ${puzzle?.score}"),
+                                SizedBox(width: isDesktop ? 15 : 7),
+                              ],
+                            ),
                           // lives
                           Row(
                             children: [
@@ -264,12 +274,17 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                   ],
                 ),
               ),
-              // game complete dialog
               bottomNavigationBar: puzzle?.isFinished == true
+                  // game complete dialog
                   ? Container(
-                      height: 225,
+                      height: isDesktop ? 225 : 260,
                       padding: const EdgeInsets.all(10),
-                      child: Column(children: [
+                      alignment: Alignment.center,
+                      decoration:
+                          const BoxDecoration(border: Border(top: BorderSide(width: 1.5, color: Palette.primary))),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                         // heading
                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           const Icon(Icons.check, color: Colors.green),
@@ -281,34 +296,58 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                               bold: true),
                         ]),
                         const SizedBox(height: 10),
-                        // share and view achievements btns
-                        SizedBox(
-                          width: isDesktop ? 500 : double.infinity,
-                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Expanded(
-                              child: SizedBox(
-                                  height: 40,
-                                  width: 150,
-                                  child: customButton(
-                                    context,
-                                    icon: Icons.ios_share,
-                                    text: "Share Score",
-                                    onTap: () {},
-                                  )),
-                            ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: SizedBox(
-                                  height: 40,
-                                  width: 150,
-                                  child: customButton(
-                                    context,
-                                    icon: CommunityMaterialIcons.trophy_award,
-                                    text: "View Achievements",
-                                    onTap: () {},
-                                  )),
-                            ),
-                          ]),
+                        // share and view achievements btns 
+                        Expanded(
+                          child: SizedBox(
+                            width: isDesktop ? 500 : double.infinity,
+                            child: isDesktop
+                                ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                          height: 40,
+                                          width: 150,
+                                          child: customButton(
+                                            context,
+                                            icon: Icons.ios_share,
+                                            text: "Share Score",
+                                            onTap: () {},
+                                          )),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    Expanded(
+                                      child: SizedBox(
+                                          height: 40,
+                                          width: 150,
+                                          child: customButton(
+                                            context,
+                                            icon: CommunityMaterialIcons.trophy_award,
+                                            text: "View Achievements",
+                                            onTap: () {},
+                                          )),
+                                    ),
+                                  ])
+                                : Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                    SizedBox(
+                                        height: 40,
+                                        width: 250,
+                                        child: customButton(
+                                          context,
+                                          icon: Icons.ios_share,
+                                          text: "Share Score",
+                                          onTap: () {},
+                                        )),
+                                    const SizedBox(height: 15),
+                                    SizedBox(
+                                        height: 40,
+                                        width: 250,
+                                        child: customButton(
+                                          context,
+                                          icon: CommunityMaterialIcons.trophy_award,
+                                          text: "View Achievements",
+                                          onTap: () {},
+                                        )),
+                                  ]),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         // scores
@@ -603,6 +642,16 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 physics: const BouncingScrollPhysics(),
                 child: Column(children: [
+                  // score (for mobile)
+                  if (!isDesktop)
+                    Center(
+                      child: Column(
+                        children: [
+                          headingText(text: "SCORE: ${puzzle?.score}"),
+                          const SizedBox(height: 15),
+                        ],
+                      ),
+                    ),
                   // heading text
                   Center(
                     child: bodyText(text: "Find today's Premier League Players"),
@@ -732,7 +781,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
               width: 100,
               decoration: BoxDecoration(
-                color: isUnveiled  ? Palette.cardBodyGreeen : Palette.cardBodyGrey,
+                color: isUnveiled ? Palette.cardBodyGreeen : Palette.cardBodyGrey,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(

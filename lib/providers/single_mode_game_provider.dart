@@ -129,12 +129,13 @@ class SingleModeGameProvider extends ChangeNotifier {
       if (context.mounted) profile = context.read<ProfileProvider>().profile!;
       int difficulty = profile.difficulty!;
 
-      //  save game in session
+      // lives (based on difficulty level)
       _puzzle!.lives = difficulty == 1
           ? 20
           : difficulty == 2
               ? 15
               : 10;
+      // hints
       _puzzle!.hints = 3;
 
       // create playersUnveiled
@@ -163,6 +164,16 @@ class SingleModeGameProvider extends ChangeNotifier {
       _puzzle!.player1unveiled = _puzzle!.player2unveiled =
           _puzzle!.player3unveiled = _puzzle!.player4unveiled = _puzzle!.player5unveiled = playerUnveiledEncoded;
 
+      // set score
+      _puzzle!.score = 0;
+
+      // first guess
+      _puzzle!.isFirstGuessMade = false;
+
+      // streak
+      _puzzle!.streak = 0;
+
+      //  save game in session
       await secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
 
       // increase game count (timesPlayed)
@@ -171,6 +182,9 @@ class SingleModeGameProvider extends ChangeNotifier {
           collectionId: AppwriteConsts.dailyPuzzle,
           documentId: canLoadToday ? documentId : yesterdayDocumentId,
           data: {"timesPlayed": timesPlayed + 1});
+
+      // increaseGamesPlayedCount
+      if (context.mounted) context.read<ProfileProvider>().increaseGamesPlayedCount();
 
       notifyListeners();
     } on AppwriteException catch (e) {
@@ -257,6 +271,9 @@ class SingleModeGameProvider extends ChangeNotifier {
       default:
     }
 
+    // increase score
+    _puzzle!.score = _puzzle!.score! + 5;
+
     // update game in session
     await secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
 
@@ -265,12 +282,30 @@ class SingleModeGameProvider extends ChangeNotifier {
 
   void setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) {
     context.read<SoundsProvider>().playCheer();
+    if (_puzzle!.isFinished != true) {
+      // add bonus scores
+      _puzzle!.score = _puzzle!.score! + getHintBonus() + getLifeBonus(context);
+      // increment games won count
+      context.read<ProfileProvider>().increaseGamesWonCount();
+      // increase xp
+      context.read<ProfileProvider>().increaseXP(_puzzle!.score!);
+      // set highscore
+      if (_puzzle!.score! > context.read<ProfileProvider>().profile!.highScore!) {
+        context.read<ProfileProvider>().setHighScore(_puzzle!.score!);
+      }
+      // update no hints used
+    }
     _puzzle!.isFinished = true;
     secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
     if (shouldNotifyListeners == true) notifyListeners();
   }
 
   void setGameOver(BuildContext context) {
+    if (_puzzle!.isGameOver != true) {
+      _puzzle!.isGameOver = true;
+      context.read<ProfileProvider>().increaseGamesLostCount();
+    }
+
     // play gameover sound
     context.read<SoundsProvider>().playGameOver();
     // show gameover dialog
@@ -1162,7 +1197,7 @@ class SingleModeGameProvider extends ChangeNotifier {
       Player player4unveiled = Player.fromJson(jsonDecode(_puzzle!.player4unveiled!));
       Player player5unveiled = Player.fromJson(jsonDecode(_puzzle!.player5unveiled!));
 
-      // find macthing player
+      // ** find macthing player ** //
       if (guess.trim() == "${player1.firstName} ${player1.secondName}".trim()) {
         isGuessRight = true;
         isAnyMatchFound = true;
@@ -2510,8 +2545,12 @@ class SingleModeGameProvider extends ChangeNotifier {
         }
       }
 
-      // deplete lives if guess is wrong && find players with matching traits
+      // ** deplete lives if guess is wrong && find players with matching traits ** //
+      // ** handle other achievement and score related things ** //
       if (!isGuessRight) {
+        // set streak to zero
+        _puzzle!.streak = 0;
+        // deplete lives
         puzzle!.lives = puzzle!.lives! - 1;
 
         // find the index of the player whose firstName and lastName equals guess
@@ -2898,9 +2937,51 @@ class SingleModeGameProvider extends ChangeNotifier {
             break;
           }
         }
+      } else {
+        // increase player found
+        context.read<ProfileProvider>().increasePlayersFoundCount();
+
+        // increase score
+        _puzzle!.score = _puzzle!.score! + 10;
+
+        // increment streak
+        _puzzle!.streak = _puzzle!.streak! + 1;
+
+        // ** handle first correct guess ** //
+        // check difficulty level from user profile
+        Profile profile = Profile();
+        if (context.mounted) profile = context.read<ProfileProvider>().profile!;
+        int difficulty = profile.difficulty!;
+
+        // lives (based on difficulty level)
+        int originalLives = difficulty == 1
+            ? 20
+            : difficulty == 2
+                ? 15
+                : 10;
+        if (_puzzle!.lives == originalLives && _puzzle!.isFirstGuessMade == false) {
+          // increase score
+          _puzzle!.score = _puzzle!.score! + 10;
+          snackBarHelper(context, message: "Correct First Guess: +10");
+          _puzzle!.isFirstGuessMade = true;
+          // increase in profile
+          context.read<ProfileProvider>().increaseCorrectFirstGuessCount();
+        }
+
+        // ** handle streak ** //
+        // for points increment
+        if (_puzzle!.streak! > 1) {
+          _puzzle!.score = _puzzle!.score! + 5;
+          snackBarHelper(context, message: "Streak x${_puzzle!.streak}: +5 points");
+        }
+
+        // for profile
+        if (_puzzle!.streak! > profile.longestWinStreak!) {
+          context.read<ProfileProvider>().increaseLongestWinStreakCount(_puzzle!.streak!);
+        }
       }
 
-      // show a snackbar if no match is found
+      // ** show a snackbar if no match is found ** //
       if (!isAnyMatchFound && context.mounted) {
         context.read<SoundsProvider>().playError();
         snackBarHelper(context,
@@ -2913,7 +2994,7 @@ class SingleModeGameProvider extends ChangeNotifier {
             type: AnimatedSnackBarType.info);
       }
 
-      // check if all players are unveiled, if so, puzzle is solved
+      // ** check if all players are unveiled, if so, puzzle is solved ** //
       bool isAllUnveiled = player1unveiled.isUnveiled == true &&
           player2unveiled.isUnveiled == true &&
           player3unveiled.isUnveiled == true &&
@@ -2923,14 +3004,14 @@ class SingleModeGameProvider extends ChangeNotifier {
         setGameComplete(context, shouldNotifyListeners: true);
       }
 
-      // remove player from suggestions
+      // ** remove player from suggestions ** //
       if (context.mounted) {
         context.read<KeyboardProvider>().removePlayerName(guess.trim());
         _players.removeWhere((player) => "${player.firstName} ${player.secondName}".trim() == guess.trim());
         _puzzle!.allPlayersEncodedJSONstring = jsonEncode(_players.map((e) => e.toJson()).toList());
       }
 
-      // save game in session
+      // ** save game in session ** //
       SingleModePuzzle temp = _puzzle!;
       _puzzle = null;
       _puzzle = temp;
@@ -2988,5 +3069,32 @@ class SingleModeGameProvider extends ChangeNotifier {
       default:
         return (name: "Team", shirtAsset: "assets/shirts/shirt_0.png");
     }
+  }
+
+  int getHintBonus() {
+    return _puzzle!.hints! * 10;
+  }
+
+  int getLifeBonus(BuildContext context) {
+    int multiplier = 2;
+    // check difficulty
+    Profile profile = Profile();
+    if (context.mounted) profile = context.read<ProfileProvider>().profile!;
+    int difficulty = profile.difficulty!;
+
+    switch (difficulty) {
+      case 1:
+        multiplier = 2;
+        break;
+      case 2:
+        multiplier = 4;
+        break;
+      case 3:
+        multiplier = 8;
+        break;
+      default:
+    }
+
+    return _puzzle!.lives! * multiplier;
   }
 }

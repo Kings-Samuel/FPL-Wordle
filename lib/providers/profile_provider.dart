@@ -44,7 +44,7 @@ class ProfileProvider extends ChangeNotifier {
         Map<String, dynamic> profileJson = jsonDecode(profile_);
         _profile = Profile.fromJson(profileJson);
         _profile!.coins = 0;
-        _profile!.achievements!.id = user.id;
+        // _profile!.achievements!.id = user.id;
 
         // check if doc already exixst.
         final res = await database.getDocument(databaseId: _db, collectionId: _collection, documentId: user.id!);
@@ -74,40 +74,40 @@ class ProfileProvider extends ChangeNotifier {
 
         if (profile_ == null) {
           _profile = Profile(
-              id: user!.id,
-              coins: 0,
-              gamesPlayed: 0,
-              gamesWon: 0,
-              gamesLost: 0,
-              gamesAbandoned: 0,
-              winStreak: 0,
-              longestWinStreak: 0,
-              difficulty: 1,
-              level: 1,
-              xp: 0,
-              highScore: 0,
-              playedToday: 0,
-              playersFound: 0,
-              correctFirstGuess: 0,
-              noHintsUsed: 0,
-              scoresShared: 0,
-              multiplayerModePlayed: 0,
-              winsInMultiplayerMode: 0,
-              achievements: Achievements(
-                  id: user.id,
-                  gamesPlayedX5: false,
-                  gamesPlayedX10: false,
-                  gamesPlayedX20: false,
-                  gamesInOneDayX3: false,
-                  winningStreakX5: false,
-                  playersFoundX25: false,
-                  playersFoundX50: false,
-                  correctFirstGuessX10: false,
-                  playAgameInMultiPlayerMode: false,
-                  winsInMultiplayerModeX5: false,
-                  noHintsUsedX5: false,
-                  scoresSharedX3: false,
-                  scoresSharedX10: false));
+            id: user!.id,
+            coins: 0,
+            gamesPlayed: 0,
+            gamesWon: 0,
+            gamesLost: 0,
+            gamesAbandoned: 0,
+            longestWinStreak: 0,
+            difficulty: 1,
+            // level: 1,
+            xp: 0,
+            highScore: 0,
+            // playedToday: 0,
+            playersFound: 0,
+            correctFirstGuess: 0,
+            noHintsUsed: 0,
+            scoresShared: 0,
+            // multiplayerModePlayed: 0,
+            // winsInMultiplayerMode: 0,
+            // achievements: Achievements(
+            //     id: user.id,
+            //     gamesPlayedX5: false,
+            //     gamesPlayedX10: false,
+            //     gamesPlayedX20: false,
+            //     gamesInOneDayX3: false,
+            //     winningStreakX5: false,
+            //     playersFoundX25: false,
+            //     playersFoundX50: false,
+            //     correctFirstGuessX10: false,
+            //     playAgameInMultiPlayerMode: false,
+            //     winsInMultiplayerModeX5: false,
+            //     noHintsUsedX5: false,
+            //     scoresSharedX3: false,
+            //     scoresSharedX10: false)
+          );
           final res = database.createDocument(
               databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
 
@@ -122,7 +122,7 @@ class ProfileProvider extends ChangeNotifier {
           _profile = Profile.fromJson(profileJson);
           _profile!.id = user!.id;
           _profile!.coins = 0;
-          _profile!.achievements!.id = user.id;
+          // _profile!.achievements!.id = user.id;
 
           final res = database.createDocument(
               databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
@@ -151,34 +151,33 @@ class ProfileProvider extends ChangeNotifier {
         gamesWon: 0,
         gamesLost: 0,
         gamesAbandoned: 0,
-        winStreak: 0,
         longestWinStreak: 0,
-        playedToday: 0,
+        // playedToday: 0,
         playersFound: 0,
         correctFirstGuess: 0,
         noHintsUsed: 0,
         scoresShared: 0,
-        multiplayerModePlayed: 0,
-        winsInMultiplayerMode: 0,
-        level: 1,
+        // multiplayerModePlayed: 0,
+        // winsInMultiplayerMode: 0,
+        // level: 1,
         xp: 0,
         highScore: 0,
         difficulty: 1,
-        achievements: Achievements(
-          gamesPlayedX5: false,
-          gamesPlayedX10: false,
-          gamesPlayedX20: false,
-          gamesInOneDayX3: false,
-          winningStreakX5: false,
-          playersFoundX25: false,
-          playersFoundX50: false,
-          correctFirstGuessX10: false,
-          playAgameInMultiPlayerMode: false,
-          scoresSharedX3: false,
-          scoresSharedX10: false,
-          noHintsUsedX5: false,
-          winsInMultiplayerModeX5: false,
-        ),
+        // achievements: Achievements(
+        //   gamesPlayedX5: false,
+        //   gamesPlayedX10: false,
+        //   gamesPlayedX20: false,
+        //   gamesInOneDayX3: false,
+        //   winningStreakX5: false,
+        //   playersFoundX25: false,
+        //   playersFoundX50: false,
+        //   correctFirstGuessX10: false,
+        //   playAgameInMultiPlayerMode: false,
+        //   scoresSharedX3: false,
+        //   scoresSharedX10: false,
+        //   noHintsUsedX5: false,
+        //   winsInMultiplayerModeX5: false,
+        // ),
       );
       String profileString = jsonEncode(_profile!.toJson());
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
@@ -253,10 +252,7 @@ class ProfileProvider extends ChangeNotifier {
     } else {
       _profile!.gamesPlayed! + 1;
       await database.updateDocument(
-          databaseId: _db,
-          collectionId: _collection,
-          documentId: _profile!.id!,
-          data: {"gamesPlayed": _profile!.gamesPlayed});
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
     }
   }
@@ -275,7 +271,7 @@ class ProfileProvider extends ChangeNotifier {
     } else {
       _profile!.gamesWon! + 1;
       await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"gamesWon": _profile!.gamesWon});
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
     }
   }
@@ -294,7 +290,8 @@ class ProfileProvider extends ChangeNotifier {
     } else {
       _profile!.gamesLost! + 1;
       await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"gamesLost": _profile!.gamesLost});
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+
       notifyListeners();
     }
   }
@@ -313,32 +310,27 @@ class ProfileProvider extends ChangeNotifier {
     } else {
       _profile!.gamesAbandoned! + 1;
       await database.updateDocument(
-          databaseId: _db,
-          collectionId: _collection,
-          documentId: _profile!.id!,
-          data: {"gamesAbandoned": _profile!.gamesAbandoned});
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+
       notifyListeners();
     }
   }
 
-  Future<void> increaseWinStreakCount() async {
-    // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-
-    if (profile_ != null) {
-      _profile!.winStreak! + 1;
-      String profileString = jsonEncode(_profile!.toJson());
-
-      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
-
-      notifyListeners();
-    } else {
-      _profile!.winStreak! + 1;
-      await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"winStreak": _profile!.winStreak});
-      notifyListeners();
-    }
-  }
+  // Future<void> increaseWinStreakCount() async {
+  //   // check if there is a profile document for this user on local storage
+  //   String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+  //   if (profile_ != null) {
+  //     _profile!.winStreak! + 1;
+  //     String profileString = jsonEncode(_profile!.toJson());
+  //     await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+  //     notifyListeners();
+  //   } else {
+  //     _profile!.winStreak! + 1;
+  //     await database.updateDocument(
+  //         databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"winStreak": _profile!.winStreak});
+  //     notifyListeners();
+  //   }
+  // }
 
   Future<void> increaseLongestWinStreakCount(int winStreak) async {
     // check if there is a profile document for this user on local storage
@@ -358,189 +350,189 @@ class ProfileProvider extends ChangeNotifier {
       if (winStreak > longestWinStreak) {
         _profile!.longestWinStreak = winStreak;
         await database.updateDocument(
-            databaseId: _db,
-            collectionId: _collection,
-            documentId: _profile!.id!,
-            data: {"longestWinStreak": _profile!.longestWinStreak});
+            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
         notifyListeners();
       }
     }
   }
 
-  Future<void> increasePlayedTodayCount(int playedToday) async {
+  // Future<void> increasePlayedTodayCount(int playedToday) async {
+  //   // check if there is a profile document for this user on local storage
+  //   String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+  //   int playedToday_ = _profile!.playedToday!;
+  //   if (profile_ != null) {
+  //     if (playedToday > playedToday_) {
+  //       _profile!.playedToday = playedToday;
+  //       String profileString = jsonEncode(_profile!.toJson());
+  //       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+  //       notifyListeners();
+  //     }
+  //   } else {
+  //     if (playedToday > playedToday_) {
+  //       _profile!.playedToday = playedToday;
+  //       await database.updateDocument(
+  //           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+  //       notifyListeners();
+  //     }
+  //   }
+  // }
+
+  Future<void> increasePlayersFoundCount() async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int playedToday_ = _profile!.playedToday!;
 
     if (profile_ != null) {
-      if (playedToday > playedToday_) {
-        _profile!.playedToday = playedToday;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.playersFound! + 1;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (playedToday > playedToday_) {
-        _profile!.playedToday = playedToday;
-        await database.updateDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"playedToday": _profile!.playedToday});
-        notifyListeners();
-      }
+      _profile!.playersFound! + 1;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increasePlayersFoundCount(int playersFound) async {
+  Future<void> increaseCorrectFirstGuessCount() async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int playersFound_ = _profile!.playersFound!;
 
     if (profile_ != null) {
-      if (playersFound > playersFound_) {
-        _profile!.playersFound = playersFound;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.correctFirstGuess! + 1;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (playersFound > playersFound_) {
-        _profile!.playersFound = playersFound;
-        await database.updateDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"playersFound": _profile!.playersFound});
-        notifyListeners();
-      }
+      _profile!.correctFirstGuess! + 1;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increaseCorrectFirstGuessCount(int correctFirstGuess) async {
+  Future<void> increaseNoHintsUsedCount() async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int correctFirstGuess_ = _profile!.correctFirstGuess!;
 
     if (profile_ != null) {
-      if (correctFirstGuess > correctFirstGuess_) {
-        _profile!.correctFirstGuess = correctFirstGuess;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.noHintsUsed! + 1;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (correctFirstGuess > correctFirstGuess_) {
-        _profile!.correctFirstGuess = correctFirstGuess;
-        await database.updateDocument(
-            databaseId: _db,
-            collectionId: _collection,
-            documentId: _profile!.id!,
-            data: {"correctFirstGuess": _profile!.correctFirstGuess});
-        notifyListeners();
-      }
+      _profile!.noHintsUsed! + 1;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increaseNoHintsUsedCount(int noHintsUsed) async {
+  Future<void> increaseScoresSharedCount() async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int noHintsUsed_ = _profile!.noHintsUsed!;
 
     if (profile_ != null) {
-      if (noHintsUsed > noHintsUsed_) {
-        _profile!.noHintsUsed = noHintsUsed;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.scoresShared! + 1;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (noHintsUsed > noHintsUsed_) {
-        _profile!.noHintsUsed = noHintsUsed;
-        await database.updateDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"noHintsUsed": _profile!.noHintsUsed});
-        notifyListeners();
-      }
+      _profile!.scoresShared! + 1;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increaseScoresSharedCount(int scoresShared) async {
+  // Future<void> increaseMultiplayerModePlayedCount(int multiplayerModePlayed) async {
+  //   // check if there is a profile document for this user on local storage
+  //   String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+  //   int multiplayerModePlayed_ = _profile!.multiplayerModePlayed!;
+  //   if (profile_ != null) {
+  //     if (multiplayerModePlayed > multiplayerModePlayed_) {
+  //       _profile!.multiplayerModePlayed = multiplayerModePlayed;
+  //       String profileString = jsonEncode(_profile!.toJson());
+  //       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+  //       notifyListeners();
+  //     }
+  //   } else {
+  //     if (multiplayerModePlayed > multiplayerModePlayed_) {
+  //       _profile!.multiplayerModePlayed = multiplayerModePlayed;
+  //       await database.updateDocument(
+  //           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+  //       notifyListeners();
+  //     }
+  //   }
+  // }
+
+  Future<void> increaseXP(int newXP) async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int scoresShared_ = _profile!.scoresShared!;
 
     if (profile_ != null) {
-      if (scoresShared > scoresShared_) {
-        _profile!.scoresShared = scoresShared;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.xp! + newXP;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (scoresShared > scoresShared_) {
-        _profile!.scoresShared = scoresShared;
-        await database.updateDocument(
-            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"scoresShared": _profile!.scoresShared});
-        notifyListeners();
-      }
+      _profile!.xp! + newXP;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increaseMultiplayerModePlayedCount(int multiplayerModePlayed) async {
+  Future<void> setHighScore(int highScore) async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int multiplayerModePlayed_ = _profile!.multiplayerModePlayed!;
 
     if (profile_ != null) {
-      if (multiplayerModePlayed > multiplayerModePlayed_) {
-        _profile!.multiplayerModePlayed = multiplayerModePlayed;
-        String profileString = jsonEncode(_profile!.toJson());
+      _profile!.highScore = highScore;
+      String profileString = jsonEncode(_profile!.toJson());
 
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
-        notifyListeners();
-      }
+      notifyListeners();
     } else {
-      if (multiplayerModePlayed > multiplayerModePlayed_) {
-        _profile!.multiplayerModePlayed = multiplayerModePlayed;
-        await database.updateDocument(
-            databaseId: _db,
-            collectionId: _collection,
-            documentId: _profile!.id!,
-            data: {"multiplayerModePlayed": _profile!.multiplayerModePlayed});
-        notifyListeners();
-      }
+      _profile!.highScore = highScore;
+      await database.updateDocument(
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+      notifyListeners();
     }
   }
 
-  Future<void> increaseWinsInMultiplayerModeCount(int winsInMultiplayerMode) async {
-    // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-    int winsInMultiplayerMode_ = _profile!.winsInMultiplayerMode!;
-
-    if (profile_ != null) {
-      if (winsInMultiplayerMode > winsInMultiplayerMode_) {
-        _profile!.winsInMultiplayerMode = winsInMultiplayerMode;
-        String profileString = jsonEncode(_profile!.toJson());
-
-        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
-
-        notifyListeners();
-      }
-    } else {
-      if (winsInMultiplayerMode > winsInMultiplayerMode_) {
-        _profile!.winsInMultiplayerMode = winsInMultiplayerMode;
-        await database.updateDocument(
-            databaseId: _db,
-            collectionId: _collection,
-            documentId: _profile!.id!,
-            data: {"winsInMultiplayerMode": _profile!.winsInMultiplayerMode});
-        notifyListeners();
-      }
-    }
-  }
+  // Future<void> increaseWinsInMultiplayerModeCount(int winsInMultiplayerMode) async {
+  //   // check if there is a profile document for this user on local storage
+  //   String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+  //   int winsInMultiplayerMode_ = _profile!.winsInMultiplayerMode!;
+  //   if (profile_ != null) {
+  //     if (winsInMultiplayerMode > winsInMultiplayerMode_) {
+  //       _profile!.winsInMultiplayerMode = winsInMultiplayerMode;
+  //       String profileString = jsonEncode(_profile!.toJson());
+  //       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+  //       notifyListeners();
+  //     }
+  //   } else {
+  //     if (winsInMultiplayerMode > winsInMultiplayerMode_) {
+  //       _profile!.winsInMultiplayerMode = winsInMultiplayerMode;
+  //       await database.updateDocument(
+  //           databaseId: _db,
+  //           collectionId: _collection,
+  //           documentId: _profile!.id!,
+  //           data: {"winsInMultiplayerMode": _profile!.winsInMultiplayerMode});
+  //       notifyListeners();
+  //     }
+  //   }
+  // }
 }

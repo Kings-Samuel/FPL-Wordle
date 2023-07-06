@@ -5,20 +5,20 @@ class Profile {
       gamesWon,
       gamesLost,
       gamesAbandoned,
-      winStreak,
+      // winStreak,
       longestWinStreak,
       difficulty,
-      level,
+      // level,
       xp,
       highScore,
-      playedToday,
+      // playedToday,
       playersFound,
       correctFirstGuess,
       noHintsUsed,
-      scoresShared,
-      multiplayerModePlayed,
-      winsInMultiplayerMode;
-  Achievements? achievements;
+      scoresShared;
+  // multiplayerModePlayed,
+  // winsInMultiplayerMode;
+  // Achievements? achievements;
 
   Profile({
     this.id,
@@ -27,20 +27,20 @@ class Profile {
     this.gamesWon,
     this.gamesLost,
     this.gamesAbandoned,
-    this.winStreak,
+    // this.winStreak,
     this.longestWinStreak,
     this.difficulty,
-    this.level,
+    // this.level,
     this.xp,
     this.highScore,
-    this.playedToday, // ! this doesn't need to be updated once the value equals 3
+    // this.playedToday, // ! this doesn't need to be updated once the value equals 3
     this.playersFound,
     this.correctFirstGuess,
     this.noHintsUsed,
     this.scoresShared,
-    this.multiplayerModePlayed,
-    this.winsInMultiplayerMode,
-    this.achievements,
+    // this.multiplayerModePlayed,
+    // this.winsInMultiplayerMode,
+    // this.achievements,
   });
 
   Profile.fromJson(Map<String, dynamic> json) {
@@ -50,20 +50,20 @@ class Profile {
     gamesWon = json['gamesWon'];
     gamesLost = json['gamesLost'];
     gamesAbandoned = json['gamesAbandoned'];
-    winStreak = json['winStreak'];
+    // winStreak = json['winStreak'];
     longestWinStreak = json['longestWinStreak'];
     difficulty = json['difficulty'];
-    level = json['level'];
+    // level = json['level'];
     xp = json['xp'];
     highScore = json['highScore'];
-    playedToday = json['playedToday'];
+    // playedToday = json['playedToday'];
     playersFound = json['playersFound'];
     correctFirstGuess = json['correctFirstGuess'];
     noHintsUsed = json['noHintsUsed'];
     scoresShared = json['scoresShared'];
-    multiplayerModePlayed = json['multiplayerModePlayed'];
-    winsInMultiplayerMode = json['winsInMultiplayerMode'];
-    achievements = json['achievements'] != null ? Achievements.fromJson(json['achievements']) : null;
+    // multiplayerModePlayed = json['multiplayerModePlayed'];
+    // winsInMultiplayerMode = json['winsInMultiplayerMode'];
+    // achievements = json['achievements'] != null ? Achievements.fromJson(json['achievements']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -73,22 +73,22 @@ class Profile {
     data['gamesWon'] = gamesWon;
     data['gamesLost'] = gamesLost;
     data['gamesAbandoned'] = gamesAbandoned;
-    data['winStreak'] = winStreak;
+    // data['winStreak'] = winStreak;
     data['longestWinStreak'] = longestWinStreak;
     data['difficulty'] = difficulty;
-    data['level'] = level;
+    // data['level'] = level;
     data['xp'] = xp;
     data['highScore'] = highScore;
-    data['playedToday'] = playedToday;
+    // data['playedToday'] = playedToday;
     data['playersFound'] = playersFound;
     data['correctFirstGuess'] = correctFirstGuess;
     data['noHintsUsed'] = noHintsUsed;
     data['scoresShared'] = scoresShared;
-    data['multiplayerModePlayed'] = multiplayerModePlayed;
-    data['winsInMultiplayerMode'] = winsInMultiplayerMode;
-    if (achievements != null) {
-      data['achievements'] = achievements!.toJson();
-    }
+    // data['multiplayerModePlayed'] = multiplayerModePlayed;
+    // data['winsInMultiplayerMode'] = winsInMultiplayerMode;
+    // if (achievements != null) {
+    //   data['achievements'] = achievements!.toJson();
+    // }
     return data;
   }
 }

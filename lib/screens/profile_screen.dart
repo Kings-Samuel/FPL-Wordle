@@ -51,96 +51,97 @@ class ProfileScreenState extends State<ProfileScreen> {
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
     if (profile == null) _profileProvider.createLocalProfile();
     int gamesPlayed = profile!.gamesPlayed!;
-    int playedToday = profile.playedToday!;
+    // int playedToday = profile.playedToday!;
     int winStreak = profile.longestWinStreak!;
     int playersFound = profile.playersFound!;
     int correctFirstGuesses = profile.correctFirstGuess!;
     int noHintsUsed = profile.noHintsUsed!;
     int scoresShared = profile.scoresShared!;
-    int multiplayerModePlayed = profile.multiplayerModePlayed!;
-    int winsInMultiplayerMode = profile.winsInMultiplayerMode!;
+    // int multiplayerModePlayed = profile.multiplayerModePlayed!;
+    // int winsInMultiplayerMode = profile.winsInMultiplayerMode!;
 
     List<Stat> stats = [
       Stat(name: "Played", value: profile.gamesPlayed!),
       Stat(name: "Won", value: profile.gamesWon!),
       Stat(name: "Lost", value: profile.gamesLost!),
       Stat(name: "Abandoned", value: profile.gamesAbandoned!),
-      Stat(name: "Win Streak", value: profile.winStreak!),
+      // Stat(name: "Win Streak", value: profile.winStreak!),
       Stat(name: "Longest Win Streak", value: profile.longestWinStreak!),
     ];
 
+    // TODO: uncomment and fix
     List<Achievement> achievements = [
-      Achievement(
-          name: "Games Played X5",
-          description: profile.achievements!.gamesPlayedX5! ? "Completed" : "$gamesPlayed/5",
-          unlocked: profile.achievements!.gamesPlayedX5!,
-          progress: calculateAchievementProgress(gamesPlayed, 5)),
-      Achievement(
-          name: "Games Played X10",
-          description: profile.achievements!.gamesPlayedX10! ? "Completed" : "$gamesPlayed/10",
-          unlocked: profile.achievements!.gamesPlayedX10!,
-          progress: calculateAchievementProgress(gamesPlayed, 10)),
-      Achievement(
-          name: "Games Played X20",
-          description: profile.achievements!.gamesPlayedX20! ? "Completed" : "$gamesPlayed/20",
-          unlocked: profile.achievements!.gamesPlayedX20!,
-          progress: calculateAchievementProgress(gamesPlayed, 20)),
-      Achievement(
-          name: "Games In One Day X3",
-          description: profile.achievements!.gamesInOneDayX3! ? "Completed" : "$playedToday/3",
-          unlocked: profile.achievements!.gamesInOneDayX3!,
-          progress: calculateAchievementProgress(playedToday, 3)),
-      Achievement(
-          name: "Winning Streak X5",
-          description: profile.achievements!.winningStreakX5! ? "Completed" : "$winStreak/5",
-          unlocked: profile.achievements!.winningStreakX5!,
-          progress: calculateAchievementProgress(winStreak, 5)),
-      Achievement(
-          name: "Players Found X25",
-          description: profile.achievements!.playersFoundX25! ? "Completed" : "$playersFound/25",
-          unlocked: profile.achievements!.playersFoundX25!,
-          progress: calculateAchievementProgress(playersFound, 25)),
-      Achievement(
-          name: "Players Found X50",
-          description: profile.achievements!.playersFoundX50! ? "Completed" : "$playersFound/50",
-          unlocked: profile.achievements!.playersFoundX50!,
-          progress: calculateAchievementProgress(playersFound, 50)),
-      // correctFirstGuessX10
-      Achievement(
-          name: "Correct First Guess X10",
-          description: profile.achievements!.correctFirstGuessX10! ? "Completed" : "$correctFirstGuesses/10",
-          unlocked: profile.achievements!.correctFirstGuessX10!,
-          progress: calculateAchievementProgress(correctFirstGuesses, 10)),
-      // playAgameInMultiPlayerMode,
-      Achievement(
-          name: "Play A Game In Multiplayer Mode",
-          description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "$multiplayerModePlayed/1",
-          unlocked: profile.achievements!.playAgameInMultiPlayerMode!,
-          progress: calculateAchievementProgress(multiplayerModePlayed, 1)),
-      // winsInMultiplayerModeX5,
-      Achievement(
-          name: "Wins In Multiplayer Mode X5",
-          description: profile.achievements!.winsInMultiplayerModeX5! ? "Completed" : "$winsInMultiplayerMode/5",
-          unlocked: profile.achievements!.winsInMultiplayerModeX5!,
-          progress: calculateAchievementProgress(winsInMultiplayerMode, 5)),
-      // noHintsUsedX5,
-      Achievement(
-          name: "No Hints Used X5",
-          description: profile.achievements!.noHintsUsedX5! ? "Completed" : "$noHintsUsed/5",
-          unlocked: profile.achievements!.noHintsUsedX5!,
-          progress: calculateAchievementProgress(noHintsUsed, 5)),
-      // scoresSharedX3,
-      Achievement(
-          name: "Scores Shared X3",
-          description: profile.achievements!.scoresSharedX3! ? "Completed" : "$scoresShared/3",
-          unlocked: profile.achievements!.scoresSharedX3!,
-          progress: calculateAchievementProgress(scoresShared, 3)),
-      // scoresSharedX10;
-      Achievement(
-          name: "Scores Shared X10",
-          description: profile.achievements!.scoresSharedX10! ? "Completed" : "$scoresShared/10",
-          unlocked: profile.achievements!.scoresSharedX10!,
-          progress: calculateAchievementProgress(scoresShared, 10)),
+      // Achievement(
+      //     name: "Games Played X5",
+      //     description: profile.achievements!.gamesPlayedX5! ? "Completed" : "$gamesPlayed/5",
+      //     unlocked: profile.achievements!.gamesPlayedX5!,
+      //     progress: calculateAchievementProgress(gamesPlayed, 5)),
+      // Achievement(
+      //     name: "Games Played X10",
+      //     description: profile.achievements!.gamesPlayedX10! ? "Completed" : "$gamesPlayed/10",
+      //     unlocked: profile.achievements!.gamesPlayedX10!,
+      //     progress: calculateAchievementProgress(gamesPlayed, 10)),
+      // Achievement(
+      //     name: "Games Played X20",
+      //     description: profile.achievements!.gamesPlayedX20! ? "Completed" : "$gamesPlayed/20",
+      //     unlocked: profile.achievements!.gamesPlayedX20!,
+      //     progress: calculateAchievementProgress(gamesPlayed, 20)),
+      // Achievement(
+      //     name: "Games In One Day X3",
+      //     description: profile.achievements!.gamesInOneDayX3! ? "Completed" : "$playedToday/3",
+      //     unlocked: profile.achievements!.gamesInOneDayX3!,
+      //     progress: calculateAchievementProgress(playedToday, 3)),
+      // Achievement(
+      //     name: "Winning Streak X5",
+      //     description: profile.achievements!.winningStreakX5! ? "Completed" : "$winStreak/5",
+      //     unlocked: profile.achievements!.winningStreakX5!,
+      //     progress: calculateAchievementProgress(winStreak, 5)),
+      // Achievement(
+      //     name: "Players Found X25",
+      //     description: profile.achievements!.playersFoundX25! ? "Completed" : "$playersFound/25",
+      //     unlocked: profile.achievements!.playersFoundX25!,
+      //     progress: calculateAchievementProgress(playersFound, 25)),
+      // Achievement(
+      //     name: "Players Found X50",
+      //     description: profile.achievements!.playersFoundX50! ? "Completed" : "$playersFound/50",
+      //     unlocked: profile.achievements!.playersFoundX50!,
+      //     progress: calculateAchievementProgress(playersFound, 50)),
+      // // correctFirstGuessX10
+      // Achievement(
+      //     name: "Correct First Guess X10",
+      //     description: profile.achievements!.correctFirstGuessX10! ? "Completed" : "$correctFirstGuesses/10",
+      //     unlocked: profile.achievements!.correctFirstGuessX10!,
+      //     progress: calculateAchievementProgress(correctFirstGuesses, 10)),
+      // // playAgameInMultiPlayerMode,
+      // Achievement(
+      //     name: "Play A Game In Multiplayer Mode",
+      //     description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "$multiplayerModePlayed/1",
+      //     unlocked: profile.achievements!.playAgameInMultiPlayerMode!,
+      //     progress: calculateAchievementProgress(multiplayerModePlayed, 1)),
+      // // winsInMultiplayerModeX5,
+      // Achievement(
+      //     name: "Wins In Multiplayer Mode X5",
+      //     description: profile.achievements!.winsInMultiplayerModeX5! ? "Completed" : "$winsInMultiplayerMode/5",
+      //     unlocked: profile.achievements!.winsInMultiplayerModeX5!,
+      //     progress: calculateAchievementProgress(winsInMultiplayerMode, 5)),
+      // // noHintsUsedX5,
+      // Achievement(
+      //     name: "No Hints Used X5",
+      //     description: profile.achievements!.noHintsUsedX5! ? "Completed" : "$noHintsUsed/5",
+      //     unlocked: profile.achievements!.noHintsUsedX5!,
+      //     progress: calculateAchievementProgress(noHintsUsed, 5)),
+      // // scoresSharedX3,
+      // Achievement(
+      //     name: "Scores Shared X3",
+      //     description: profile.achievements!.scoresSharedX3! ? "Completed" : "$scoresShared/3",
+      //     unlocked: profile.achievements!.scoresSharedX3!,
+      //     progress: calculateAchievementProgress(scoresShared, 3)),
+      // // scoresSharedX10;
+      // Achievement(
+      //     name: "Scores Shared X10",
+      //     description: profile.achievements!.scoresSharedX10! ? "Completed" : "$scoresShared/10",
+      //     unlocked: profile.achievements!.scoresSharedX10!,
+      //     progress: calculateAchievementProgress(scoresShared, 10)),
     ];
 
     return Scaffold(
@@ -291,7 +292,10 @@ class ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Center(
                     child: headingText(
-                        text: "Level ${profile.level.toString()}", fontSize: _isDesktop ? 25 : 18, variation: 2),
+                        // TODO:change to level
+                        text: "Level ${profile.xp.toString()}",
+                        fontSize: _isDesktop ? 25 : 18,
+                        variation: 2),
                   ),
                   const SizedBox(width: 10),
                   Container(

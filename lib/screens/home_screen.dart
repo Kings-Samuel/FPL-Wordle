@@ -178,25 +178,8 @@ class HomeScreenState extends State<HomeScreen> {
                             if (mounted) {
                               customDialog(
                                 context: context,
-                                title: "Next game in",
+                                title: "Time until next puzzle",
                                 contentList: [
-                                  // countdown timer
-                                  SlideCountdownSeparated(
-                                    duration: _duration,
-                                    shouldShowDays: (_) => false,
-                                    shouldShowHours: (_) => true,
-                                    shouldShowMinutes: (_) => true,
-                                    shouldShowSeconds: (_) => true,
-                                    showZeroValue: true,
-                                    textDirection: TextDirection.ltr,
-                                    curve: Curves.easeIn,
-                                    onDone: () {
-                                      setState(() async {
-                                        _duration = await _miscProvider.setDurationUntilNextGame();
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 30),
                                   // info text
                                   bodyText(text: "Puzzle resets 5:00PM UTC everyday", fontSize: 16),
                                   const SizedBox(height: 30),

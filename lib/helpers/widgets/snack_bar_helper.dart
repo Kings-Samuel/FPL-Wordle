@@ -6,7 +6,7 @@ snackBarHelper(BuildContext context,
   return AnimatedSnackBar.material(
     message,
     type: type,
-    mobileSnackBarPosition: MobileSnackBarPosition.bottom,
+    mobileSnackBarPosition: MobileSnackBarPosition.top,
     desktopSnackBarPosition: DesktopSnackBarPosition.topCenter,
     duration: const Duration(seconds: 5),
   ).show(context);
