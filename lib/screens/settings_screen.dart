@@ -9,6 +9,7 @@ import 'package:fplwordle/providers/profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../helpers/utils/color_palette.dart';
+import '../helpers/widgets/banner_ad_widget.dart';
 import '../models/profile.dart';
 import '../providers/sound_provider.dart';
 
@@ -28,6 +29,7 @@ class SettingsScreen extends StatelessWidget {
     List<String> difficulties = ['Easy', 'Medium', 'Hard'];
 
     return Scaffold(
+      bottomNavigationBar: bannerAdWidget(profile?.isPremiumMember ?? false),
       appBar: AppBar(
         centerTitle: true,
         leading: leadingButton(context),

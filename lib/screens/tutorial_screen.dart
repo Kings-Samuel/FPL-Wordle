@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:fplwordle/screens/onboarding_screen.dart' show Intro;
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../helpers/widgets/banner_ad_widget.dart';
 import '../helpers/widgets/leading_button.dart';
+import '../models/profile.dart';
+import '../providers/profile_provider.dart';
 
 class TutorialScreen extends StatefulWidget {
   const TutorialScreen({Key? key}) : super(key: key);
@@ -69,6 +73,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
+
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth < 600) {
         return Scaffold(
@@ -169,6 +175,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
                   ),
                   // description
                   bodyText(text: intro.desc, fontSize: 20, textAlign: TextAlign.center),
+                  // banner ads
+                  bannerAdWidget(profile?.isPremiumMember ?? false),
                 ]);
               },
             ));

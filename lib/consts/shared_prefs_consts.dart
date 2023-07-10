@@ -6,4 +6,5 @@ class SharedPrefsConsts {
   static const String notifStatus = 'notifStatus';
   static const String isSoundMuted = 'isSoundMuted';
   static const String isClickMuted = 'isClickMuted';
+  static const String lastRewardedAdsTime = 'lastRewardedAdsTime';
 }

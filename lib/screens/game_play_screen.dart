@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:confetti/confetti.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fplwordle/consts/routes.dart';
@@ -17,11 +22,15 @@ import 'package:fplwordle/models/single_mode_puzzle.dart';
 import 'package:fplwordle/providers/keyboard_provider.dart';
 import 'package:fplwordle/screens/profile_screen.dart';
 import 'package:fplwordle/screens/shop_screen.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:random_avatar/random_avatar.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import '../helpers/utils/init_sec_storage.dart';
+import '../helpers/widgets/banner_ad_widget.dart';
+import '../helpers/widgets/snack_bar_helper.dart';
 import '../models/player.dart';
 import '../models/profile.dart';
 import '../models/user.dart';
@@ -49,8 +58,9 @@ class GamePlayScreenState extends State<GamePlayScreen> {
   SingleModeGameProvider _gameProvider = SingleModeGameProvider();
   User? _user;
   bool _scaleAttrCards = false;
-  final confettiController = ConfettiController(duration: const Duration(seconds: 1));
+  final _confettiController = ConfettiController(duration: const Duration(seconds: 1));
   final FocusNode _kBFocusNode = FocusNode();
+  final GlobalKey _previewContainer = GlobalKey();
 
   @override
   void initState() {
@@ -120,7 +130,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
     }
 
     if (puzzle?.isFinished == true) {
-      confettiController.play();
+      _confettiController.play();
     }
 
     return Stack(
@@ -192,35 +202,43 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                                 ],
                               ),
                             // xp and level
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Center(
-                                  child: headingText(
-                                    // TODO:change to level
-                                      text: "Level ${profile!.xp.toString()}",
-                                      fontSize: isDesktop ? 18 : 16,
-                                      variation: 2),
-                                ),
-                                const SizedBox(width: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
-                                  child: ProgressBar(
-                                      height: 7,
-                                      width: 70.0,
-                                      // TODO:change to level
-                                      value: _calculateProgress(1, profile.xp!),
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [Colors.yellowAccent, Colors.deepOrange],
-                                      )),
-                                ),
-                              ],
-                            ),
+                            Selector<ProfileProvider, Profile?>(
+                              selector: (_, provider) => provider.profile,
+                              builder: (context, profile, child) {
+                                int level = _profileProvider.getLevel();
+                                double levelXP = _profileProvider.getLevelXP();
+
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    // level
+                                    Center(
+                                      child: headingText(
+                                          text: "Level ${level.toString()}",
+                                          fontSize: isDesktop ? 18 : 16,
+                                          variation: 2),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    // xp
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          border: Border.all(color: Palette.primary.withOpacity(0.2), width: 2),
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
+                                      child: ProgressBar(
+                                          height: 7,
+                                          width: 70.0,
+                                          value: levelXP,
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [Colors.yellowAccent, Colors.deepOrange],
+                                          )),
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
                           ],
                         ),
                       ),
@@ -233,10 +251,10 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                         children: [
                           // score (for desktop)
                           if (isDesktop)
-                            Column(
+                            Row(
                               children: [
-                                headingText(text: "SCORE: ${puzzle?.score}"),
-                                SizedBox(width: isDesktop ? 15 : 7),
+                                headingText(text: "SCORE: ${puzzle?.score ?? 0}"),
+                                const SizedBox(width: 15),
                               ],
                             ),
                           // lives
@@ -264,7 +282,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                               children: [
                                 Image.asset("assets/coin.png", height: 20, width: 20),
                                 const SizedBox(width: 2.5),
-                                headingText(text: "100", fontSize: isDesktop ? 18 : 16),
+                                headingText(text: profile?.coins.toString() ?? "0", fontSize: isDesktop ? 18 : 16),
                               ],
                             ),
                           ),
@@ -282,9 +300,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                       alignment: Alignment.center,
                       decoration:
                           const BoxDecoration(border: Border(top: BorderSide(width: 1.5, color: Palette.primary))),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                         // heading
                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           const Icon(Icons.check, color: Colors.green),
@@ -296,7 +312,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                               bold: true),
                         ]),
                         const SizedBox(height: 10),
-                        // share and view achievements btns 
+                        // share and view achievements btns
                         Expanded(
                           child: SizedBox(
                             width: isDesktop ? 500 : double.infinity,
@@ -310,7 +326,53 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                                             context,
                                             icon: Icons.ios_share,
                                             text: "Share Score",
-                                            onTap: () {},
+                                            onTap: () async {
+                                              // declare variable to be shared
+                                              int score = puzzle!.score!;
+                                              int highscore = profile!.highScore!;
+                                              int originalLivesTotal = _gameProvider.getOriginalLives(context);
+                                              int remainingLives = puzzle.lives!;
+                                              int hintsUsed = 3 - puzzle.hints!;
+
+                                              // share text
+                                              String text = """
+Hi. Here is my score in Fantasy Football Guesser. ⚽
+
+Score: $score
+High Score: $highscore
+Remaining Lives: $remainingLives of $originalLivesTotal
+Hints Used: $hintsUsed of 3
+
+Wanna test your EPL knowledge? Play here: https://fantasyfootballguesser.web.app
+                                              """;
+
+                                              if (!kIsWeb) {
+                                                // take screenshot
+                                                RenderRepaintBoundary boundary = _previewContainer.currentContext!
+                                                    .findRenderObject() as RenderRepaintBoundary;
+                                                ui.Image image = await boundary.toImage();
+                                                final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+                                                Uint8List bytes = byteData!.buffer.asUint8List();
+
+                                                // save file and get path
+                                                final directory = await getApplicationDocumentsDirectory();
+                                                String now = DateTime.now().microsecondsSinceEpoch.toString();
+                                                final imagePath = await File('${directory.path}/$now.png').create();
+                                                await imagePath.writeAsBytes(bytes);
+
+                                                // share
+                                                await Share.shareXFiles([XFile(imagePath.path)], text: text);
+                                              } else {
+                                                // copy text to clipboard
+                                                await Clipboard.setData(ClipboardData(text: text));
+                                                if (mounted) {
+                                                  snackBarHelper(context,
+                                                      message: "Copied to clipboard. Share with friends.");
+                                                }
+                                              }
+
+                                              await _profileProvider.increaseScoresSharedCount();
+                                            },
                                           )),
                                     ),
                                     const SizedBox(width: 15),
@@ -322,7 +384,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                                             context,
                                             icon: CommunityMaterialIcons.trophy_award,
                                             text: "View Achievements",
-                                            onTap: () {},
+                                            onTap: () => transitioner(const ProfileScreen(), context, Routes.profile),
                                           )),
                                     ),
                                   ])
@@ -352,13 +414,11 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                         const SizedBox(height: 10),
                         // scores
                         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          _scoreCard("Games Completed", 1),
+                          _scoreCard("Games Completed", profile!.gamesWon!),
                           const SizedBox(width: 5),
-                          _scoreCard("Players Found", 5),
+                          _scoreCard("Players Found", profile.playersFound!),
                           const SizedBox(width: 5),
-                          _scoreCard("Win Streak", 1),
-                          const SizedBox(width: 5),
-                          _scoreCard("Longest Win Streak", 1),
+                          _scoreCard("Longest Win Streak", profile.longestWinStreak!),
                         ]),
                         const SizedBox(height: 10),
                         // play again btn
@@ -371,10 +431,62 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                                 height: 40,
                                 width: 150,
                                 child: customButton(context,
-                                    backgroundColor: Colors.green,
-                                    icon: Icons.replay,
-                                    text: "Play Again",
-                                    onTap: () {})),
+                                    backgroundColor: Colors.green, icon: Icons.replay, text: "Play Again", onTap: () {
+                                  customDialog(context: context, title: "Create a new puzzle", contentList: [
+                                    const SizedBox(height: 10),
+                                    // info text
+                                    Center(
+                                        child: bodyText(
+                                            text:
+                                                "You have played your daily free puzzle. To play again costs 10 coins",
+                                            textAlign: TextAlign.center)),
+                                    const SizedBox(height: 20),
+                                    // play again btn
+                                    Selector<SingleModeGameProvider, bool>(
+                                      selector: (_, provider) => provider.isCreatingExtraPuzzle,
+                                      builder: (context, isCreatingExtraPuzzle, child) {
+                                        return SizedBox(
+                                          height: 40,
+                                          width: 150,
+                                          child: customButton(context,
+                                              backgroundColor: Colors.green,
+                                              icon: Icons.play_arrow,
+                                              text: "Play",
+                                              isLoading: isCreatingExtraPuzzle, onTap: () async {
+                                            if (_user == null) {
+                                              snackBarHelper(context,
+                                                  message: "You need to be signed in to play in Unlimited Mode",
+                                                  type: AnimatedSnackBarType.error);
+                                              popNavigator(context, rootNavigator: true);
+                                            } else {
+                                              final isCreated = await _gameProvider.createExtraPuzzle(context);
+
+                                              if (isCreated && mounted) {
+                                                _confettiController.stop();
+                                                snackBarHelper(context, message: "New puzzle created!");
+                                                popNavigator(context, rootNavigator: true);
+                                              } else {
+                                                snackBarHelper(context,
+                                                    message: _gameProvider.error, type: AnimatedSnackBarType.error);
+                                                popNavigator(context, rootNavigator: true);
+                                              }
+                                            }
+                                          }),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    // cancel btn
+                                    SizedBox(
+                                        height: 40,
+                                        width: 150,
+                                        child: customButton(context,
+                                            backgroundColor: Colors.red,
+                                            icon: Icons.cancel,
+                                            text: "Cancel",
+                                            onTap: () => popNavigator(context, rootNavigator: true)))
+                                  ]);
+                                })),
                           ),
                         ),
                       ]))
@@ -647,7 +759,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                     Center(
                       child: Column(
                         children: [
-                          headingText(text: "SCORE: ${puzzle?.score}"),
+                          headingText(text: "SCORE: ${puzzle?.score ?? 0}"),
                           const SizedBox(height: 15),
                         ],
                       ),
@@ -673,28 +785,33 @@ class GamePlayScreenState extends State<GamePlayScreen> {
                     Selector<SingleModeGameProvider, int>(
                       selector: (_, provider) => provider.lastUpdateTime,
                       builder: (context, lastUpdateTime, child) {
-                        return SizedBox(
-                          width: isDesktop ? 550 : double.infinity,
-                          child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                            Expanded(
-                                child:
-                                    _puzzleCard(player1!, player1unveiled!, puzzle.selectedAttributes!, isDesktop, 1)),
-                            Expanded(
-                                child:
-                                    _puzzleCard(player2!, player2unveiled!, puzzle.selectedAttributes!, isDesktop, 2)),
-                            Expanded(
-                                child:
-                                    _puzzleCard(player3!, player3unveiled!, puzzle.selectedAttributes!, isDesktop, 3)),
-                            Expanded(
-                                child:
-                                    _puzzleCard(player4!, player4unveiled!, puzzle.selectedAttributes!, isDesktop, 4)),
-                            Expanded(
-                                child:
-                                    _puzzleCard(player5!, player5unveiled!, puzzle.selectedAttributes!, isDesktop, 5)),
-                          ]),
+                        return RepaintBoundary(
+                          key: _previewContainer,
+                          child: SizedBox(
+                            width: isDesktop ? 550 : double.infinity,
+                            child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                              Expanded(
+                                  child: _puzzleCard(
+                                      player1!, player1unveiled!, puzzle.selectedAttributes!, isDesktop, 1)),
+                              Expanded(
+                                  child: _puzzleCard(
+                                      player2!, player2unveiled!, puzzle.selectedAttributes!, isDesktop, 2)),
+                              Expanded(
+                                  child: _puzzleCard(
+                                      player3!, player3unveiled!, puzzle.selectedAttributes!, isDesktop, 3)),
+                              Expanded(
+                                  child: _puzzleCard(
+                                      player4!, player4unveiled!, puzzle.selectedAttributes!, isDesktop, 4)),
+                              Expanded(
+                                  child: _puzzleCard(
+                                      player5!, player5unveiled!, puzzle.selectedAttributes!, isDesktop, 5)),
+                            ]),
+                          ),
                         );
                       },
                     ),
+                  // banner ads
+                  bannerAdWidget(profile?.isPremiumMember ?? false),
                   //! for testing purposes only - clear game in session btn
                   if (kDebugMode)
                     Column(
@@ -717,7 +834,7 @@ class GamePlayScreenState extends State<GamePlayScreen> {
         ),
         // confetti
         ConfettiWidget(
-          confettiController: confettiController,
+          confettiController: _confettiController,
           shouldLoop: true,
           blastDirectionality: BlastDirectionality.explosive,
         )
@@ -1174,11 +1291,6 @@ class GamePlayScreenState extends State<GamePlayScreen> {
       default:
         return "";
     }
-  }
-
-  double _calculateProgress(int level, int xp) {
-    int xpNeeded = 10 * level;
-    return xp / xpNeeded;
   }
 
   String _getAttrValue(String attribute, Player playerUnveiled) {

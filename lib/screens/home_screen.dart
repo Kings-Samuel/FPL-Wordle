@@ -1,11 +1,16 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
+import 'package:applovin_max/applovin_max.dart';
 import 'package:awesome_icons/awesome_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fplwordle/consts/ads_consts.dart';
 import 'package:fplwordle/helpers/utils/init_onesignal.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
+import 'package:fplwordle/helpers/widgets/banner_ad_widget.dart';
 import 'package:fplwordle/helpers/widgets/dialog_helper.dart';
+import 'package:fplwordle/helpers/widgets/snack_bar_helper.dart';
 import 'package:fplwordle/models/user.dart';
 import 'package:fplwordle/screens/profile_screen.dart';
 import 'package:fplwordle/screens/settings_screen.dart';
@@ -16,7 +21,9 @@ import 'package:hovering/hovering.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 import '../consts/routes.dart';
+import '../consts/shared_prefs_consts.dart';
 import '../helpers/utils/color_palette.dart';
+import '../helpers/utils/init_sec_storage.dart';
 import '../helpers/widgets/custom_btn.dart';
 import '../helpers/widgets/custom_texts.dart';
 import '../models/profile.dart';
@@ -53,7 +60,7 @@ class HomeScreenState extends State<HomeScreen> {
     _duration = _miscProvider.durationUntilNextGame;
     _profileProvider = context.read<ProfileProvider>();
     if (_user != null) _profileProvider.createOrConfirmProfile(user: _user!);
-    if (!kIsWeb) initOnesignal(context);
+    initOnesignal(context);
     _buttons = [
       // play
       Button(
@@ -62,7 +69,7 @@ class HomeScreenState extends State<HomeScreen> {
         onTap: () => transitioner(const GamePlayScreen(), context, Routes.play),
       ),
       // multi player mode
-      Button(icon: Icons.people, title: "Multiplayer", onTap: () {}),
+      // Button(icon: Icons.people, title: "Multiplayer", onTap: () {}),
       // leader board
       // Button(icon: Icons.leaderboard, title: "Leaderboard", onTap: () {}),
       // shop
@@ -96,7 +103,10 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
+
     return Scaffold(
+        bottomNavigationBar: bannerAdWidget(profile?.isPremiumMember ?? false),
         body: Container(
             width: double.infinity,
             height: double.infinity,
@@ -144,14 +154,37 @@ class HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                bodyText(text: "Get 15 free coins daily"),
+                                bodyText(text: "Get 10 free coins daily"),
                                 const SizedBox(height: 20),
                                 customButton(context,
                                     icon: Icons.video_collection_sharp,
                                     text: "WATCH AN AD",
                                     width: 200,
-                                    backgroundColor: Palette.cardBodyGreeen, onTap: () {
-                                  // TODO: show ad (one daily)
+                                    backgroundColor: Palette.cardBodyGreeen, onTap: () async {
+                                  String today = DateTime.now().toString().split(" ")[0];
+                                  String? lastRewardedAdsTime =
+                                      await secStorage.read(key: SharedPrefsConsts.lastRewardedAdsTime);
+
+                                  if (mounted && lastRewardedAdsTime != today) {
+                                    // show ads
+                                    bool isReady = (await AppLovinMAX.isRewardedAdReady(AdConsts().rewarded))!;
+                                    if (isReady && mounted) {
+                                      AppLovinMAX.showRewardedAd(AdConsts().rewarded);
+                                      await _profileProvider.rewardWithCoins();
+                                    } else {
+                                      snackBarHelper(context,
+                                          message: "No video available. Try again later",
+                                          type: AnimatedSnackBarType.warning);
+                                    }
+                                    // save date to shared prefs
+                                    await secStorage.write(key: SharedPrefsConsts.lastRewardedAdsTime, value: today);
+                                  } else {
+                                    snackBarHelper(context,
+                                        message: "No video available. Try again later",
+                                        type: AnimatedSnackBarType.warning);
+                                  }
+
+                                  if (mounted) popNavigator(context, rootNavigator: true);
                                 }),
                               ]);
                             }

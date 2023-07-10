@@ -83,13 +83,13 @@ class ProfileProvider extends ChangeNotifier {
             longestWinStreak: 0,
             difficulty: 1,
             // level: 1,
-            xp: 0,
+            totalXP: 0,
             highScore: 0,
             // playedToday: 0,
             playersFound: 0,
             correctFirstGuess: 0,
             noHintsUsed: 0,
-            scoresShared: 0,
+            scoresShared: 0, isPremiumMember: false, premiumMembershipExpDate: '',
             // multiplayerModePlayed: 0,
             // winsInMultiplayerMode: 0,
             // achievements: Achievements(
@@ -160,9 +160,9 @@ class ProfileProvider extends ChangeNotifier {
         // multiplayerModePlayed: 0,
         // winsInMultiplayerMode: 0,
         // level: 1,
-        xp: 0,
+        totalXP: 0,
         highScore: 0,
-        difficulty: 1,
+        difficulty: 1, isPremiumMember: false, premiumMembershipExpDate: '',
         // achievements: Achievements(
         //   gamesPlayedX5: false,
         //   gamesPlayedX10: false,
@@ -205,7 +205,7 @@ class ProfileProvider extends ChangeNotifier {
     } else {
       _profile!.difficulty = level;
       await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: {"difficulty": level});
+          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
     }
   }
@@ -243,37 +243,54 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.gamesPlayed! + 1;
+      _profile!.gamesPlayed = _profile!.gamesPlayed! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.gamesPlayed! + 1;
+      _profile!.gamesPlayed = _profile!.gamesPlayed! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
     }
   }
 
-  Future<void> increaseGamesWonCount() async {
+  Future<void> onSetGameComplete(int score, bool isHintUsed) async {
+    // ! increase games won, increase xp,  set highscore and increase no hints used
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.gamesWon! + 1;
+      _profile!.gamesWon = _profile!.gamesWon! + 1;
+      _profile!.totalXP = _profile!.totalXP! + score;
+      if (score > _profile!.highScore!) {
+        _profile!.highScore = score;
+      }
+      if (!isHintUsed) {
+        _profile!.noHintsUsed = _profile!.noHintsUsed! + 1;
+      }
+
       String profileString = jsonEncode(_profile!.toJson());
-
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
-
-      notifyListeners();
     } else {
-      _profile!.gamesWon! + 1;
+      _profile!.gamesWon = _profile!.gamesWon! + 1;
+      _profile!.totalXP = _profile!.totalXP! + score;
+      if (score > _profile!.highScore!) {
+        _profile!.highScore = score;
+      }
+      if (!isHintUsed) {
+        _profile!.noHintsUsed = _profile!.noHintsUsed! + 1;
+      }
+
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
-      notifyListeners();
     }
+    Profile temp = _profile!;
+    _profile = null;
+    _profile = temp;
+    notifyListeners();
   }
 
   Future<void> increaseGamesLostCount() async {
@@ -281,14 +298,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.gamesLost! + 1;
+      _profile!.gamesLost = _profile!.gamesLost! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.gamesLost! + 1;
+      _profile!.gamesLost = _profile!.gamesLost! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
 
@@ -301,14 +318,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.gamesAbandoned! + 1;
+      _profile!.gamesAbandoned = _profile!.gamesAbandoned! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.gamesAbandoned! + 1;
+      _profile!.gamesAbandoned = _profile!.gamesAbandoned! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
 
@@ -382,14 +399,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.playersFound! + 1;
+      _profile!.playersFound = _profile!.playersFound! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.playersFound! + 1;
+      _profile!.playersFound = _profile!.playersFound! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
@@ -401,14 +418,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.correctFirstGuess! + 1;
+      _profile!.correctFirstGuess = _profile!.correctFirstGuess! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.correctFirstGuess! + 1;
+      _profile!.correctFirstGuess = _profile!.correctFirstGuess! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
@@ -420,14 +437,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.noHintsUsed! + 1;
+      _profile!.noHintsUsed = _profile!.noHintsUsed! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.noHintsUsed! + 1;
+      _profile!.noHintsUsed = _profile!.noHintsUsed! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
@@ -439,14 +456,14 @@ class ProfileProvider extends ChangeNotifier {
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
 
     if (profile_ != null) {
-      _profile!.scoresShared! + 1;
+      _profile!.scoresShared = _profile!.scoresShared! + 1;
       String profileString = jsonEncode(_profile!.toJson());
 
       await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
 
       notifyListeners();
     } else {
-      _profile!.scoresShared! + 1;
+      _profile!.scoresShared = _profile!.scoresShared! + 1;
       await database.updateDocument(
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
@@ -474,25 +491,6 @@ class ProfileProvider extends ChangeNotifier {
   //   }
   // }
 
-  Future<void> increaseXP(int newXP) async {
-    // check if there is a profile document for this user on local storage
-    String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
-
-    if (profile_ != null) {
-      _profile!.xp! + newXP;
-      String profileString = jsonEncode(_profile!.toJson());
-
-      await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
-
-      notifyListeners();
-    } else {
-      _profile!.xp! + newXP;
-      await database.updateDocument(
-          databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
-      notifyListeners();
-    }
-  }
-
   Future<void> setHighScore(int highScore) async {
     // check if there is a profile document for this user on local storage
     String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
@@ -510,6 +508,23 @@ class ProfileProvider extends ChangeNotifier {
           databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
       notifyListeners();
     }
+  }
+
+  int getLevel() {
+    int totalXP = _profile!.totalXP!;
+    int level = (totalXP ~/ 500) + 1;
+
+    return level;
+  }
+
+  double getLevelXP() {
+    int totalXP = _profile!.totalXP!;
+    double value = totalXP / 500;
+    int multiple = totalXP ~/ 500;
+
+    double levelXP = value - multiple;
+
+    return levelXP;
   }
 
   // Future<void> increaseWinsInMultiplayerModeCount(int winsInMultiplayerMode) async {
@@ -535,4 +550,64 @@ class ProfileProvider extends ChangeNotifier {
   //     }
   //   }
   // }
+
+  // /////////////////////////////////////////////////
+  Future<bool> deductFromCoins() async {
+    int value = 10;
+    if (_profile!.coins! >= value) {
+      try {
+        // check if there is a profile document for this user on local storage
+        String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+
+        if (profile_ != null) {
+          _profile!.coins = _profile!.coins! - value;
+          String profileString = jsonEncode(_profile!.toJson());
+
+          await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+
+          notifyListeners();
+        } else {
+          _profile!.coins = _profile!.coins! - value;
+          await database.updateDocument(
+              databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+          notifyListeners();
+        }
+
+        return true;
+      } catch (e) {
+        _error = e.toString();
+        return false;
+      }
+    } else {
+      _error = "You dont have up to $value coins left!";
+      return false;
+    }
+  }
+
+  Future<bool> rewardWithCoins() async {
+    int value = 10;
+    try {
+      // check if there is a profile document for this user on local storage
+      String? profile_ = await secStorage.read(key: SharedPrefsConsts.profile);
+
+      if (profile_ != null) {
+        _profile!.coins = _profile!.coins! + value;
+        String profileString = jsonEncode(_profile!.toJson());
+
+        await secStorage.write(key: SharedPrefsConsts.profile, value: profileString);
+
+        notifyListeners();
+      } else {
+        _profile!.coins = _profile!.coins! + value;
+        await database.updateDocument(
+            databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+        notifyListeners();
+      }
+
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    }
+  }
 }

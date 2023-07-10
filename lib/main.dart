@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
+import 'package:fplwordle/helpers/utils/init_applovin_max.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/utils/router.dart';
 import 'package:fplwordle/helpers/widgets/loading_animation.dart';
@@ -34,6 +35,8 @@ Future<void> main() async {
   );
   if (!kIsWeb) Wakelock.enable();
   await initAppwrite();
+  await initApplovinMax();
+  initializeRewardedAds();
   runApp(const MyApp());
 }
 

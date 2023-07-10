@@ -29,6 +29,7 @@ class SingleModeGameProvider extends ChangeNotifier {
   int _puzzleCardToAnimate = 0;
   int _lastUpdateTime = 0;
   List<Player> _players = []; // all players
+  bool _isCreatingExtraPuzzle = false;
 
   Duration get durationUntilNextGame => _durationUntilNextGame;
   SingleModePuzzle? get puzzle => _puzzle;
@@ -37,6 +38,7 @@ class SingleModeGameProvider extends ChangeNotifier {
   int get puzzleCardToAnimate => _puzzleCardToAnimate;
   int get lastUpdateTime => _lastUpdateTime;
   List<Player> get players => _players;
+  bool get isCreatingExtraPuzzle => _isCreatingExtraPuzzle;
 
   SingleModeGameProvider() {
     setDurationUntilNextGame();
@@ -280,24 +282,17 @@ class SingleModeGameProvider extends ChangeNotifier {
     if (context.mounted) animateUnveiledPuzzleCard(context, puzzlePosition);
   }
 
-  void setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) {
+  Future<void> setGameComplete(BuildContext context, {bool? shouldNotifyListeners}) async {
     context.read<SoundsProvider>().playCheer();
     if (_puzzle!.isFinished != true) {
       // add bonus scores
       _puzzle!.score = _puzzle!.score! + getHintBonus() + getLifeBonus(context);
-      // increment games won count
-      context.read<ProfileProvider>().increaseGamesWonCount();
-      // increase xp
-      context.read<ProfileProvider>().increaseXP(_puzzle!.score!);
-      // set highscore
-      if (_puzzle!.score! > context.read<ProfileProvider>().profile!.highScore!) {
-        context.read<ProfileProvider>().setHighScore(_puzzle!.score!);
-      }
-      // update no hints used
+      // update necessary profile properties
+      await context.read<ProfileProvider>().onSetGameComplete(_puzzle!.score!, _puzzle!.hints! != 3);
     }
     _puzzle!.isFinished = true;
     secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
-    if (shouldNotifyListeners == true) notifyListeners();
+    notifyListeners();
   }
 
   void setGameOver(BuildContext context) {
@@ -3096,5 +3091,120 @@ class SingleModeGameProvider extends ChangeNotifier {
     }
 
     return _puzzle!.lives! * multiplier;
+  }
+
+  int getOriginalLives(BuildContext context) {
+    // check difficulty
+    Profile profile = Profile();
+    if (context.mounted) profile = context.read<ProfileProvider>().profile!;
+    int difficulty = profile.difficulty!;
+    int lives = 0;
+
+    switch (difficulty) {
+      case 1:
+        lives = 20;
+        break;
+      case 2:
+        lives = 15;
+        break;
+      case 3:
+        lives = 10;
+        break;
+      default:
+    }
+
+    return lives;
+  }
+
+  Future<bool> createExtraPuzzle(BuildContext context) async {
+    try {
+      _isCreatingExtraPuzzle = true;
+      notifyListeners();
+
+      // deduct coins
+      final profileProvider = context.read<ProfileProvider>();
+      bool success = await profileProvider.deductFromCoins();
+
+      if (success) {
+        // execute unlimited mode function
+        final res = await functions.createExecution(functionId: AppwriteConsts.extraPuzzleCreator);
+        String data = res.response;
+        _puzzle = SingleModePuzzle.fromJson(jsonDecode(data));
+
+        DateTime dateTime = DateTime.now().toUtc();
+        String id = dateTime.toString().split(" ")[0]; // today date
+        final lastGameId = "$id 17:00:00";
+        await secStorage.write(key: SharedPrefsConsts.lastGameId, value: lastGameId);
+
+        // check difficulty
+        Profile profile = Profile();
+        if (context.mounted) profile = context.read<ProfileProvider>().profile!;
+        int difficulty = profile.difficulty!;
+
+        // lives (based on difficulty level)
+        _puzzle!.lives = difficulty == 1
+            ? 20
+            : difficulty == 2
+                ? 15
+                : 10;
+        // hints
+        _puzzle!.hints = 3;
+
+        // create playersUnveiled
+        Player playerUnveiled = Player(
+            firstName: "",
+            secondName: "",
+            webName: "",
+            elementType: null,
+            team: null,
+            nowCost: null,
+            totalPoints: null,
+            bonus: null,
+            goalsScored: null,
+            assists: null,
+            cleanSheets: null,
+            goalsConceded: null,
+            ownGoals: null,
+            penaltiesMissed: null,
+            yellowCards: null,
+            redCards: null,
+            starts: null,
+            selectedByPercent: null,
+            pointsPerGame: null,
+            isUnveiled: false);
+        String playerUnveiledEncoded = jsonEncode(playerUnveiled.toJson());
+        _puzzle!.player1unveiled = _puzzle!.player2unveiled =
+            _puzzle!.player3unveiled = _puzzle!.player4unveiled = _puzzle!.player5unveiled = playerUnveiledEncoded;
+
+        // set score
+        _puzzle!.score = 0;
+
+        // first guess
+        _puzzle!.isFirstGuessMade = false;
+
+        // streak
+        _puzzle!.streak = 0;
+
+        //  save game in session
+        await secStorage.write(key: SharedPrefsConsts.gameInSession, value: jsonEncode(_puzzle!.toJson()));
+
+        // increaseGamesPlayedCount
+        if (context.mounted) context.read<ProfileProvider>().increaseGamesPlayedCount();
+
+        _isCreatingExtraPuzzle = true;
+        notifyListeners();
+        return true;
+      } else {
+        _error = profileProvider.error;
+        _isCreatingExtraPuzzle = true;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _error = e.toString();
+      _isCreatingExtraPuzzle = true;
+      notifyListeners();
+      return false;
+    }
   }
 }

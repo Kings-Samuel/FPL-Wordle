@@ -12,4 +12,5 @@ class AppwriteConsts {
   // functions
   static const String otpSender = '643d33e8197328674e40';
   static const String emailVerifier = '643d781297c1ccf8b0a1';
+  static const String extraPuzzleCreator = '64ab4b9861457efb0dbe';
 }

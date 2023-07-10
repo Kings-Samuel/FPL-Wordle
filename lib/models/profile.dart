@@ -1,15 +1,13 @@
 class Profile {
-  String? id;
+  String? id, premiumMembershipExpDate;
   int? coins,
       gamesPlayed,
       gamesWon,
       gamesLost,
       gamesAbandoned,
-      // winStreak,
       longestWinStreak,
       difficulty,
-      // level,
-      xp,
+      totalXP,
       highScore,
       // playedToday,
       playersFound,
@@ -19,6 +17,7 @@ class Profile {
   // multiplayerModePlayed,
   // winsInMultiplayerMode;
   // Achievements? achievements;
+  bool? isPremiumMember;
 
   Profile({
     this.id,
@@ -27,11 +26,11 @@ class Profile {
     this.gamesWon,
     this.gamesLost,
     this.gamesAbandoned,
-    // this.winStreak,
+    this.premiumMembershipExpDate,
     this.longestWinStreak,
     this.difficulty,
-    // this.level,
-    this.xp,
+    this.isPremiumMember,
+    this.totalXP,
     this.highScore,
     // this.playedToday, // ! this doesn't need to be updated once the value equals 3
     this.playersFound,
@@ -50,11 +49,11 @@ class Profile {
     gamesWon = json['gamesWon'];
     gamesLost = json['gamesLost'];
     gamesAbandoned = json['gamesAbandoned'];
-    // winStreak = json['winStreak'];
+    premiumMembershipExpDate = json['premiumMembershipExpDate'];
     longestWinStreak = json['longestWinStreak'];
     difficulty = json['difficulty'];
-    // level = json['level'];
-    xp = json['xp'];
+    isPremiumMember = json['isPremiumMember'];
+    totalXP = json['totalXP'];
     highScore = json['highScore'];
     // playedToday = json['playedToday'];
     playersFound = json['playersFound'];
@@ -73,11 +72,11 @@ class Profile {
     data['gamesWon'] = gamesWon;
     data['gamesLost'] = gamesLost;
     data['gamesAbandoned'] = gamesAbandoned;
-    // data['winStreak'] = winStreak;
+    data['premiumMembershipExpDate'] = premiumMembershipExpDate;
     data['longestWinStreak'] = longestWinStreak;
     data['difficulty'] = difficulty;
-    // data['level'] = level;
-    data['xp'] = xp;
+    data['isPremiumMember'] = isPremiumMember;
+    data['totalXP'] = totalXP;
     data['highScore'] = highScore;
     // data['playedToday'] = playedToday;
     data['playersFound'] = playersFound;

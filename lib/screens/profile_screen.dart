@@ -1,8 +1,9 @@
 import 'package:animated_neumorphic/animated_neumorphic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/widgets/leading_button.dart';
-import 'package:fplwordle/screens/settings_screen.dart';
+import 'package:fplwordle/screens/home_screen.dart';
 import 'package:fplwordle/screens/shop_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,6 @@ import 'package:random_avatar/random_avatar.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
-import 'package:fplwordle/helpers/widgets/custom_btn.dart';
 import 'package:fplwordle/helpers/widgets/custom_texts.dart';
 import 'package:fplwordle/main.dart';
 import 'package:fplwordle/models/profile.dart';
@@ -19,6 +19,7 @@ import 'package:fplwordle/providers/auth_provider.dart';
 import 'package:fplwordle/providers/profile_provider.dart';
 import 'package:fplwordle/screens/signin_screen.dart';
 
+import '../helpers/widgets/banner_ad_widget.dart';
 import '../providers/sound_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -33,7 +34,6 @@ class ProfileScreenState extends State<ProfileScreen> {
   SoundsProvider _soundsProvider = SoundsProvider();
   ProfileProvider _profileProvider = ProfileProvider();
   User? _user;
-  bool _isLoggingOut = false;
   bool _isDesktop = false;
 
   @override
@@ -50,98 +50,81 @@ class ProfileScreenState extends State<ProfileScreen> {
     _isDesktop = MediaQuery.of(context).size.width > 600;
     Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
     if (profile == null) _profileProvider.createLocalProfile();
-    int gamesPlayed = profile!.gamesPlayed!;
-    // int playedToday = profile.playedToday!;
-    int winStreak = profile.longestWinStreak!;
-    int playersFound = profile.playersFound!;
-    int correctFirstGuesses = profile.correctFirstGuess!;
-    int noHintsUsed = profile.noHintsUsed!;
-    int scoresShared = profile.scoresShared!;
-    // int multiplayerModePlayed = profile.multiplayerModePlayed!;
-    // int winsInMultiplayerMode = profile.winsInMultiplayerMode!;
 
     List<Stat> stats = [
-      Stat(name: "Played", value: profile.gamesPlayed!),
-      Stat(name: "Won", value: profile.gamesWon!),
-      Stat(name: "Lost", value: profile.gamesLost!),
-      Stat(name: "Abandoned", value: profile.gamesAbandoned!),
+      Stat(name: "Played", value: profile?.gamesPlayed ?? 0),
+      Stat(name: "Won", value: profile?.gamesWon ?? 0),
+      Stat(name: "Lost", value: profile?.gamesLost ?? 0),
+      Stat(name: "Abandoned", value: profile?.gamesAbandoned ?? 0),
       // Stat(name: "Win Streak", value: profile.winStreak!),
-      Stat(name: "Longest Win Streak", value: profile.longestWinStreak!),
+      Stat(name: "Longest Win Streak", value: profile?.longestWinStreak ?? 0),
     ];
 
-    // TODO: uncomment and fix
     List<Achievement> achievements = [
-      // Achievement(
-      //     name: "Games Played X5",
-      //     description: profile.achievements!.gamesPlayedX5! ? "Completed" : "$gamesPlayed/5",
-      //     unlocked: profile.achievements!.gamesPlayedX5!,
-      //     progress: calculateAchievementProgress(gamesPlayed, 5)),
-      // Achievement(
-      //     name: "Games Played X10",
-      //     description: profile.achievements!.gamesPlayedX10! ? "Completed" : "$gamesPlayed/10",
-      //     unlocked: profile.achievements!.gamesPlayedX10!,
-      //     progress: calculateAchievementProgress(gamesPlayed, 10)),
-      // Achievement(
-      //     name: "Games Played X20",
-      //     description: profile.achievements!.gamesPlayedX20! ? "Completed" : "$gamesPlayed/20",
-      //     unlocked: profile.achievements!.gamesPlayedX20!,
-      //     progress: calculateAchievementProgress(gamesPlayed, 20)),
+      Achievement(
+          name: "Games Played X5",
+          description: profile!.gamesPlayed! >= 5 ? "Completed" : "${profile.gamesPlayed}/5",
+          unlocked: profile.gamesPlayed! >= 5,
+          progress: profile.gamesPlayed! / 5),
+      Achievement(
+          name: "Games Played X10",
+          description: profile.gamesPlayed! >= 10 ? "Completed" : "${profile.gamesPlayed}/10",
+          unlocked: profile.gamesPlayed! >= 10,
+          progress: profile.gamesPlayed! / 10),
+      Achievement(
+          name: "Games Played X20",
+          description: profile.gamesPlayed! >= 20 ? "Completed" : "${profile.gamesPlayed}/20",
+          unlocked: profile.gamesPlayed! >= 20,
+          progress: profile.gamesPlayed! / 20),
       // Achievement(
       //     name: "Games In One Day X3",
       //     description: profile.achievements!.gamesInOneDayX3! ? "Completed" : "$playedToday/3",
-      //     unlocked: profile.achievements!.gamesInOneDayX3!,
-      //     progress: calculateAchievementProgress(playedToday, 3)),
-      // Achievement(
-      //     name: "Winning Streak X5",
-      //     description: profile.achievements!.winningStreakX5! ? "Completed" : "$winStreak/5",
-      //     unlocked: profile.achievements!.winningStreakX5!,
-      //     progress: calculateAchievementProgress(winStreak, 5)),
-      // Achievement(
-      //     name: "Players Found X25",
-      //     description: profile.achievements!.playersFoundX25! ? "Completed" : "$playersFound/25",
-      //     unlocked: profile.achievements!.playersFoundX25!,
-      //     progress: calculateAchievementProgress(playersFound, 25)),
-      // Achievement(
-      //     name: "Players Found X50",
-      //     description: profile.achievements!.playersFoundX50! ? "Completed" : "$playersFound/50",
-      //     unlocked: profile.achievements!.playersFoundX50!,
-      //     progress: calculateAchievementProgress(playersFound, 50)),
-      // // correctFirstGuessX10
-      // Achievement(
-      //     name: "Correct First Guess X10",
-      //     description: profile.achievements!.correctFirstGuessX10! ? "Completed" : "$correctFirstGuesses/10",
-      //     unlocked: profile.achievements!.correctFirstGuessX10!,
-      //     progress: calculateAchievementProgress(correctFirstGuesses, 10)),
-      // // playAgameInMultiPlayerMode,
+      //     unlocked: profile.achievements!.gamesInOneDayX3!),
+      Achievement(
+          name: "Winnign Streak X5",
+          description: profile.longestWinStreak! >= 5 ? "Completed" : "${profile.longestWinStreak}/5",
+          unlocked: profile.longestWinStreak! >= 5,
+          progress: profile.longestWinStreak! / 5),
+      Achievement(
+          name: "Players Found X25",
+          description: profile.playersFound! >= 25 ? "Completed" : "${profile.playersFound}/25",
+          unlocked: profile.playersFound! >= 25,
+          progress: profile.playersFound! / 25),
+      Achievement(
+          name: "Players Found X50",
+          description: profile.playersFound! >= 50 ? "Completed" : "${profile.playersFound}/50",
+          unlocked: profile.playersFound! >= 50,
+          progress: profile.playersFound! / 50),
+      Achievement(
+          name: "Correct First Guess X10",
+          description: profile.correctFirstGuess! >= 10 ? "Completed" : "${profile.correctFirstGuess}/10",
+          unlocked: profile.correctFirstGuess! >= 10,
+          progress: profile.correctFirstGuess! / 10),
       // Achievement(
       //     name: "Play A Game In Multiplayer Mode",
       //     description: profile.achievements!.playAgameInMultiPlayerMode! ? "Completed" : "$multiplayerModePlayed/1",
       //     unlocked: profile.achievements!.playAgameInMultiPlayerMode!,
       //     progress: calculateAchievementProgress(multiplayerModePlayed, 1)),
-      // // winsInMultiplayerModeX5,
       // Achievement(
       //     name: "Wins In Multiplayer Mode X5",
       //     description: profile.achievements!.winsInMultiplayerModeX5! ? "Completed" : "$winsInMultiplayerMode/5",
       //     unlocked: profile.achievements!.winsInMultiplayerModeX5!,
       //     progress: calculateAchievementProgress(winsInMultiplayerMode, 5)),
-      // // noHintsUsedX5,
-      // Achievement(
-      //     name: "No Hints Used X5",
-      //     description: profile.achievements!.noHintsUsedX5! ? "Completed" : "$noHintsUsed/5",
-      //     unlocked: profile.achievements!.noHintsUsedX5!,
-      //     progress: calculateAchievementProgress(noHintsUsed, 5)),
-      // // scoresSharedX3,
-      // Achievement(
-      //     name: "Scores Shared X3",
-      //     description: profile.achievements!.scoresSharedX3! ? "Completed" : "$scoresShared/3",
-      //     unlocked: profile.achievements!.scoresSharedX3!,
-      //     progress: calculateAchievementProgress(scoresShared, 3)),
-      // // scoresSharedX10;
-      // Achievement(
-      //     name: "Scores Shared X10",
-      //     description: profile.achievements!.scoresSharedX10! ? "Completed" : "$scoresShared/10",
-      //     unlocked: profile.achievements!.scoresSharedX10!,
-      //     progress: calculateAchievementProgress(scoresShared, 10)),
+      Achievement(
+          name: "No Hints Used X5",
+          description: profile.noHintsUsed! >= 5 ? "Completed" : "${profile.noHintsUsed}/5",
+          unlocked: profile.noHintsUsed! >= 5,
+          progress: profile.noHintsUsed! / 5),
+      Achievement(
+          name: "Scores Shared X3",
+          description: profile.scoresShared! >= 3 ? "Completed" : "${profile.scoresShared}/3",
+          unlocked: profile.scoresShared! >= 3,
+          progress: profile.scoresShared! / 3),
+      Achievement(
+          name: "Scores Shared X10",
+          description: profile.scoresShared! >= 10 ? "Completed" : "${profile.scoresShared}/10",
+          unlocked: profile.scoresShared! >= 10,
+          progress: profile.scoresShared! / 10),
     ];
 
     return Scaffold(
@@ -186,70 +169,23 @@ class ProfileScreenState extends State<ProfileScreen> {
             ),
           const SizedBox(width: 10),
           // logout/sign in
-          if (_isDesktop)
-            Container(
-              margin: const EdgeInsets.all(8),
-              width: 150,
-              child: customButton(context,
-                  icon: Icons.logout,
-                  text: _user == null ? 'Sign in' : 'Logout',
-                  isLoading: _isLoggingOut, onTap: () async {
+          InkWell(
+              child: const Icon(Icons.logout),
+              onTap: () async {
                 if (_user == null) {
                   transitioner(const SignInScreen(), context, Routes.signin);
                 } else {
-                  setState(() => _isLoggingOut = true);
                   await _authProvider.signOut();
-                  setState(() => _isLoggingOut = false);
-                  if (context.mounted) pushAndRemoveNavigator(const MyApp(), context);
+                  if (context.mounted && !kIsWeb) {
+                    pushAndRemoveNavigator(const MyApp(), context);
+                  } else {
+                    transitioner(const HomeScreen(), context, Routes.home);
+                  }
                 }
-              }),
-            )
+              })
         ],
       ),
-      bottomNavigationBar: _isDesktop
-          ? null
-          : Container(
-              height: 70,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              color: Colors.transparent,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // settings
-                  InkWell(
-                    onTap: () async {
-                      await _soundsProvider.playClick();
-                      if (mounted) transitioner(const SettingsScreen(), context, Routes.settings);
-                    },
-                    child: const AnimatedNeumorphicContainer(
-                        depth: 0,
-                        color: Palette.primary,
-                        width: 50,
-                        height: 50,
-                        radius: 25.0,
-                        child: Icon(Icons.settings, color: Colors.white, size: 35)),
-                  ),
-                  // logout/sign in
-                  SizedBox(
-                    width: 150,
-                    child: customButton(context,
-                        icon: Icons.logout,
-                        text: _user == null ? 'Sign in' : 'Logout',
-                        isLoading: _isLoggingOut, onTap: () async {
-                      if (_user == null) {
-                        transitioner(const SignInScreen(), context, Routes.signin);
-                      } else {
-                        setState(() => _isLoggingOut = true);
-                        await _authProvider.signOut();
-                        setState(() => _isLoggingOut = false);
-                        if (context.mounted) pushAndRemoveNavigator(const MyApp(), context);
-                      }
-                    }),
-                  )
-                ],
-              ),
-            ),
+      bottomNavigationBar: bannerAdWidget(profile.isPremiumMember ?? false),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -286,16 +222,13 @@ class ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               const SizedBox(height: 10),
-              // level and xp progress bar
+              // level and totalXP progress bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Center(
                     child: headingText(
-                        // TODO:change to level
-                        text: "Level ${profile.xp.toString()}",
-                        fontSize: _isDesktop ? 25 : 18,
-                        variation: 2),
+                        text: "Level ${_profileProvider.getLevel()}", fontSize: _isDesktop ? 25 : 18, variation: 2),
                   ),
                   const SizedBox(width: 10),
                   Container(
@@ -305,7 +238,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
                     child: ProgressBar(
                         height: _isDesktop ? 15.0 : 10.0,
-                        value: profile.xp! / 100,
+                        value: _profileProvider.getLevelXP(),
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -319,8 +252,8 @@ class ProfileScreenState extends State<ProfileScreen> {
               AnimatedNeumorphicContainer(
                 depth: 0,
                 color: Palette.scaffold,
-                width: _isDesktop ? 200 : 150,
-                height: _isDesktop ? 200 : 150,
+                width: _isDesktop ? 150 : 100,
+                height: _isDesktop ? 150 : 100,
                 radius: 20.0,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +265,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               // stats grid view
               if (_isDesktop)
                 Row(
@@ -372,7 +305,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                     // left column
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: achievements.sublist(0, 7).map((e) {
+                      children: achievements.sublist(0, 6).map((e) {
                         return achievementTile(e);
                       }).toList(),
                     ),
@@ -380,7 +313,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                     // right column
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: achievements.sublist(7, 13).map((e) {
+                      children: achievements.sublist(6, 10).map((e) {
                         return achievementTile(e);
                       }).toList(),
                     ),
@@ -440,7 +373,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10)]),
                 child: ProgressBar(
                     height: 10.0,
-                    value: achievement.progress,
+                    value: achievement.unlocked ? 1 : achievement.progress,
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
