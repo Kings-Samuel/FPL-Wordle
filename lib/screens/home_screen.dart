@@ -52,7 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    AppLovinMAX.loadRewardedAd(AdConsts().rewarded);
+    if (!kIsWeb) AppLovinMAX.loadRewardedAd(AdConsts().rewarded);
     _authProvider = context.read<AuthProvider>();
     _miscProvider = context.read<SingleModeGameProvider>();
     _soundsProvider = context.read<SoundsProvider>();
@@ -178,7 +178,7 @@ class HomeScreenState extends State<HomeScreen> {
                                       await secStorage.write(key: SharedPrefsConsts.lastRewardedAdsTime, value: today);
                                     } else {
                                       snackBarHelper(context,
-                                          message: "No video available. Try again later",
+                                          message: "You have received your daily coins. Come back tomorrow",
                                           type: AnimatedSnackBarType.warning);
                                     }
                                   } else {
