@@ -38,6 +38,7 @@ dependencies:
   path_provider: ^2.0.15
   pin_code_fields: ^7.4.0
   provider: ^6.0.5
+  purchases_flutter: ^5.2.3
   random_avatar: ^0.0.8
   recase: ^4.1.0
   share_plus: ^4.0.10
