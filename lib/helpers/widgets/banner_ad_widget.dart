@@ -6,6 +6,7 @@ import 'package:fplwordle/consts/ads_consts.dart';
 Widget bannerAdWidget(bool isPremiumMember) {
   if (Platform.isAndroid || Platform.isIOS && !isPremiumMember) {
     return Container(
+      height: 60,
       alignment: Alignment.center,
       child: MaxAdView(
           adUnitId: AdConsts().banner,

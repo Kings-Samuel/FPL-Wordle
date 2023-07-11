@@ -52,6 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    AppLovinMAX.loadRewardedAd(AdConsts().rewarded);
     _authProvider = context.read<AuthProvider>();
     _miscProvider = context.read<SingleModeGameProvider>();
     _soundsProvider = context.read<SoundsProvider>();
@@ -165,23 +166,27 @@ class HomeScreenState extends State<HomeScreen> {
                                   String? lastRewardedAdsTime =
                                       await secStorage.read(key: SharedPrefsConsts.lastRewardedAdsTime);
 
+                                  AppLovinMAX.loadRewardedAd(AdConsts().rewarded);
+
                                   if (mounted && lastRewardedAdsTime != today) {
                                     // show ads
                                     bool isReady = (await AppLovinMAX.isRewardedAdReady(AdConsts().rewarded))!;
                                     if (isReady && mounted) {
                                       AppLovinMAX.showRewardedAd(AdConsts().rewarded);
                                       await _profileProvider.rewardWithCoins();
+                                      // save date to shared prefs
+                                      await secStorage.write(key: SharedPrefsConsts.lastRewardedAdsTime, value: today);
                                     } else {
                                       snackBarHelper(context,
                                           message: "No video available. Try again later",
                                           type: AnimatedSnackBarType.warning);
                                     }
-                                    // save date to shared prefs
-                                    await secStorage.write(key: SharedPrefsConsts.lastRewardedAdsTime, value: today);
                                   } else {
                                     snackBarHelper(context,
                                         message: "No video available. Try again later",
                                         type: AnimatedSnackBarType.warning);
+                                    //! for testing purposes only
+                                    if (kDebugMode) await secStorage.delete(key: SharedPrefsConsts.lastRewardedAdsTime);
                                   }
 
                                   if (mounted) popNavigator(context, rootNavigator: true);
@@ -325,21 +330,21 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget appbarTitle() {
-    Profile? profile = context.select<ProfileProvider, Profile?>((provider) => provider.profile);
+    Profile? profile = context.watch<ProfileProvider>().profile;
     if (_user != null) {
       String firstName = _user!.name!.split(" ")[0];
       return Row(
         children: [
           // user name
-          Center(child: bodyText(text: "Hi, $firstName", color: Colors.white, fontSize: 20, bold: true)),
-          const SizedBox(width: 8),
+          Expanded(
+              child: Center(child: bodyText(text: "Hi, $firstName", color: Colors.white, fontSize: 20, bold: true))),
+          const SizedBox(width: 5),
           // coins
-          Center(child: Image.asset('assets/coin.png', height: 25, width: 25)),
-          const SizedBox(width: 8),
+          Center(child: Image.asset('assets/coin.png', height: 20, width: 20)),
+          const SizedBox(width: 5),
           Center(
-            child: bodyText(
-                text: profile == null ? "0" : profile.coins.toString(), color: Colors.white, fontSize: 20, bold: true),
-          ),
+            child: bodyText(text: profile?.coins.toString() ?? "0", color: Colors.white, fontSize: 20, bold: true),
+          )
         ],
       );
     } else {

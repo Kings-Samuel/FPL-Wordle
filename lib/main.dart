@@ -1,3 +1,4 @@
+import 'package:applovin_max/applovin_max.dart';
 import 'package:connection_notifier/connection_notifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:fplwordle/consts/routes.dart';
 import 'package:fplwordle/helpers/utils/color_palette.dart';
-import 'package:fplwordle/helpers/utils/init_applovin_max.dart';
 import 'package:fplwordle/helpers/utils/navigator.dart';
 import 'package:fplwordle/helpers/utils/router.dart';
 import 'package:fplwordle/helpers/widgets/loading_animation.dart';
@@ -21,6 +21,7 @@ import 'package:ms_material_color/ms_material_color.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:wakelock/wakelock.dart';
+import 'consts/ads_consts.dart';
 import 'helpers/utils/init_appwrite.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
@@ -35,8 +36,10 @@ Future<void> main() async {
   );
   if (!kIsWeb) Wakelock.enable();
   await initAppwrite();
-  await initApplovinMax();
-  initializeRewardedAds();
+  if (!kIsWeb) {
+    await AppLovinMAX.initialize(AdConsts.sdkKey);
+    AppLovinMAX.setHasUserConsent(true);
+  }
   runApp(const MyApp());
 }
 

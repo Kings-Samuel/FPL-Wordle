@@ -601,6 +601,9 @@ class ProfileProvider extends ChangeNotifier {
         _profile!.coins = _profile!.coins! + value;
         await database.updateDocument(
             databaseId: _db, collectionId: _collection, documentId: _profile!.id!, data: _profile!.toJson());
+        final temp = _profile;
+        _profile = null;
+        _profile = temp;
         notifyListeners();
       }
 
